@@ -7,39 +7,36 @@ from typing import List, Dict, Optional, Tuple
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 
 # --------------------------
 # Kernels (build K NxN from Y NxD)
 # --------------------------
-def rbf_kernel_matrix(Y: torch.Tensor, t: float) -> torch.Tensor:
-    # Gaussian Kernel
+def gaussian_kernel_matrix(X: torch.Tensor, t: float) -> torch.Tensor:
+    # Gaussian Kernel. Should handle multi-dimensional data. 
     # K_ij(x_i, x_j) = exp( -(x_i*x_j)^T(x_i*x_i) / 2t^2 )
-
-    # OBS OBS IKKJE FULLFØRT!!!
-
-    Y2 = (Y * Y).sum(dim=1, keepdim=True)
-    dist2 = Y2 + Y2.T - 2.0 * (Y @ Y.T)
-    return torch.exp(-torch.clamp(dist2, min=0.0) / (2*t**2)) 
+    
+    pairwise_dists = torch.cdist(X, X, p=2) ** 2  # [N,N] squared Euclidean distances
+    K = torch.exp(-pairwise_dists / (2 * t ** 2))
+    return K
 
 
-def poly_kernel_matrix(Y: torch.Tensor, a = 0, b = 2) -> torch.Tensor:
+def poly_kernel_matrix(X: torch.Tensor, a = 0, b = 2) -> torch.Tensor:
     # Polynomial Kernel
     # K_ij(x_i, x_j) = (a + x_i^T*x_j)^b
 
-    return (a + Y @ Y.T) ** b
+    return (a + X @ X.T) ** b
 
 
 def build_kernel_matrix(Y: torch.Tensor, spec: Dict) -> torch.Tensor:
     kind = spec["kind"]
     if kind == "rbf":
-        return rbf_kernel_matrix(Y, gamma=float(spec.get("t", 1.0)))
+        return gaussian_kernel_matrix(Y, t=float(spec.get("t", 1.0)))
     if kind == "poly":
         return poly_kernel_matrix(
             Y,
             a=int(spec.get("a", 0)),
-            b=float(spec.get("b", 2)),
+            b=int(spec.get("b", 2)),
         )
     raise ValueError(f"Unknown kernel kind: {kind}")
 
@@ -53,7 +50,6 @@ def compute_Z_ic(K: torch.Tensor, u: torch.Tensor, m_fuzz: float, eps: float = 1
       Z_{i,c} = K_ii - 2 ubar_c^T K_{:,i} + ubar_c^T K ubar_c
     K: [N,N], u: [N,C] -> Z: [N,C]
     """
-    N, C = u.shape
     um = torch.clamp(u, min=eps) ** m_fuzz                 # [N,C]
     denom = um.sum(dim=0, keepdim=True)                    # [1,C]
     ubar = um / torch.clamp(denom, min=eps)                # [N,C]
@@ -158,7 +154,7 @@ def algorithm2_mkfc(
         omega = omega / omega.sum()
 
     # Precompute kernel matrices K^{(s,r)} for current Y_layers
-    K = [[None for _ in range(h)] for __ in range(mid)]
+    K: List[List[torch.Tensor]] = [[None for _ in range(h)] for _ in range(mid)]  # type: ignore
     for s in range(mid):
         for r in range(h):
             K[s][r] = build_kernel_matrix(Y_layers[s], kernel_specs[r])  # [N,N]
@@ -167,7 +163,7 @@ def algorithm2_mkfc(
         u_prev = u
 
         # Eq (18): Z_list[s][r] is [N,C]
-        Z_list = [[None for _ in range(h)] for __ in range(mid)]
+        Z_list: List[List[torch.Tensor]] = [[None for _ in range(h)] for _ in range(mid)]  # type: ignore
         for s in range(mid):
             for r in range(h):
                 Z_list[s][r] = compute_Z_ic(K[s][r], u, m_fuzz=m_fuzz)
@@ -226,14 +222,13 @@ class AEWithTaps(nn.Module):
             y = layer(y)
             if isinstance(layer, nn.Linear):
                 Ys.append(y)
-        y_mid = y
 
-        z = y_mid
+        z = y  # y here is y_mid
         for layer in self.dec:
             z = layer(z)
         x_hat = z
 
-        return Ys, y_mid, x_hat
+        return Ys, y, x_hat
 
 
 # --------------------------
