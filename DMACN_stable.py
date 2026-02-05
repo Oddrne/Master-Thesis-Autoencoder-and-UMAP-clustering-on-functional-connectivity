@@ -45,10 +45,10 @@ def build_kernel_matrix(Y: torch.Tensor, spec: Dict) -> torch.Tensor:
 # Algorithm 2 (MKFC): Eq. (17)(18)(19)(23)
 # MKFC: Multi-Kernel Fuzzy Clustering. Iteratively update u, omega, D until convergence.
 # --------------------------
-def compute_Z_ic(K: torch.Tensor, u: torch.Tensor, m_fuzz: float, eps: float = 1e-12) -> torch.Tensor:
+def compute_Z_sr(K: torch.Tensor, u: torch.Tensor, m_fuzz: float, eps: float = 1e-12) -> torch.Tensor:
     """
     Eq. (18) RKHS distance to fuzzy centroid:
-      Z_{i,c} = K_ii - 2 ubar_c^T K_{:,i} + ubar_c^T K ubar_c
+      Z_{s,r} = K_ii - 2 ubar_c^T K + ubar_j^T K ubar_c
     K: [N,N], u: [N,C] -> Z: [N,C]
     """
     # RKHS is a Reproducing Kernel Hilbert Space, where the kernel function K implicitly 
@@ -58,10 +58,10 @@ def compute_Z_ic(K: torch.Tensor, u: torch.Tensor, m_fuzz: float, eps: float = 1
 
     um = torch.clamp(u, min=eps) ** m_fuzz                 # [N,C]
     denom = um.sum(dim=0, keepdim=True)                    # [1,C]
-    ubar = um / torch.clamp(denom, min=eps)                # [N,C]
+    ubar = um / denom                                      # [N,C]
 
-    K_diag = torch.diagonal(K, 0)                          # [N]
-    Ku = K @ ubar                                          # [N,C]
+    K_diag = torch.diagonal(K, 0)                          # K_ii [N]
+    Ku = K @ ubar                                          # ubar^T * K_:i [N,C]
     uKu = ubar.T @ Ku                                      # [C,C]
     uKu_diag = torch.diagonal(uKu, 0)                      # [C]
 
@@ -84,7 +84,7 @@ def compute_D(Z_list: List[List[torch.Tensor]], omega: torch.Tensor, eps: float 
     return torch.clamp(D, min=eps)
 
 
-def update_u(D: torch.Tensor, m_fuzz: float, eps: float = 1e-12) -> torch.Tensor:
+def update_u(D: torch.Tensor, m_fuzz: float = 1.08, eps: float = 1e-12) -> torch.Tensor:
     """
     Eq. (17):
       u_ic = 1 / sum_{c'} (D_ic / D_i,c')^(1/(m-1))
@@ -137,9 +137,10 @@ def algorithm2_mkfc(
     Y_layers: List[torch.Tensor],          # length mid, each [N, d_s]
     kernel_specs: List[Dict],              # length h
     C: int,
-    m_fuzz: float,
+    m_fuzz: float = 1.08,
     eps_stop: float = 1e-5,
     max_iters: int = 50,
+    input_u: Optional[torch.Tensor] = None,  # [N,C] or None for uniform init
     renormalize_omega_sum1: bool = True,
 ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
     """
@@ -154,7 +155,14 @@ def algorithm2_mkfc(
     h = len(kernel_specs)
     N = Y_layers[0].shape[0]
 
-    u = torch.full((N, C), 1.0 / C, device=device, dtype=dtype)
+    if input_u is not None: # We have input_u
+        if input_u.shape != (N, C):
+            raise ValueError(f"input_u must have shape [N,C], got {input_u.shape}")
+        u = torch.clamp(input_u.to(device=device, dtype=dtype), min=1e-12)
+    else: # We don't have input_u, initialize uniformly
+        u = torch.rand((N, C), device=device, dtype=dtype)
+        u = u / (u.sum(dim=1, keepdim=True))  # Normalize rows to sum to 1
+        
     omega = torch.full((mid, h), 1.0 / (mid * h), device=device, dtype=dtype)
     if renormalize_omega_sum1:
         omega = omega / omega.sum()
@@ -172,13 +180,14 @@ def algorithm2_mkfc(
         Z_list: List[List[torch.Tensor]] = [[None for _ in range(h)] for _ in range(mid)]  # type: ignore
         for s in range(mid):
             for r in range(h):
-                Z_list[s][r] = compute_Z_ic(K[s][r], u, m_fuzz=m_fuzz)
+                Z_list[s][r] = compute_Z_sr(K[s][r], u, m_fuzz=m_fuzz)
 
         # Eq (19)
         D = compute_D(Z_list, omega)
 
         # Eq (17)
         u = update_u(D, m_fuzz=m_fuzz)
+        
 
         # Eq (23)
         omega = update_omega(
@@ -311,6 +320,7 @@ class DMACN(nn.Module):
                 eps_stop=cfg.mk_eps_stop,
                 max_iters=cfg.mk_max_iters,
                 renormalize_omega_sum1=cfg.renormalize_omega_sum1,
+                input_u = self.u_
             )
 
             # (Backpropagate) build J = J1 + J2 + J3
@@ -320,6 +330,7 @@ class DMACN(nn.Module):
             # Using Eq. (20) idea: T(omega)=sum u^m * sum omega^2 Z
             # since D_{i,c} already equals sum omega^2 Z, we do:
             # J2 = lam1/2 * sum_{i,c} u_ic^m * D_{i,c}
+            # J2 = lam1/2 *abs ( (kernelmap(Y_mid) - kernelmap(v_c))*u^m )
             um = (u ** cfg.m_fuzz)
             J2 = 0.5 * cfg.lam1 * torch.sum(um * D)
 
@@ -407,7 +418,7 @@ if __name__ == "__main__":
     ]  # h = 3
 
     cfg = DMACNConfig(
-        C=5,
+        C=3,
         dims_enc=[340, 285, 240, 202, 170],   # mid = 2 encoder Linear layers = L/2
         dims_dec=[170, 202, 240, 285, 340],
         kernel_specs=kernel_specs,
@@ -428,6 +439,7 @@ if __name__ == "__main__":
     labels = model.predict()
     print("labels shape:", labels.shape)
     print("labels: ", labels)
+
 
 
 
