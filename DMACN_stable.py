@@ -43,6 +43,7 @@ def build_kernel_matrix(Y: torch.Tensor, spec: Dict) -> torch.Tensor:
 
 # --------------------------
 # Algorithm 2 (MKFC): Eq. (17)(18)(19)(23)
+# MKFC: Multi-Kernel Fuzzy Clustering. Iteratively update u, omega, D until convergence.
 # --------------------------
 def compute_Z_ic(K: torch.Tensor, u: torch.Tensor, m_fuzz: float, eps: float = 1e-12) -> torch.Tensor:
     """
@@ -50,6 +51,11 @@ def compute_Z_ic(K: torch.Tensor, u: torch.Tensor, m_fuzz: float, eps: float = 1
       Z_{i,c} = K_ii - 2 ubar_c^T K_{:,i} + ubar_c^T K ubar_c
     K: [N,N], u: [N,C] -> Z: [N,C]
     """
+    # RKHS is a Reproducing Kernel Hilbert Space, where the kernel function K implicitly 
+    # defines a mapping of data points into a high-dimensional space. The distance Z_{i,c} 
+    # measures how far each data point i is from the fuzzy centroid of cluster c in this RKHS, 
+    # which is crucial for the fuzzy clustering process.
+
     um = torch.clamp(u, min=eps) ** m_fuzz                 # [N,C]
     denom = um.sum(dim=0, keepdim=True)                    # [1,C]
     ubar = um / torch.clamp(denom, min=eps)                # [N,C]
@@ -307,7 +313,7 @@ class DMACN(nn.Module):
                 renormalize_omega_sum1=cfg.renormalize_omega_sum1,
             )
 
-            # (Backprop) build J = J1 + J2 + J3
+            # (Backpropagate) build J = J1 + J2 + J3
             # J1 = 1/2 ||x - x_hat||_F^2
             J1 = 0.5 * torch.sum((X - x_hat) ** 2)
 
@@ -349,7 +355,7 @@ class DMACN(nn.Module):
         return self
 
     @torch.no_grad()
-    def predict_proba(self) -> torch.Tensor:
+    def predict_probability(self) -> torch.Tensor:
         """
         Returns soft memberships u from last fit: [N,C]
         """
@@ -362,7 +368,7 @@ class DMACN(nn.Module):
         """
         Hard labels from last fit: argmax over u. Returns [N]
         """
-        u = self.predict_proba()
+        u = self.predict_probability()
         return torch.argmax(u, dim=1)
 
 
