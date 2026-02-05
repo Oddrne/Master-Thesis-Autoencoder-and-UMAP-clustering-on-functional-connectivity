@@ -1,2 +1,13 @@
-# Master-Thesis-Autoencoder-and-UMAP-clustering-on-functional-connectivity
-The project aims to compare the clustering effieciency of a deep multi-kernel autoencoder and a UMAP on a dataset of functional connectivity matrices containing healthy individuals. An analysis on the clusters will also be performed.
+# Read me Masterprosjekt
+
+
+
+### Kode-hieraki
+
+Clustering_methods.ipynb
+   --> Auutoencoder.py
+*** Runs the models already trained on the given data.
+
+Autoencoder.ipynb
+   --> Autoencoder.py
+*** Trains and saves an autoencoder model.
