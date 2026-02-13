@@ -3,10 +3,12 @@
 
 from __future__ import annotations
 from dataclasses import dataclass
+import os
 from typing import List, Dict, Optional, Tuple
 
 import torch
 import torch.nn as nn
+import numpy as np
 
 
 # --------------------------
@@ -330,7 +332,6 @@ class DMACN(nn.Module):
             # Using Eq. (20) idea: T(omega)=sum u^m * sum omega^2 Z
             # since D_{i,c} already equals sum omega^2 Z, we do:
             # J2 = lam1/2 * sum_{i,c} u_ic^m * D_{i,c}
-            # J2 = lam1/2 *abs ( (kernelmap(Y_mid) - kernelmap(v_c))*u^m )
             um = (u ** cfg.m_fuzz)
             J2 = 0.5 * cfg.lam1 * torch.sum(um * D)
 
@@ -375,12 +376,28 @@ class DMACN(nn.Module):
         return self.u_
 
     @torch.no_grad()
-    def predict(self) -> torch.Tensor:
+    def predict(self, save: bool = False) -> torch.Tensor:
         """
         Hard labels from last fit: argmax over u. Returns [N]
         """
         u = self.predict_probability()
-        return torch.argmax(u, dim=1)
+        labels = torch.argmax(u, dim=1)
+        
+        if save:
+            # Count samples in each cluster and save to variables like label_0, label_1, etc.
+            label_counts = {}
+            for label in labels.unique():
+                count = (labels == label).sum().item()
+                label_counts[f"label_{label.item()}"] = count
+                
+            # Create the save-string
+            save_str = ", ".join([f"{name}_{count}_" for name, count in label_counts.items()])
+            print(save_str)
+            
+            # Save labels to a text file in folder "Clusters"
+            np.savetxt(os.path.join("Clusters", f"labels_{save_str}.txt"), labels.cpu().numpy(), fmt="%d")
+        
+        return labels 
 
 
 
@@ -435,8 +452,8 @@ if __name__ == "__main__":
     )
 
     model = DMACN(cfg)
-    model.fit(X, verbose_every=10)
-    labels = model.predict()
+    model.fit(X, verbose_every=50)
+    labels = model.predict(save=True)
     print("labels shape:", labels.shape)
     print("labels: ", labels)
 
