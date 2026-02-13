@@ -9,6 +9,7 @@ from typing import List, Dict, Optional, Tuple
 import torch
 import torch.nn as nn
 import numpy as np
+from sklearn.metrics import silhouette_score
 
 
 # --------------------------
@@ -391,11 +392,11 @@ class DMACN(nn.Module):
                 label_counts[f"label_{label.item()}"] = count
                 
             # Create the save-string
-            save_str = ", ".join([f"{name}_{count}_" for name, count in label_counts.items()])
+            save_str = "_".join([f"{name}_{count}" for name, count in label_counts.items()])
             print(save_str)
             
             # Save labels to a text file in folder "Clusters"
-            np.savetxt(os.path.join("Clusters", f"labels_{save_str}.txt"), labels.cpu().numpy(), fmt="%d")
+        np.savetxt(os.path.join("Clusters",f"DMACN__Clusters_{len(label_counts)}__{save_str}.txt"), labels.cpu().numpy(), fmt="%d")
         
         return labels 
 
@@ -435,7 +436,7 @@ if __name__ == "__main__":
     ]  # h = 3
 
     cfg = DMACNConfig(
-        C=3,
+        C=3,  # number of clusters
         dims_enc=[340, 285, 240, 202, 170],   # mid = 2 encoder Linear layers = L/2
         dims_dec=[170, 202, 240, 285, 340],
         kernel_specs=kernel_specs,
@@ -457,7 +458,6 @@ if __name__ == "__main__":
     print("labels shape:", labels.shape)
     print("labels: ", labels)
 
-
-
+    
 
 
