@@ -34,13 +34,13 @@ def evaluate_clustering(functional_connectivity_matrix, labels_path):
 
         
 # Example
-PTSD = loadmat("C:\\Users\\oddar\\Downloads\\PTSD_connectivity.mat")
+# PTSD = loadmat("C:\\Users\\oddar\\Downloads\\PTSD_connectivity.mat")
 # PTSD is a dataset containing 87 samples (subjects) with 340 features (as vectorized functional connectivity matrices)
 # The expected number of clusters are 3
 
 # Define the functional connectivity matrix (example)
-Functional_connectivity_matrix = PTSD["connectivities"]  # Example matrix
+# Functional_connectivity_matrix = PTSD["connectivities"]  # Example matrix
 
 # Define where to find the labels 
-labels_path = os.fsencode("Clusters")
-evaluate_clustering(Functional_connectivity_matrix, labels_path)
+# labels_path = os.fsencode("Clusters")
+# evaluate_clustering(Functional_connectivity_matrix, labels_path)

@@ -403,7 +403,7 @@ class DMACN(nn.Module):
 
 
 
-# --------------------------
+""" # --------------------------
 # Example usage
 # --------------------------
 from scipy.io import loadmat
@@ -414,7 +414,7 @@ PTSD = loadmat("C:\\Users\\oddar\\Downloads\\PTSD_connectivity.mat")
 D = PTSD
 print (D.keys())
 print(D["connectivities"].shape)  # (87, 340)
-D_tensor = torch.from_numpy(D["connectivities"]).float()
+D_tensor = torch.from_numpy(D["connectivities"]).float() """
 
 
 if __name__ == "__main__":
