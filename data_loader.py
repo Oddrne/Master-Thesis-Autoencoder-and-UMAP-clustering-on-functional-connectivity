@@ -15,6 +15,28 @@ def vectorize_fc_400_matrix(fc_matrix):
     return fc_matrix[upper_tri_indices]
 
 
+def load_fc_matrix():
+    filepath = "C:\\Mats og Odd Arne\\Prosjektoppgave\\ISC_data\\FC1.mat"
+    fc_mat = loadmat(filepath)
+    fc_mat = fc_mat['FC1']  # Extract the FC1 variable from the loaded .mat file
+
+    print(fc_mat.shape)  # Should print (200, 200, N_subjects)
+
+    subjects = []
+    for i in range(fc_mat.shape[2]):
+        fc_matrix = fc_mat[:, :, i]  # Get the FC matrix for the i-th 
+        print(f"Processing subject {i+1} with FC matrix shape: {fc_matrix.shape}")  # Should print (200, 200)
+        vectorized_fc = vectorize_fc_matrix(fc_matrix)  # Vectorize the upper triangle
+        print(f"Vectorized FC shape for subject {i+1}: {vectorized_fc.shape}")  # Should print (19900,)
+        subjects.append(vectorized_fc)  # Append to the list of subjects
+    
+    print(f"Total number of subjects: {len(subjects)}") 
+    print("One subject's vectorized FC looks like:\n", subjects[0])  # Print the first subject's vectorized FC
+
+    savemat("C:\\Mats og Odd Arne\\Prosjektoppgave\\sch407\\YA\\200_schaefer_vectorized_fc.mat", {"200_vectorized_fc": subjects}) 
+
+load_fc_matrix()
+
 
 def load_fc_mat_matrices():
     N_FC_Matrices_m2 = 216
@@ -51,6 +73,7 @@ def load_fc_mat_matrices():
 
 # fc_test_df = pd.DataFrame(FCmat_data['zfcmatrix'])
 # print(subjects[0])
+
 
 def load_npz_data(filepath):
     npz_data = np.load(filepath, allow_pickle=True)
@@ -93,4 +116,3 @@ def load_workable_fc(filepath):
     return cleaned_features
 
 
-load_fc_mat_matrices()
