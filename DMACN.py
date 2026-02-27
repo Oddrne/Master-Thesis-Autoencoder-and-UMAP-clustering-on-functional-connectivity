@@ -21,6 +21,11 @@ def gaussian_kernel_matrix(X: torch.Tensor, t: float) -> torch.Tensor:
     
     pairwise_dists = torch.cdist(X, X, p=2) ** 2  # [N,N] squared Euclidean distances
     K = torch.exp(-pairwise_dists / (2 * t ** 2))
+    # Check if K is inf
+    if K.isinf().any():
+        print("Gaussian kernel K contains Inf values. Check for numerical issues.")
+        print("K min:", K.min().item(), "K max:", K.max().item(), "K mean:", K.mean().item())
+        raise ValueError("Gaussian kernel K contains Inf values. Check for numerical issues.")
     return K
 
 
@@ -28,7 +33,21 @@ def poly_kernel_matrix(X: torch.Tensor, a = 0, b = 2) -> torch.Tensor:
     # Polynomial Kernel
     # K_ij(x_i, x_j) = (a + x_i^T*x_j)^b
 
-    return (a + X @ X.T) ** b
+    # Check if any value of X is larger than 1 or smaller than 1e-6, which can cause numerical issues in the polynomial kernel
+    if torch.any(X > 1.0) or torch.any(X < 1e-6):
+        print("Input X contains values that may cause numerical issues in the polynomial kernel.")
+        print("X shape:", X.shape)
+        print("X min:", X.min().item(), "X max:", X.max().item(), "X mean:", X.mean().item())
+        raise ValueError("Input X contains values that may cause numerical issues in the polynomial kernel.")
+    
+    K = (a + X @ X.T) ** b
+
+    if K.isinf().any():
+        print("Polynomial kernel K a=", a, "b=", b, " ,contains Inf values. Check for numerical issues.")
+        print("K:", K)
+        print("K min:", K.min().item(), "K max:", K.max().item(), "K mean:", K.mean().item())
+        raise ValueError("Polynomial kernel K contains Inf values. Check for numerical issues.")
+    return K
 
 
 def build_kernel_matrix(Y: torch.Tensor, spec: Dict) -> torch.Tensor:
@@ -172,9 +191,25 @@ def algorithm2_mkfc(
 
     # Precompute kernel matrices K^{(s,r)} for current Y_layers
     K: List[List[torch.Tensor]] = [[None for _ in range(h)] for _ in range(mid)]  # type: ignore
+
     for s in range(mid):
         for r in range(h):
             K[s][r] = build_kernel_matrix(Y_layers[s], kernel_specs[r])  # [N,N]
+
+    if any(k.isnan().any() for k_list in K for k in k_list):
+            print("K contains NaN values. Check for numerical issues.")
+            for s, k_list in enumerate(K):
+                for r, k in enumerate(k_list):
+                    if k.isnan().any():
+                        print(f"K[{s}][{r}] contains NaN values")
+            raise ValueError("K contains NaN values. Check for numerical issues.")
+    if any(k.isinf().any() for k_list in K for k in k_list):
+            print("K contains Inf values. Check for numerical issues.")
+            for s, k_list in enumerate(K):
+                for r, k in enumerate(k_list):
+                    if k.isinf().any():
+                        print(f"K[{s}][{r}] contains Inf values")
+            raise ValueError("K contains Inf values. Check for numerical issues.")
 
     for _ in range(max_iters):
         u_prev = u
@@ -185,9 +220,15 @@ def algorithm2_mkfc(
             for r in range(h):
                 Z_list[s][r] = compute_Z_sr(K[s][r], u, m_fuzz=m_fuzz)
 
-        if Z_list.isnan().any():
+        if any(z.isnan().any() for z_list in Z_list for z in z_list):
             print("Z_list contains NaN values. Check for numerical issues.")
+            for s, z_list in enumerate(Z_list):
+                for r, z in enumerate(z_list):
+                    if z.isnan().any():
+                        print(f"Z_list[{s}][{r}] contains NaN values")
             raise ValueError("Z_list contains NaN values. Check for numerical issues.")
+
+        
 
         # Eq (19)
         D = compute_D(Z_list, omega)
@@ -202,6 +243,14 @@ def algorithm2_mkfc(
 
         # Eq (17)
         u = update_u(D, m_fuzz=m_fuzz)
+        if u.isnan().any():
+            print("u contains NaN values. Check for numerical issues.")
+            print("D min:", D.min().item(), "D max:", D.max().item(), "D mean:", D.mean().item())
+            raise ValueError("u contains NaN values. Check for numerical issues.")
+        if not torch.isfinite(u).all():
+            print("u contains non-finite values. Check for numerical issues.")
+            print("u min:", u.min().item(), "u max:", u.max().item(), "u mean:", u.mean().item())
+            raise ValueError("u contains non-finite values. Check for numerical issues.")
         
         # Eq (23)
         omega = update_omega(
