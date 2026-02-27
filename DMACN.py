@@ -314,6 +314,8 @@ class DMACN(nn.Module):
         # SGD matches "a = a - eta dJ/da" notation nicely
         optimizer = torch.optim.SGD(self.parameters(), lr=cfg.lr)
 
+        print("Ready to train DMACN:")
+
         for epoch in range(cfg.epochs):
             self.train()
 
