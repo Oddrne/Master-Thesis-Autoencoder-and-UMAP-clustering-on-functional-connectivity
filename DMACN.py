@@ -185,13 +185,24 @@ def algorithm2_mkfc(
             for r in range(h):
                 Z_list[s][r] = compute_Z_sr(K[s][r], u, m_fuzz=m_fuzz)
 
+        if Z_list.isnan().any():
+            print("Z_list contains NaN values. Check for numerical issues.")
+            raise ValueError("Z_list contains NaN values. Check for numerical issues.")
+
         # Eq (19)
         D = compute_D(Z_list, omega)
+        if D.isnan().any():
+            print("D contains NaN values. Check for numerical issues.")
+            # Print noteworthy values for debugging
+            print("D min:", D.min().item(), "D max:", D.max().item(), "D mean:", D.mean().item())
+            print("Z_list[0][0] min:", Z_list[0][0].min().item(), "max:", Z_list[0][0].max().item(), "mean:", Z_list[0][0].mean().item())
+            if Z_list.isnan().any():
+                print("Z_list contains NaN values. Check for numerical issues.")
+            raise ValueError("D contains NaN values. Check for numerical issues.")
 
         # Eq (17)
         u = update_u(D, m_fuzz=m_fuzz)
         
-
         # Eq (23)
         omega = update_omega(
             Z_list, u, m_fuzz=m_fuzz,

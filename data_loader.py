@@ -38,7 +38,7 @@ def load_fc_mat_matrices():
         subjects.append(vectorized_fc)
         # Process fc_matrix as needed
 
-    savemat("C:\\Mats og Odd Arne\\Prosjektoppgave\\sch407\\YA\\test_vectorized_fc.mat", {"vectorized_fc": subjects}) 
+    #savemat("C:\\Mats og Odd Arne\\Prosjektoppgave\\sch407\\YA\\test_vectorized_fc.mat", {"vectorized_fc": subjects}) 
 
     print(f"Loaded {len(subjects)} FC matrices.")
 
@@ -93,4 +93,4 @@ def load_workable_fc(filepath):
     return cleaned_features
 
 
-load_fc_mat_matrices()
+# load_fc_mat_matrices()
