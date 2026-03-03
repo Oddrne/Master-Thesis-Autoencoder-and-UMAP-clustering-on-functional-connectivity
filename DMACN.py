@@ -10,50 +10,57 @@ import torch
 import torch.nn as nn
 import numpy as np
 from sklearn.metrics import silhouette_score
+from sklearn.metrics.pairwise import polynomial_kernel
 
 
 # --------------------------
 # Kernels (build K NxN from Y NxD)
 # --------------------------
-def gaussian_kernel_matrix(X: torch.Tensor, t: float) -> torch.Tensor:
+def gaussian_kernel_matrix(X: torch.Tensor, t0: float, eps: float = 1e-12) -> torch.Tensor:
     # Gaussian Kernel. Should handle multi-dimensional data. 
     # K_ij(x_i, x_j) = exp( -(x_i*x_j)^T(x_i*x_i) / 2t^2 )
     
+    # We have problems with large values leading to inf in K. Implementing normalization
+    # X1 = torch.nn.functional.normalize(X, p=2, dim=1)  # Normalize rows to unit length to prevent large values
+    
     pairwise_dists = torch.cdist(X, X, p=2) ** 2  # [N,N] squared Euclidean distances
-    K = torch.exp(-pairwise_dists / (2 * t ** 2))
+    
+    # t = D0*t0 where D0 is the maximum distance between the samples
+    D0 = torch.sqrt(torch.clamp(pairwise_dists.max(), min=eps)) 
+    t = torch.clamp(torch.as_tensor(t0, device=X.device, dtype=X.dtype) * D0, min=eps)
+    
+    K = torch.exp(-pairwise_dists / (2.0 * t ** 2))
     # Check if K is inf
-    if K.isinf().any():
-        print("Gaussian kernel K contains Inf values. Check for numerical issues.")
-        print("K min:", K.min().item(), "K max:", K.max().item(), "K mean:", K.mean().item())
-        raise ValueError("Gaussian kernel K contains Inf values. Check for numerical issues.")
+    if not torch.isfinite(K).all():
+        print("X:", X, "K:", K)
+        raise ValueError("Gaussian kernel K contains Inf or NaN values. Check for numerical issues.")
     return K
 
 
-def poly_kernel_matrix(X: torch.Tensor, a = 0, b = 2) -> torch.Tensor:
+def poly_kernel_matrix(X: torch.Tensor, a = 0, b = 2, eps: float = 1e-12) -> torch.Tensor:
     # Polynomial Kernel
     # K_ij(x_i, x_j) = (a + x_i^T*x_j)^b
 
-    # Check if any value of X is larger than 1 or smaller than 1e-6, which can cause numerical issues in the polynomial kernel
-    if torch.any(X > 1.0) or torch.any(X < 1e-6):
-        print("Input X contains values that may cause numerical issues in the polynomial kernel.")
-        print("X shape:", X.shape)
-        print("X min:", X.min().item(), "X max:", X.max().item(), "X mean:", X.mean().item())
-        raise ValueError("Input X contains values that may cause numerical issues in the polynomial kernel.")
-    
-    K = (a + X @ X.T) ** b
+    # We have problems with large values leading to inf in K. Implementing normalization
+    # X = torch.nn.functional.normalize(X, p=2, dim=1)  # Normalize rows to unit length to prevent large values
 
-    if K.isinf().any():
-        print("Polynomial kernel K a=", a, "b=", b, " ,contains Inf values. Check for numerical issues.")
-        print("K:", K)
-        print("K min:", K.min().item(), "K max:", K.max().item(), "K mean:", K.mean().item())
-        raise ValueError("Polynomial kernel K contains Inf values. Check for numerical issues.")
+
+    X_2 = X @ X.T  # [N,N] pairwise dot products
+    a_X_2 = X_2 + torch.as_tensor(a, device=X.device, dtype=X.dtype)
+    
+    K = a_X_2 ** b
+        
+    if not torch.isfinite(K).all():
+        print("X:", X, "K:", K)
+        raise ValueError("Polynomial kernel K contains Inf or NaN values. Check for numerical issues.")
+    
     return K
 
 
 def build_kernel_matrix(Y: torch.Tensor, spec: Dict) -> torch.Tensor:
     kind = spec["kind"]
     if kind == "rbf":
-        return gaussian_kernel_matrix(Y, t=float(spec.get("t", 1.0)))
+        return gaussian_kernel_matrix(Y, t0=float(spec.get("t0", 1.0)))
     if kind == "poly":
         return poly_kernel_matrix(
             Y,
@@ -76,7 +83,7 @@ def compute_Z_sr(K: torch.Tensor, u: torch.Tensor, m_fuzz: float, eps: float = 1
     # RKHS is a Reproducing Kernel Hilbert Space, where the kernel function K implicitly 
     # defines a mapping of data points into a high-dimensional space. The distance Z_{i,c} 
     # measures how far each data point i is from the fuzzy centroid of cluster c in this RKHS, 
-    # which is crucial for the fuzzy clustering process.
+    # which is crucial for the fuzzy clustersing process.
 
     um = torch.clamp(u, min=eps) ** m_fuzz                 # [N,C]
     denom = um.sum(dim=0, keepdim=True)                    # [1,C]
@@ -114,7 +121,7 @@ def update_u(D: torch.Tensor, m_fuzz: float = 1.08, eps: float = 1e-12) -> torch
     if m_fuzz <= 1.0:
         raise ValueError("m_fuzz must be > 1.")
     power = 1.0 / (m_fuzz - 1.0)
-    D = torch.clamp(D, min=eps)
+    # D = torch.clamp(D, min=eps)
     ratio = (D[:, :, None] / D[:, None, :]) ** power      # [N,C,C]
     u = 1.0 / torch.clamp(ratio.sum(dim=2), min=eps)      # [N,C]
     return torch.clamp(u, min=eps, max=1.0)
@@ -196,22 +203,8 @@ def algorithm2_mkfc(
         for r in range(h):
             K[s][r] = build_kernel_matrix(Y_layers[s], kernel_specs[r])  # [N,N]
 
-    if any(k.isnan().any() for k_list in K for k in k_list):
-            print("K contains NaN values. Check for numerical issues.")
-            for s, k_list in enumerate(K):
-                for r, k in enumerate(k_list):
-                    if k.isnan().any():
-                        print(f"K[{s}][{r}] contains NaN values")
-            raise ValueError("K contains NaN values. Check for numerical issues.")
-    if any(k.isinf().any() for k_list in K for k in k_list):
-            print("K contains Inf values. Check for numerical issues.")
-            for s, k_list in enumerate(K):
-                for r, k in enumerate(k_list):
-                    if k.isinf().any():
-                        print(f"K[{s}][{r}] contains Inf values")
-            raise ValueError("K contains Inf values. Check for numerical issues.")
 
-    for _ in range(max_iters):
+    for _iter in range(max_iters):
         u_prev = u
 
         # Eq (18): Z_list[s][r] is [N,C]
@@ -231,6 +224,7 @@ def algorithm2_mkfc(
         
 
         # Eq (19)
+        # Distance D_{i,c} 
         D = compute_D(Z_list, omega)
         if D.isnan().any():
             print("D contains NaN values. Check for numerical issues.")
@@ -257,11 +251,13 @@ def algorithm2_mkfc(
             Z_list, u, m_fuzz=m_fuzz,
             renormalize_sum1=renormalize_omega_sum1
         )
-
-        if torch.norm(u - u_prev).item() < eps_stop:
+        u_change = torch.norm(u - u_prev).item()
+        if u_change < eps_stop:
+            print(f"MKFC converged after {_iter+1} iterations with u change {u_change:.4e}")
             break
 
-    return u, omega, D
+    # print(_iter+1, "MKFC iterations until convergence")
+    return u, omega, D 
 
 
 # --------------------------
@@ -284,13 +280,13 @@ class AEWithTaps(nn.Module):
         # Encoder: Linear + activation except after last Linear (common)
         for i in range(len(dims_enc) - 1):
             self.enc.append(nn.Linear(dims_enc[i], dims_enc[i + 1]))
-            if i < len(dims_enc) - 2:
+            if i < len(dims_enc) - 1:
                 self.enc.append(act())
 
         # Decoder
         for i in range(len(dims_dec) - 1):
             self.dec.append(nn.Linear(dims_dec[i], dims_dec[i + 1]))
-            if i < len(dims_dec) - 2:
+            if i < len(dims_dec) - 1:
                 self.dec.append(act())
 
     def forward(self, x: torch.Tensor) -> Tuple[List[torch.Tensor], torch.Tensor, torch.Tensor]:
@@ -348,6 +344,13 @@ class DMACN(nn.Module):
         # outputs after fit
         self.u_: Optional[torch.Tensor] = None
         self.omega_: Optional[torch.Tensor] = None
+        
+    def frobenius_norm(self, parameter_name: str) -> torch.Tensor:
+        return torch.sqrt(sum(
+            torch.sum(parameter ** 2)
+            for name, parameter in self.named_parameters()
+            if parameter_name in name and parameter.requires_grad
+        ))
 
     def fit(self, X: torch.Tensor, verbose_every: int = 10) -> "DMACN":
         """
@@ -389,22 +392,31 @@ class DMACN(nn.Module):
             )
 
             # (Backpropagate) build J = J1 + J2 + J3
-            # J1 = 1/2 ||x - x_hat||_F^2
-            J1 = 0.5 * torch.sum((X - x_hat) ** 2)
+            # J1 = 1/2 ||x - x_hat||_F (^2) - We are dropping the ^2 as it is seen as a typo
+            # Minimize the reconstruction error
+            # Frobenius norm
+            norm = torch.linalg.matrix_norm(X - x_hat, ord='fro')
+            J1 = 0.5 * norm #** 2
 
             # Using Eq. (20) idea: T(omega)=sum u^m * sum omega^2 Z
             # since D_{i,c} already equals sum omega^2 Z, we do:
             # J2 = lam1/2 * sum_{i,c} u_ic^m * D_{i,c}
+            # Guides clustering trend and helps autoencoder extract features that are good for clustering.
             um = (u ** cfg.m_fuzz)
             J2 = 0.5 * cfg.lam1 * torch.sum(um * D)
+
+            
 
             # J3 = lam2/2 (||a||^2 + ||b||^2)
             # Implemented explicitly (paper-like).
             # (PyTorch autograd gives correct bias gradients even if paper has a typo.)
-            reg = torch.tensor(0.0, device=device, dtype=X.dtype)
-            for p in self.parameters():
-                reg = reg + torch.sum(p * p)
-            J3 = 0.5 * cfg.lam2 * reg
+            # Control size of the network weight a
+            
+            # parameters contains both a and b, and we want to take the norm of one at a time
+            a_norm = self.frobenius_norm("weight")
+            b_norm = self.frobenius_norm("bias")
+            
+            J3 = 0.5 * cfg.lam2 * (a_norm ** 2 + b_norm ** 2)
 
             J = J1 + J2 + J3
 
@@ -461,65 +473,3 @@ class DMACN(nn.Module):
         np.savetxt(os.path.join("Clusters",f"DMACN__Clusters_{len(label_counts)}__{save_str}.txt"), labels.cpu().numpy(), fmt="%d")
         
         return labels 
-
-
-
-
-""" # --------------------------
-# Example usage
-# --------------------------
-from scipy.io import loadmat
-PTSD = loadmat("C:\\Users\\oddar\\Downloads\\PTSD_connectivity.mat")
-# PTSD is a dataset containing 87 samples (subjects) with 340 features (as vectorized functional connectivity matrices)
-# The expected number of clusters are 3
-
-D = PTSD
-print (D.keys())
-print(D["connectivities"].shape)  # (87, 340)
-D_tensor = torch.from_numpy(D["connectivities"]).float() """
-
-
-if __name__ == "__main__":
-    # Dummy data
-    X = D_tensor  # [N,d] float tensor
-
-    kernel_specs = [
-        {"kind": "rbf", "t": 0.01},
-        {"kind": "rbf", "t": 0.05},
-        {"kind": "rbf", "t": 0.1},
-        {"kind": "rbf", "t": 1},
-        {"kind": "rbf", "t": 10},
-        {"kind": "rbf", "t": 50},
-        {"kind": "rbf", "t": 100},
-        {"kind": "poly", "a": 0, "b": 2},
-        {"kind": "poly", "a": 0, "b": 4},
-        {"kind": "poly", "a": 1, "b": 2},
-        {"kind": "poly", "a": 1, "b": 4}
-    ]  # h = 3
-
-    cfg = DMACNConfig(
-        C=3,  # number of clusters
-        dims_enc=[340, 285, 240, 202, 170],   # mid = 2 encoder Linear layers = L/2
-        dims_dec=[170, 202, 240, 285, 340],
-        kernel_specs=kernel_specs,
-        m_fuzz=1.08,
-        lam1=0.5,
-        lam2=0.5,
-        lr=1e-3,
-        epochs=500,
-        mk_max_iters=20,
-        mk_eps_stop=1e-5,
-        renormalize_omega_sum1=True,
-        mid_only_first=True,
-        mid_only_last=True,
-    )
-
-    model = DMACN(cfg)
-    model.fit(X, verbose_every=50)
-    labels = model.predict(save=True)
-    print("labels shape:", labels.shape)
-    print("labels: ", labels)
-
-    
-
-
