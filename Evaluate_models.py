@@ -32,6 +32,28 @@ def evaluate_clustering(functional_connectivity_matrix, labels_path):
         else:
             print(f"Only one cluster in {filename}, silhouette coefficient not computed.")
 
+def evaluate_single_clustering(functional_connectivity_matrix, labels_path):
+    
+    labels = np.loadtxt(labels_path)
+    
+    if len(np.unique(labels)) > 1:  # Ensure more than one cluster exists
+        print(f"\n Scores for the given labels:")
+        
+        # Print the silhouette coefficient for the current labels
+        silhouette_avg = silhouette_score(functional_connectivity_matrix, labels)
+        print(f"Silhouette coefficient: {silhouette_avg}")
+        
+        # Print the Davies-Bouldin scores
+        davies_bouldin_avg = davies_bouldin_score(functional_connectivity_matrix, labels)
+        print(f"Davies-Bouldin score: {davies_bouldin_avg}")
+        
+        # Print the Calinski-Harabasz scores
+        calinski_harabasz_avg = calinski_harabasz_score(functional_connectivity_matrix, labels)
+        print(f"Calinski-Harabasz score: {calinski_harabasz_avg}")
+    else:
+        print("Only one cluster in the provided labels, silhouette coefficient not computed.")  
+        
+        
         
 # Example
 # PTSD = loadmat("C:\\Users\\oddar\\Downloads\\PTSD_connectivity.mat")
