@@ -35,7 +35,7 @@ def load_fc_matrix():
 
     savemat("C:\\Mats og Odd Arne\\Prosjektoppgave\\sch407\\YA\\200_schaefer_vectorized_fc.mat", {"200_vectorized_fc": subjects}) 
 
-load_fc_matrix()
+# load_fc_matrix()
 
 
 def load_fc_mat_matrices():
@@ -116,7 +116,4 @@ def load_workable_fc(filepath):
     return cleaned_features
 
 
-<<<<<<< HEAD
 # load_fc_mat_matrices()
-=======
->>>>>>> b601814d129671db8cd7afa5a4da2179594a41e6

@@ -160,6 +160,36 @@ def update_omega(
 
     return omega
 
+def compute_J2(
+    Y_layers: List[torch.Tensor],
+    u: torch.Tensor,
+    omega: torch.Tensor,
+    cfg: DMACNConfig,
+    kernel_specs: List[Dict],
+    m_fuzz: float
+) -> torch.Tensor:
+    """
+    Compute the J2 term in the DMACN loss, which is:
+      J2 = lam1/2 * sum_{i,c} u_ic^m * D_{i,c}
+    """
+    # First find K using Y_layers and kernel_specs, then Z_list using K and u, then D using omega and Z_list, and finally J2 using u, D.
+    K_list = [[None for _ in range(len(kernel_specs))] for _ in range(len(Y_layers))]  # type: ignore
+    for s in range(len(Y_layers)):
+        for r in range(len(kernel_specs)):
+            K_list[s][r] = build_kernel_matrix(Y_layers[s], kernel_specs[r])  # [N,N]
+    
+    # Find Z_list using K and u
+    Z_list = [[None for _ in range(len(kernel_specs))] for _ in range(len(Y_layers))]  # type: ignore
+    for s in range(len(Y_layers)):
+        for r in range(len(kernel_specs)):
+            Z_list[s][r] = compute_Z_sr(K_list[s][r], u, m_fuzz=m_fuzz)  # [N,C]
+    
+    # Lastly find D using omega and Z_list.
+    D = compute_D(Z_list, omega)  # [N,C]
+    
+    J2 = 0.5 * cfg.lam1 * torch.linalg.vector_norm(D * (u ** m_fuzz), ord=2)  # sum_{i,c} u_ic^m * D_{i,c}
+    return J2
+
 
 @torch.no_grad()
 def algorithm2_mkfc(
@@ -176,7 +206,6 @@ def algorithm2_mkfc(
     Returns:
       u:     [N,C]
       omega: [mid,h]
-      D:     [N,C]
     """
     device = Y_layers[0].device
     dtype = Y_layers[0].dtype
@@ -257,7 +286,7 @@ def algorithm2_mkfc(
             break
 
     # print(_iter+1, "MKFC iterations until convergence")
-    return u, omega, D 
+    return u, omega
 
 
 # --------------------------
@@ -310,6 +339,7 @@ class AEWithTaps(nn.Module):
 # --------------------------
 @dataclass
 class DMACNConfig:
+    name: str                           # name for saving results
     C: int
     dims_enc: List[int]               # dimension of each encoder layer, length mid+1
     dims_dec: List[int]               # dimension of each decoder layer, length mid+1
@@ -367,6 +397,12 @@ class DMACN(nn.Module):
         optimizer = torch.optim.SGD(self.parameters(), lr=cfg.lr)
 
         print("Ready to train DMACN:")
+        
+        
+        # 1 Obtain sself-expression layer through feedforward process formula (3)
+            
+        # perform multi-kernel mapping, and perform Algorithm 2
+        
 
         for epoch in range(cfg.epochs):
             self.train()
@@ -380,7 +416,7 @@ class DMACN(nn.Module):
             # Note: mid here is len(Y_layers); paper uses s=1..mid, OK.
 
             # Multi-kernel mapping + Algorithm 2 (MKFC) to get u, omega, D
-            u, omega, D = algorithm2_mkfc(
+            u, omega= algorithm2_mkfc(
                 Y_layers=Y_layers,
                 kernel_specs=cfg.kernel_specs,
                 C=cfg.C,
@@ -395,15 +431,26 @@ class DMACN(nn.Module):
             # J1 = 1/2 ||x - x_hat||_F (^2) - We are dropping the ^2 as it is seen as a typo
             # Minimize the reconstruction error
             # Frobenius norm
-            norm = torch.linalg.matrix_norm(X - x_hat, ord='fro')
-            J1 = 0.5 * norm #** 2
+            J1 = 0.5 * torch.sum((X - x_hat) ** 2) # old code
+            #norm = torch.linalg.matrix_norm(X - x_hat, ord='fro')
+            #J1 = 0.5 * norm ** 2
+
+
+
 
             # Using Eq. (20) idea: T(omega)=sum u^m * sum omega^2 Z
             # since D_{i,c} already equals sum omega^2 Z, we do:
             # J2 = lam1/2 * sum_{i,c} u_ic^m * D_{i,c}
             # Guides clustering trend and helps autoencoder extract features that are good for clustering.
-            um = (u ** cfg.m_fuzz)
-            J2 = 0.5 * cfg.lam1 * torch.sum(um * D)
+            
+            J2 = compute_J2(
+                Y_layers=Y_layers,
+                u=u,
+                omega=omega,
+                cfg,
+                kernel_specs=cfg.kernel_specs,
+                m_fuzz=cfg.m_fuzz,
+            )
 
             
 
@@ -413,6 +460,10 @@ class DMACN(nn.Module):
             # Control size of the network weight a
             
             # parameters contains both a and b, and we want to take the norm of one at a time
+            #reg = torch.tensor(0.0, device=device, dtype=X.dtype) #old
+            #for p in self.parameters(): #old
+            #    reg = reg + torch.sum(p ** 2) #old
+            #J3 = 0.5 * cfg.lam2 * reg #old
             a_norm = self.frobenius_norm("weight")
             b_norm = self.frobenius_norm("bias")
             
@@ -466,10 +517,10 @@ class DMACN(nn.Module):
                 label_counts[f"label_{label.item()}"] = count
                 
             # Create the save-string
-            save_str = "_".join([f"{name}_{count}" for name, count in label_counts.items()])
+            save_str = "__".join([f"{name}_count_{count}" for name, count in label_counts.items()])
             print(save_str)
             
             # Save labels to a text file in folder "Clusters"
-        np.savetxt(os.path.join("Clusters",f"DMACN__Clusters_{len(label_counts)}__{save_str}.txt"), labels.cpu().numpy(), fmt="%d")
+        np.savetxt(os.path.join("Clusters",f"{self.cfg.name}_{len(label_counts)}__Clusters__{save_str}.txt"), labels.cpu().numpy(), fmt="%d")
         
         return labels 
