@@ -191,7 +191,7 @@ def compute_J2(
     return J2
 
 
-@torch.no_grad()
+#@torch.no_grad()
 def algorithm2_mkfc(
     Y_layers: List[torch.Tensor],          # length mid, each [N, d_s]
     kernel_specs: List[Dict],              # length h
@@ -286,7 +286,7 @@ def algorithm2_mkfc(
             break
 
     # print(_iter+1, "MKFC iterations until convergence")
-    return u, omega
+    return u, omega, D
 
 
 # --------------------------
@@ -416,7 +416,7 @@ class DMACN(nn.Module):
             # Note: mid here is len(Y_layers); paper uses s=1..mid, OK.
 
             # Multi-kernel mapping + Algorithm 2 (MKFC) to get u, omega, D
-            u, omega= algorithm2_mkfc(
+            D, u, omega= algorithm2_mkfc(
                 Y_layers=Y_layers,
                 kernel_specs=cfg.kernel_specs,
                 C=cfg.C,
@@ -442,15 +442,16 @@ class DMACN(nn.Module):
             # since D_{i,c} already equals sum omega^2 Z, we do:
             # J2 = lam1/2 * sum_{i,c} u_ic^m * D_{i,c}
             # Guides clustering trend and helps autoencoder extract features that are good for clustering.
+            J2 = 0.5 * cfg.lam1 * torch.sum((u ** cfg.m_fuzz) * D)
             
-            J2 = compute_J2(
+            """ J2 = compute_J2(
                 Y_layers=Y_layers,
                 u=u,
                 omega=omega,
-                cfg,
+                cfg=cfg,
                 kernel_specs=cfg.kernel_specs,
-                m_fuzz=cfg.m_fuzz,
-            )
+                m_fuzz=cfg.m_fuzz
+            ) """
 
             
 

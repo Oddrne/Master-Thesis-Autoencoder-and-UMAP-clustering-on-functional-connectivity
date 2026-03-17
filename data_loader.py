@@ -117,3 +117,17 @@ def load_workable_fc(filepath):
 
 
 # load_fc_mat_matrices()
+
+def load_static_functional_connectiviies(filepath="Input Data\ADHD_connectivity.mat"):
+    file = loadmat(filepath)
+    fc = file['connectivities']  # 487x672
+    fc_coordinates = file['coordinates']  # 672x1
+    
+    print(f"Original FC shape: {fc.shape}")
+
+    # Keep every column in fc if the row in fc_coordinates begins with "SFC"
+    fc = fc[:, [i for i in range(fc_coordinates.shape[0]) if fc_coordinates[i][0][0].startswith("SFC")]]
+    
+    print(f"Final FC shape: {fc.shape}")
+    
+    return fc

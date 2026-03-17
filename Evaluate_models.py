@@ -33,9 +33,11 @@ def evaluate_clustering(functional_connectivity_matrix, labels_path):
             print(f"Only one cluster in {filename}, silhouette coefficient not computed.")
 
 def evaluate_single_clustering(functional_connectivity_matrix, labels_path):
-    
-    labels = np.loadtxt(labels_path)
-    
+    if type(labels_path) is str:
+        labels = np.loadtxt(labels_path)
+    else:
+        labels = labels_path
+
     if len(np.unique(labels)) > 1:  # Ensure more than one cluster exists
         print(f"\n Scores for the given labels:")
         
