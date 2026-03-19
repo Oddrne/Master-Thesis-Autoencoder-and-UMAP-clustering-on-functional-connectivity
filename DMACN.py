@@ -439,7 +439,7 @@ class DMACN(nn.Module):
         print("Ready to train DMACN:")
         
         
-        # 1 Obtain sself-expression layer through feedforward process formula (3)
+        # 1 Obtain self-expression layer through feedforward process formula (3)
             
         # perform multi-kernel mapping, and perform Algorithm 2
         
