@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+
 import numpy as np
 from typing import Tuple
 
@@ -6,6 +8,30 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import DataLoader, TensorDataset
 from sklearn.cluster import KMeans
+
+from typing import List
+
+
+
+# --------------------------------------------------
+# 0. Config class for easy hyperparameter management
+# --------------------------------------------------
+@dataclass
+class DCECConfig:
+    name: str                                               # Used for saving predicted labels, e.g. "dcec_results"   
+    conv_layers_sizes: List[int]                            # Channel sizes for the convolutional layers in the CAE encoder/decoder
+    
+    n_clusters: int = 3                                     # Number of clusters for the clustering layer
+    latent_dim: int = 10                                    # Dimensionality of the middle layer z
+    alpha: float = 1.0                                      # Parameter for Student's t-distribution in clustering layer
+    gamma: float = 0.1                                      # Weight for clustering loss in the joint DCEC training              
+    epochs_pretrain: int = 50                               # Number of epochs for pretraining the CAE (reconstruction only)
+    epochs_dcec: int = 100                                  # Number of epochs for joint DCEC training (reconstruction + clustering)    
+    lr_pretrain: float = 1e-3                               # Learning rate for pretraining the CAE                
+    lr_dcec: float = 1e-4                                   # Learning rate for joint DCEC training
+    update_interval: int = 5                                # How often to update the target distribution p_ij during DCEC training
+    tol: float = 1e-3                                       # Tolerance for early stopping based on cluster assignment stability during DCEC training                       
+    print_interval: int = 10                                # How often to print training progress during pretraining and DCEC training
 
 
 # --------------------------------------------------
@@ -18,12 +44,11 @@ class CAE(nn.Module):
     Assumes input images of shape (1, 28, 28), e.g. MNIST.
     """
 
-    def __init__(self, latent_dim: int = 16):
+    def __init__(self, latent_dim: int = 16, conv_layers_sizes: List[int] = [1, 32, 64, 128, 256], ):
         super().__init__()
-        self.latent_dim = latent_dim
         
-        conv_layers_sizes = [1, 32, 64, 128, 256]  # Encoder channel sizes
-        self.conv_layers_sizes = conv_layers_sizes
+        self.latent_dim = latent_dim
+        self.conv_layers_sizes = conv_layers_sizes  # Encoder channel sizes
 
         # Encoder
         self.enc_conv1 = nn.Conv2d(conv_layers_sizes[0], conv_layers_sizes[1], kernel_size=5, stride=2, padding=2)   # 200x200x1 -> 100x100x32
@@ -105,7 +130,7 @@ class ClusteringLayer(nn.Module):
             z_i = embedding of sample i
             mu_j = cluster center j
         """
-        if self.cluster_centers.shape[0] != 4:
+        if self.cluster_centers.shape[0] != self.n_clusters:
             print("Warning: cluster_centers shape is", self.cluster_centers.shape, "but expected (n_clusters, embedding_dim)")
         
         # Squared distance to each cluster center
@@ -122,14 +147,15 @@ class ClusteringLayer(nn.Module):
 # --------------------------------------------------
 
 class DCEC(nn.Module):
-    def __init__(self, n_clusters: int = 10, latent_dim: int = 10, alpha: float = 1.0):
+    def __init__(self, cfg: DCECConfig):
         super().__init__()
-        self.cae = CAE(latent_dim=latent_dim)
-        self.n_clusters = n_clusters
+        self.cfg = cfg
+        self.cae = CAE(latent_dim=cfg.latent_dim)
+        self.n_clusters = cfg.n_clusters
         self.clustering = ClusteringLayer(
-            n_clusters=n_clusters,
-            embedding_dim=latent_dim,
-            alpha=alpha
+            n_clusters=cfg.n_clusters,
+            embedding_dim=cfg.latent_dim,
+            alpha=cfg.alpha
         )
 
     def forward(self, x: torch.Tensor):
@@ -171,8 +197,8 @@ def extract_embeddings(model: DCEC, dataloader: DataLoader, device: str) -> np.n
 
 
 @torch.no_grad()
-def predict_soft_assignments(model: DCEC, dataloader: DataLoader, device: str) -> np.ndarray:
-    model.eval()
+def predict_soft_assignments(model: DCEC, dataloader: DataLoader, device: str, save=False) -> Tuple[torch.Tensor, torch.Tensor]:
+    model.eval()    
     qs = []
 
     for (x,) in dataloader:
@@ -181,7 +207,24 @@ def predict_soft_assignments(model: DCEC, dataloader: DataLoader, device: str) -
         q = model.clustering(z)
         qs.append(q.cpu().numpy())
 
-    return np.concatenate(qs, axis=0)
+     
+    q_final = np.concatenate(qs, axis=0)
+    labels = q_final.argmax(axis=1)
+    if save:
+        model_name = model.cfg.name
+        
+        # Count how many samples are assigned to each cluster and save to a dictionary
+        label_counts = {}
+        for label in np.unique(labels):
+            count = (labels == label).sum()
+            label_counts[f"label_{label}"] = count
+        # Create a filename with the model name and label counts
+        filename = f"Clusters\\{model_name}_predicted_labels_" + "_".join([f"{name}_{count}" for name, count in label_counts.items()]) + ".txt"
+        
+        # Save the predicted labels to a text file
+        np.savetxt(filename, labels, fmt="%d")
+    
+    return torch.tensor(q_final, dtype=torch.float32), torch.tensor(labels, dtype=torch.long)
 
 
 def initialize_cluster_centers(
@@ -241,6 +284,8 @@ def pretrain_cae(
 
     model.to(device)
 
+    print_pause = epochs // print_interval
+    
     for epoch in range(epochs):
         model.train()
         running_loss = 0.0
@@ -258,7 +303,7 @@ def pretrain_cae(
             running_loss += loss.item() * x.size(0)
 
         epoch_loss = running_loss / len(dataloader.dataset)
-        if (epoch + 1) % print_interval == 0 or epoch == 0:
+        if (epoch + 1) % print_pause == 0 or epoch == 0:
             print(f"[Pretrain] Epoch {epoch+1:03d}/{epochs} - Recon loss: {epoch_loss:.6f}")
 
 
@@ -275,7 +320,7 @@ def train_dcec(
     lr: float = 1e-4,
     update_interval: int = 5,
     tol: float = 1e-3,
-    print_interval: int = 20
+    print_interval: int = 10
 ):
     """
     Joint optimization of:
@@ -290,21 +335,22 @@ def train_dcec(
     #mse_loss = nn.MSELoss()
 
     model.to(device)
+    
+    print_pause = epochs // print_interval
 
     # Initial q/p and label estimate
-    q_all = predict_soft_assignments(model, dataloader, device)
+    q_all, labels = predict_soft_assignments(model, dataloader, device)
     y_pred_last = q_all.argmax(axis=1)
 
     for epoch in range(epochs):
         # Update target distribution every few epochs
         if epoch % update_interval == 0:
-            q_all = predict_soft_assignments(model, dataloader, device)
-            q_tensor = torch.tensor(q_all, dtype=torch.float32, device=device)
-            p_all = target_distribution(q_tensor).cpu().numpy()
+            q_all, labels = predict_soft_assignments(model, dataloader, device)
+            p_all = target_distribution(q_all).cpu().numpy()
 
-            y_pred = q_all.argmax(axis=1)
-            delta_label = np.mean(y_pred != y_pred_last)
-            y_pred_last = y_pred.copy()
+            y_pred = q_all.argmax(dim=1)
+            delta_label = (y_pred != y_pred_last).float().mean().item()
+            y_pred_last = y_pred.clone()
 
             print(
                 f"[DCEC] Epoch {epoch:03d}/{epochs} - label change fraction: {delta_label:.6f}"
@@ -351,13 +397,15 @@ def train_dcec(
             running_kl += lc_loss.item() * batch_size
 
         n = len(dataloader.dataset)
-        if (epoch + 1) % print_interval == 0 or epoch == 0:
+        if (epoch + 1) % print_pause == 0 or epoch == 0:
             print(
                 f"[DCEC] Epoch {epoch+1:03d}/{epochs} - "
                 f"Total: {running_total/n:.6f}, "
                 f"Recon: {running_recon/n:.6f}, "
                 f"KL: {running_kl/n:.6f}"
             )
+
+
 
 
 # --------------------------------------------------
@@ -395,6 +443,5 @@ if __name__ == "__main__":
     )
 
     # Final cluster assignments
-    q_final = predict_soft_assignments(model, dataloader, device)
-    labels = q_final.argmax(axis=1)
+    q_final, labels = predict_soft_assignments(model, dataloader, device)
     print("Final labels shape:", labels.shape)
