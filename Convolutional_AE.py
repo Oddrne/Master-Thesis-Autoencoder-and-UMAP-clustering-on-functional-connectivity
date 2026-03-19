@@ -104,14 +104,10 @@ class ClusteringLayer(nn.Module):
         Actual: q_ij = (1 + ||z_i - mu_j||^2 )^(-1) / sum_j((1 + ||z_i - mu_j||^2)^(-1)
             z_i = embedding of sample i
             mu_j = cluster center j
-
-        
-        q = 1.0 / (1.0 + (K.sum(K.square(K.expand_dims(inputs, axis=1) - self.clusters), axis=2) / self.alpha))
-        q **= (self.alpha + 1.0) / 2.0
-        q = K.transpose(K.transpose(q) / K.sum(q, axis=1))
         """
+        if self.cluster_centers.shape[0] != 4:
+            print("Warning: cluster_centers shape is", self.cluster_centers.shape, "but expected (n_clusters, embedding_dim)")
         
-    
         # Squared distance to each cluster center
         dist_sq = torch.sum((z.unsqueeze(1) - self.cluster_centers) ** 2, dim=2)
 
@@ -122,7 +118,7 @@ class ClusteringLayer(nn.Module):
 
 
 # --------------------------------------------------
-# 3. Full DCEC model
+# 3. Full DCEC model - Deep Convolutional Embedded Clustering
 # --------------------------------------------------
 
 class DCEC(nn.Module):
@@ -213,8 +209,18 @@ def make_upper_triangle_mask(n=200, include_diagonal=False, device='cpu'):
     return mask
 
 def masked_mse_loss(x_hat, x, mask):
+    """Finds the mse-loss of the upper triangle
+
+    Args:
+        x_hat (_type_): The reconstructed FC matrix (batch_size, n, n)
+        x (_type_): The original FC matrix (batch_size, n, n)
+        mask (_type_): A boolean mask for the upper triangle (n, n)
+
+    Returns:
+        _type_: (x_hat - x)^2 averaged over the valid elements in the upper triangle and batch size
+    """
     diff2 = ((x_hat - x) ** 2) * mask
-    return diff2.sum() / mask.sum() / x.shape[0]  # Normalize by number of valid elements and batch size
+    return diff2.sum() / (mask.sum() * x.shape[0])  # Normalize by number of valid elements and batch size
 
 
 # --------------------------------------------------

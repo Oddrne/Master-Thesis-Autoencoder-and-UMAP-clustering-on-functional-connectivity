@@ -22,8 +22,16 @@ def gaussian_kernel_matrix(X: torch.Tensor, t0: float, eps: float = 1e-12) -> to
     
     # We have problems with large values leading to inf in K. Implementing normalization
     # X1 = torch.nn.functional.normalize(X, p=2, dim=1)  # Normalize rows to unit length to prevent large values
+    if not torch.isfinite(X).all():
+        print("X contains non-finite values. Check for numerical issues.")
+        print("X min:", X.min().item(), "X max:", X.max().item(), "X mean:", X.mean().item())
+        raise ValueError("X contains non-finite values. Check for numerical issues.")
     
     pairwise_dists = torch.cdist(X, X, p=2) ** 2  # [N,N] squared Euclidean distances
+    
+    if not torch.isfinite(pairwise_dists).all():
+        print("X:", X, "pairwise_dists:", pairwise_dists)
+        raise ValueError("Pairwise distances contain Inf or NaN values. Check for numerical issues.")
     
     # t = D0*t0 where D0 is the maximum distance between the samples
     D0 = torch.sqrt(torch.clamp(pairwise_dists.max(), min=eps)) 
@@ -41,20 +49,19 @@ def poly_kernel_matrix(X: torch.Tensor, a = 0, b = 2, eps: float = 1e-12) -> tor
     # Polynomial Kernel
     # K_ij(x_i, x_j) = (a + x_i^T*x_j)^b
 
-    # We have problems with large values leading to inf in K. Implementing normalization
-    # X = torch.nn.functional.normalize(X, p=2, dim=1)  # Normalize rows to unit length to prevent large values
+    # X [N, d] is probably [72, 64]
 
 
-    X_2 = X @ X.T  # [N,N] pairwise dot products
+    X_2 = X @ X.T  # [N,N]  
     a_X_2 = X_2 + torch.as_tensor(a, device=X.device, dtype=X.dtype)
     
-    K = a_X_2 ** b
-        
+    K = torch.pow(a_X_2, b)
+    
     if not torch.isfinite(K).all():
-        print("X:", X, "K:", K)
+        print("X:", X, "K:", K, "a:", a, "b:", b)
         raise ValueError("Polynomial kernel K contains Inf or NaN values. Check for numerical issues.")
     
-    return K
+    return K # [N,N]
 
 
 def build_kernel_matrix(Y: torch.Tensor, spec: Dict) -> torch.Tensor:
@@ -62,6 +69,10 @@ def build_kernel_matrix(Y: torch.Tensor, spec: Dict) -> torch.Tensor:
     if kind == "rbf":
         return gaussian_kernel_matrix(Y, t0=float(spec.get("t0", 1.0)))
     if kind == "poly":
+        """ return torch.from_numpy(polynomial_kernel(Y,
+                                 coef0=int(spec.get("a", 0)),
+                                 degree=int(spec.get("b", 2))
+                                 )).to(device=Y.device, dtype=Y.dtype)   """
         return poly_kernel_matrix(
             Y,
             a=int(spec.get("a", 0)),
@@ -77,29 +88,56 @@ def build_kernel_matrix(Y: torch.Tensor, spec: Dict) -> torch.Tensor:
 def compute_Z_sr(K: torch.Tensor, u: torch.Tensor, m_fuzz: float, eps: float = 1e-12) -> torch.Tensor:
     """
     Eq. (18) RKHS distance to fuzzy centroid:
-      Z_{s,r} = K_ii - 2 ubar_c^T K + ubar_j^T K ubar_c
-    K: [N,N], u: [N,C] -> Z: [N,C]
+      Z_{s,r} = K_ii - 2 ubar_ic^T K + ubar_c^T K ubar_c
+    K: [N,N], u: [N,C] -> Z: [1]
     """
     # RKHS is a Reproducing Kernel Hilbert Space, where the kernel function K implicitly 
     # defines a mapping of data points into a high-dimensional space. The distance Z_{i,c} 
     # measures how far each data point i is from the fuzzy centroid of cluster c in this RKHS, 
     # which is crucial for the fuzzy clustersing process.
 
-    um = torch.clamp(u, min=eps) ** m_fuzz                 # [N,C]
+    # u is size [N,C], K is size [N,N]. We want Z to be size [N,C].
+    
+    """ um = torch.clamp(u, min=eps) ** m_fuzz                 # [N,C]
     denom = um.sum(dim=0, keepdim=True)                    # [1,C]
     ubar = um / denom                                      # [N,C]
+    
+    u_ic = ubar 
+    u_c =  ubar.sum(dim=0, keepdim=True)                  # [1,C]
 
     K_diag = torch.diagonal(K, 0)                          # K_ii [N]
-    Ku = K @ ubar                                          # ubar^T * K_:i [N,C]
-    uKu = ubar.T @ Ku                                      # [C,C]
+    Ku = ubar.T @ K                                        # ubar^T * K_:i [N,C]
+    uKu = Ku @ ubar                                        # [C,C]
     uKu_diag = torch.diagonal(uKu, 0)                      # [C]
 
-    Z = K_diag[:, None] - 2.0 * Ku + uKu_diag[None, :]
-    return torch.clamp(Z, min=eps)
+    Z = K_diag[:, None] - 2.0 * Ku + uKu_diag[None, :]     # [N, C] """
+    
+    
+    
+    # Trying to implement the same code from the MKFC paper.
+    # From C it is: 
+    # mf = U_final.^degree
+    # mf_tmp = mf*diag(1./sum(mf))
+    # ones(data_n,1)*diag(mf_tmp'*kvalue(:,:,k)*mf_tmp)'-2*kvalue(:,:,k)*mf_tmp+1
+    
+    um = u ** m_fuzz                                             # [N,C]
+    um_temp = um / um.sum(dim=0, keepdim=True)   # [N,C] 
+    
+    inner = um_temp.T @ K @ um_temp  # [C,C]
+    diag_inner = torch.diagonal(inner)  # [C]
+    
+    K_diag = torch.diagonal(K)  # K_ii [N]
+    termm0 = K_diag.unsqueeze(1)  # [N,1]
+    term1 = torch.ones((K.shape[0], 1), device=K.device) * diag_inner.unsqueeze(0)  # [N,C]
+    term2 = 2.0 * (K @ um_temp)  # [N,C]
+    
+    Z_n = termm0 + term1 - term2  # [N,C]
+    return Z_n
 
 
 def compute_D(Z_list: List[List[torch.Tensor]], omega: torch.Tensor, eps: float = 1e-12) -> torch.Tensor:
     """
+    D is the distance of each data point to each cluster.
     Eq. (19): D_{i,c} = sum_{s=1..mid} sum_{r=1..h} omega_{s,r}^2 * Z_{i,c}^{(s,r)}
     Z_list: [mid][h] each [N,C], omega: [mid,h] -> D [N,C]
     """
@@ -172,11 +210,12 @@ def compute_J2(
     Compute the J2 term in the DMACN loss, which is:
       J2 = lam1/2 * sum_{i,c} u_ic^m * D_{i,c}
     """
+    
     # First find K using Y_layers and kernel_specs, then Z_list using K and u, then D using omega and Z_list, and finally J2 using u, D.
     K_list = [[None for _ in range(len(kernel_specs))] for _ in range(len(Y_layers))]  # type: ignore
     for s in range(len(Y_layers)):
         for r in range(len(kernel_specs)):
-            K_list[s][r] = build_kernel_matrix(Y_layers[s], kernel_specs[r])  # [N,N]
+            K_list[s][r] = build_kernel_matrix(Y_layers[s], kernel_specs[r])  # [N,12]
     
     # Find Z_list using K and u
     Z_list = [[None for _ in range(len(kernel_specs))] for _ in range(len(Y_layers))]  # type: ignore
@@ -191,7 +230,7 @@ def compute_J2(
     return J2
 
 
-#@torch.no_grad()
+@torch.no_grad()
 def algorithm2_mkfc(
     Y_layers: List[torch.Tensor],          # length mid, each [N, d_s]
     kernel_specs: List[Dict],              # length h
@@ -207,6 +246,7 @@ def algorithm2_mkfc(
       u:     [N,C]
       omega: [mid,h]
     """
+
     device = Y_layers[0].device
     dtype = Y_layers[0].dtype
     mid = len(Y_layers)
@@ -224,10 +264,10 @@ def algorithm2_mkfc(
     omega = torch.full((mid, h), 1.0 / (mid * h), device=device, dtype=dtype)
     if renormalize_omega_sum1:
         omega = omega / omega.sum()
+        
 
     # Precompute kernel matrices K^{(s,r)} for current Y_layers
     K: List[List[torch.Tensor]] = [[None for _ in range(h)] for _ in range(mid)]  # type: ignore
-
     for s in range(mid):
         for r in range(h):
             K[s][r] = build_kernel_matrix(Y_layers[s], kernel_specs[r])  # [N,N]
@@ -286,7 +326,7 @@ def algorithm2_mkfc(
             break
 
     # print(_iter+1, "MKFC iterations until convergence")
-    return u, omega, D
+    return D, u, omega
 
 
 # --------------------------
@@ -409,7 +449,8 @@ class DMACN(nn.Module):
 
             # (1) forward (Eq. 3): obtain encoder features and reconstruction
             Ys, y_mid, x_hat = self.ae(X)
-
+            self.y_mid = y_mid  # Store y_mid for potential later use (e.g., visualization)
+            
             # Decide which layers to pass into Algorithm 2
             use_mid_only = (epoch == 0 and cfg.mid_only_first) or (epoch == cfg.epochs - 1 and cfg.mid_only_last)
             Y_layers = [Ys[-1]] if use_mid_only else Ys
@@ -431,9 +472,9 @@ class DMACN(nn.Module):
             # J1 = 1/2 ||x - x_hat||_F (^2) - We are dropping the ^2 as it is seen as a typo
             # Minimize the reconstruction error
             # Frobenius norm
-            J1 = 0.5 * torch.sum((X - x_hat) ** 2) # old code
-            #norm = torch.linalg.matrix_norm(X - x_hat, ord='fro')
-            #J1 = 0.5 * norm ** 2
+            #J1 = 0.5 * torch.sum((X - x_hat) ** 2) # old code
+            norm = torch.linalg.matrix_norm(X - x_hat, ord='fro')
+            J1 = 0.5 * norm ** 2
 
 
 
@@ -442,7 +483,9 @@ class DMACN(nn.Module):
             # since D_{i,c} already equals sum omega^2 Z, we do:
             # J2 = lam1/2 * sum_{i,c} u_ic^m * D_{i,c}
             # Guides clustering trend and helps autoencoder extract features that are good for clustering.
-            J2 = 0.5 * cfg.lam1 * torch.sum((u ** cfg.m_fuzz) * D)
+            um = (u ** cfg.m_fuzz)
+            # J2 = 0.5 * cfg.lam1 * torch.sum(um * D) #old
+            J2 = 0.5 * cfg.lam1 * torch.linalg.vector_norm(um * D, ord=2)  # sum_{i,c} u_ic^m * D_{i,c}
             
             """ J2 = compute_J2(
                 Y_layers=Y_layers,

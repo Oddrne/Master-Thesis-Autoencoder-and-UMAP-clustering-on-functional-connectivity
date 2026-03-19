@@ -1,7 +1,8 @@
-from sklearn.metrics import silhouette_score, davies_bouldin_score, calinski_harabasz_score
+from sklearn.metrics import silhouette_score, davies_bouldin_score, calinski_harabasz_score, confusion_matrix
 import os
 from scipy.io import loadmat
 import numpy as np
+from scipy.optimize import linear_sum_assignment
 
 def evaluate_clustering(functional_connectivity_matrix, labels_path):
     for file in os.listdir(labels_path):
@@ -56,6 +57,20 @@ def evaluate_single_clustering(functional_connectivity_matrix, labels_path):
         print("Only one cluster in the provided labels, silhouette coefficient not computed.")  
         
         
+def compute_my_accuracy(true_labels, predicted_labels):
+    """ 
+    Compute the accuracy of clustering results by finding the best matching between true and predicted labels.
+    Parameters:
+    - true_labels: The ground truth labels for the data points.
+    - predicted_labels: The labels assigned by the clustering algorithm.
+    Returns:
+    - acc: The computed accuracy of the clustering results.
+    """
+    confusion_mat = confusion_matrix(true_labels, predicted_labels)
+    row_ind, col_ind = linear_sum_assignment(-confusion_mat)  # Maximize
+    
+    acc = confusion_mat[row_ind, col_ind].sum() / np.sum(confusion_mat)
+    return acc
         
 # Example
 # PTSD = loadmat("C:\\Users\\oddar\\Downloads\\PTSD_connectivity.mat")
