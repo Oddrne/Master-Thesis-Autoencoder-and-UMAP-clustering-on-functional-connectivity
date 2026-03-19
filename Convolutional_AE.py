@@ -157,6 +157,7 @@ class DCEC(nn.Module):
             embedding_dim=cfg.latent_dim,
             alpha=cfg.alpha
         )
+        self.z = None  # To store the final embeddings after training
 
     def forward(self, x: torch.Tensor):
         x_hat, z = self.cae(x)
@@ -185,6 +186,11 @@ def target_distribution(q: torch.Tensor) -> torch.Tensor:
 
 @torch.no_grad()
 def extract_embeddings(model: DCEC, dataloader: DataLoader, device: str) -> np.ndarray:
+    """ 
+    Extract the latent embeddings z_i for all samples in the dataloader using the CAE encoder.
+    Returns:
+    - z_all: A numpy array of shape (N_samples, latent_dim) containing the embeddings for all samples.
+    """
     model.eval()
     zs = []
 
@@ -197,20 +203,24 @@ def extract_embeddings(model: DCEC, dataloader: DataLoader, device: str) -> np.n
 
 
 @torch.no_grad()
-def predict_soft_assignments(model: DCEC, dataloader: DataLoader, device: str, save=False) -> Tuple[torch.Tensor, torch.Tensor]:
+def predict_soft_assignments(model: DCEC, dataloader: DataLoader, device: str, save=False) -> Tuple[np.ndarray, np.ndarray]:
     model.eval()    
     qs = []
+    zs = []
 
     for (x,) in dataloader:
         x = x.to(device)
         z = model.cae.encode(x)
         q = model.clustering(z)
+        zs.append(z.cpu().numpy())
         qs.append(q.cpu().numpy())
 
-     
     q_final = np.concatenate(qs, axis=0)
+    z_final = np.concatenate(zs, axis=0)
+    
     labels = q_final.argmax(axis=1)
     if save:
+        model.z = z_final  # Store the final embeddings in the model for later use
         model_name = model.cfg.name
         
         # Count how many samples are assigned to each cluster and save to a dictionary
@@ -219,12 +229,21 @@ def predict_soft_assignments(model: DCEC, dataloader: DataLoader, device: str, s
             count = (labels == label).sum()
             label_counts[f"label_{label}"] = count
         # Create a filename with the model name and label counts
-        filename = f"Clusters\\{model_name}_predicted_labels_" + "_".join([f"{name}_{count}" for name, count in label_counts.items()]) + ".txt"
+        filename_labels = f"Clusters\\{model_name}_cluster_{model.n_clusters}_labels_predicted_labels_" + "_".join([f"{name}_{count}" for name, count in label_counts.items()]) + ".txt"
+        filename_midlayer = f"Clusters\\{model_name}_cluster_{model.n_clusters}_middle_layer_predicted_labels_" + "_".join([f"{name}_{count}" for name, count in label_counts.items()]) + ".txt"
+
+        # Print labels and z
+        print("Predicted labels shape:", labels.shape)
+        print("Embeddings shape:", z_final.shape)
+        
+        save_object = (labels, z_final)  # Save both labels and embeddings for later analysis
         
         # Save the predicted labels to a text file
-        np.savetxt(filename, labels, fmt="%d")
+        np.savetxt(filename_labels, labels, fmt="%d")
+        np.savetxt(filename_midlayer, z_final, fmt="%.6f")
     
-    return torch.tensor(q_final, dtype=torch.float32), torch.tensor(labels, dtype=torch.long)
+    
+    return q_final, labels
 
 
 def initialize_cluster_centers(
@@ -275,7 +294,7 @@ def pretrain_cae(
     dataloader: DataLoader,
     device: str = "cuda",
     epochs: int = 50,
-    lr: float = 1e-3,
+    lr: float = 1e-2,
     print_interval: int = 10
 ):
     optimizer = torch.optim.Adam(model.cae.parameters(), lr=lr)
@@ -285,6 +304,8 @@ def pretrain_cae(
     model.to(device)
 
     print_pause = epochs // print_interval
+    if print_pause == 0:
+        raise ValueError("print_interval is too large for the number of epochs. Please set print_interval to a smaller value.")
     
     for epoch in range(epochs):
         model.train()
@@ -337,20 +358,23 @@ def train_dcec(
     model.to(device)
     
     print_pause = epochs // print_interval
+    if print_pause == 0:
+        raise ValueError("print_interval is too large for the number of epochs. Please set print_interval to a smaller value.")
 
     # Initial q/p and label estimate
     q_all, labels = predict_soft_assignments(model, dataloader, device)
-    y_pred_last = q_all.argmax(axis=1)
+    y_pred_last = labels
 
     for epoch in range(epochs):
         # Update target distribution every few epochs
         if epoch % update_interval == 0:
             q_all, labels = predict_soft_assignments(model, dataloader, device)
-            p_all = target_distribution(q_all).cpu().numpy()
+            q_tensor = torch.tensor(q_all, dtype=torch.float32, device=device)
+            p_all = target_distribution(q_tensor).cpu().numpy()
 
-            y_pred = q_all.argmax(dim=1)
-            delta_label = (y_pred != y_pred_last).float().mean().item()
-            y_pred_last = y_pred.clone()
+            y_pred = labels
+            delta_label = np.mean(y_pred != y_pred_last)
+            y_pred_last = y_pred.copy()
 
             print(
                 f"[DCEC] Epoch {epoch:03d}/{epochs} - label change fraction: {delta_label:.6f}"
@@ -404,44 +428,9 @@ def train_dcec(
                 f"Recon: {running_recon/n:.6f}, "
                 f"KL: {running_kl/n:.6f}"
             )
-
-
-
-
-# --------------------------------------------------
-# 8. Example usage
-# --------------------------------------------------
-
-if __name__ == "__main__":
-    # Example dummy data:
-    # Replace this with your real image tensor of shape (N, 1, 28, 28)
-    X = torch.rand(2000, 1, 28, 28)
-
-    dataset = TensorDataset(X)
-    dataloader = DataLoader(dataset, batch_size=256, shuffle=False)
-
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-
-    model = DCEC(n_clusters=10, latent_dim=10, alpha=1.0)
-
-    # Step 1: Pretrain CAE
-    pretrain_cae(model, dataloader, device=device, epochs=20, lr=1e-3)
-
-    # Step 2: Initialize clusters with k-means on latent embeddings
-    initialize_cluster_centers(model, dataloader, device=device)
-
-    # Step 3: Joint train DCEC
-    train_dcec(
-        model,
-        dataloader,
-        device=device,
-        gamma=0.1,
-        epochs=50,
-        lr=1e-4,
-        update_interval=5,
-        tol=1e-3
-    )
-
-    # Final cluster assignments
-    q_final, labels = predict_soft_assignments(model, dataloader, device)
-    print("Final labels shape:", labels.shape)
+        
+def save_z(model, z):
+    """
+    Save the latent embeddings z to a numpy file for later use in clustering evaluation.
+    """
+    np.save(f"z_embeddings_{model.cfg.name}.npy", z)
