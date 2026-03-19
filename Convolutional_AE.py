@@ -220,7 +220,7 @@ def masked_mse_loss(x_hat, x, mask):
         _type_: (x_hat - x)^2 averaged over the valid elements in the upper triangle and batch size
     """
     diff2 = ((x_hat - x) ** 2) * mask
-    return diff2.sum() / (mask.sum() * x.shape[0])  # Normalize by number of valid elements and batch size
+    return diff2.sum() / mask.sum() / x.shape[0]  # Normalize by number of valid elements and batch size
 
 
 # --------------------------------------------------

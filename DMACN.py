@@ -215,7 +215,7 @@ def compute_J2(
     K_list = [[None for _ in range(len(kernel_specs))] for _ in range(len(Y_layers))]  # type: ignore
     for s in range(len(Y_layers)):
         for r in range(len(kernel_specs)):
-            K_list[s][r] = build_kernel_matrix(Y_layers[s], kernel_specs[r])  # [N,12]
+            K_list[s][r] = build_kernel_matrix(Y_layers[s], kernel_specs[r])  # [N,h] [subjects, kernels]
     
     # Find Z_list using K and u
     Z_list = [[None for _ in range(len(kernel_specs))] for _ in range(len(Y_layers))]  # type: ignore
@@ -481,11 +481,11 @@ class DMACN(nn.Module):
 
             # Using Eq. (20) idea: T(omega)=sum u^m * sum omega^2 Z
             # since D_{i,c} already equals sum omega^2 Z, we do:
-            # J2 = lam1/2 * sum_{i,c} u_ic^m * D_{i,c}
+            # J2 = lam1/2 * norm(D * (u ** m_fuzz))  
             # Guides clustering trend and helps autoencoder extract features that are good for clustering.
             um = (u ** cfg.m_fuzz)
             # J2 = 0.5 * cfg.lam1 * torch.sum(um * D) #old
-            J2 = 0.5 * cfg.lam1 * torch.linalg.vector_norm(um * D, ord=2)  # sum_{i,c} u_ic^m * D_{i,c}
+            J2 = 0.5 * cfg.lam1 * torch.linalg.vector_norm(um * D, ord=2)  # 0.5 * lam1 * norm(D * (u ** m_fuzz))  
             
             """ J2 = compute_J2(
                 Y_layers=Y_layers,
