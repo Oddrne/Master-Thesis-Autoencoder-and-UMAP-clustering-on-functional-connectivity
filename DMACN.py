@@ -127,11 +127,11 @@ def compute_Z_sr(K: torch.Tensor, u: torch.Tensor, m_fuzz: float, eps: float = 1
     diag_inner = torch.diagonal(inner)  # [C]
     
     K_diag = torch.diagonal(K)  # K_ii [N]
-    termm0 = K_diag.unsqueeze(1)  # [N,1]
+    term0 = K_diag.unsqueeze(1)  # [N,1]
     term1 = torch.ones((K.shape[0], 1), device=K.device) * diag_inner.unsqueeze(0)  # [N,C]
     term2 = 2.0 * (K @ um_temp)  # [N,C]
     
-    Z_n = termm0 + term1 - term2  # [N,C]
+    Z_n = term0 + term1 - term2  # [N,C]
     return Z_n
 
 

@@ -1,16 +1,23 @@
 {
     "cSpell.words": [
         "Backpropagate",
+        "Calinski",
         "cdist",
         "connectivities",
+        "DCEC",
+        "deconv",
         "DMACN",
+        "Harabasz",
         "keepdim",
+        "kmeans",
         "loadmat",
         "MKFC",
         "oddar",
+        "Pretraining",
         "PTSD",
         "RKHS",
         "savetxt",
+        "triu",
         "ubar"
     ]
 }
