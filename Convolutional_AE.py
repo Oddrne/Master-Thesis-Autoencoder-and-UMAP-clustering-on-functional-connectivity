@@ -8,6 +8,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import DataLoader, TensorDataset
 from sklearn.cluster import KMeans
+import matplotlib.pyplot as plt
+from sklearn.manifold import TSNE
 
 from typing import List
 
@@ -204,6 +206,11 @@ def extract_embeddings(model: DCEC, dataloader: DataLoader, device: str) -> np.n
 
 @torch.no_grad()
 def predict_soft_assignments(model: DCEC, dataloader: DataLoader, device: str, save=False) -> Tuple[np.ndarray, np.ndarray]:
+    """
+        Predict the soft cluster assignments q_ij and the corresponding hard labels for all samples in the dataloader.
+    Returns:
+        Tuple[np.ndarray, np.ndarray]: A tuple containing: [q_final, labels]
+    """
     model.eval()    
     qs = []
     zs = []
@@ -229,12 +236,8 @@ def predict_soft_assignments(model: DCEC, dataloader: DataLoader, device: str, s
             count = (labels == label).sum()
             label_counts[f"label_{label}"] = count
         # Create a filename with the model name and label counts
-        filename_labels = f"Clusters\\{model_name}_cluster_{model.n_clusters}_labels_predicted_labels_" + "_".join([f"{name}_{count}" for name, count in label_counts.items()]) + ".txt"
-        filename_midlayer = f"Clusters\\{model_name}_cluster_{model.n_clusters}_middle_layer_predicted_labels_" + "_".join([f"{name}_{count}" for name, count in label_counts.items()]) + ".txt"
-
-        # Print labels and z
-        print("Predicted labels shape:", labels.shape)
-        print("Embeddings shape:", z_final.shape)
+        filename_labels = f"Clusters\\{model_name}_cluster_{model.n_clusters}_labels_predicted_labels_" + ".txt" # + "_".join([f"{name}_{count}" for name, count in label_counts.items()])
+        filename_midlayer = f"Clusters\\{model_name}_cluster_{model.n_clusters}_middle_layer_predicted_labels_"  + ".txt" # + "_".join([f"{name}_{count}" for name, count in label_counts.items()])
         
         save_object = (labels, z_final)  # Save both labels and embeddings for later analysis
         
@@ -304,6 +307,8 @@ def pretrain_cae(
     model.to(device)
 
     print_pause = epochs // print_interval
+    history = {"Recon loss": []}
+    
     if print_pause == 0:
         raise ValueError("print_interval is too large for the number of epochs. Please set print_interval to a smaller value.")
     
@@ -324,9 +329,12 @@ def pretrain_cae(
             running_loss += loss.item() * x.size(0)
 
         epoch_loss = running_loss / len(dataloader.dataset)
+        history["Recon loss"].append(epoch_loss)
+        
         if (epoch + 1) % print_pause == 0 or epoch == 0:
             print(f"[Pretrain] Epoch {epoch+1:03d}/{epochs} - Recon loss: {epoch_loss:.6f}")
 
+    return history
 
 # --------------------------------------------------
 # 7. Joint DCEC training
@@ -353,14 +361,19 @@ def train_dcec(
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     mask = make_upper_triangle_mask(n=200, include_diagonal=False, device=device).unsqueeze(0)  # Shape (1, 200, 200)
 
-    #mse_loss = nn.MSELoss()
-
     model.to(device)
     
     print_pause = epochs // print_interval
     if print_pause == 0:
         raise ValueError("print_interval is too large for the number of epochs. Please set print_interval to a smaller value.")
 
+    history = {
+        "Total loss": [], 
+        "Recon loss": [],
+        "KL loss": [],
+        "Label change fraction": []}
+    
+    
     # Initial q/p and label estimate
     q_all, labels = predict_soft_assignments(model, dataloader, device)
     y_pred_last = labels
@@ -375,6 +388,7 @@ def train_dcec(
             y_pred = labels
             delta_label = np.mean(y_pred != y_pred_last)
             y_pred_last = y_pred.copy()
+            history["Label change fraction"].append(delta_label)
 
             print(
                 f"[DCEC] Epoch {epoch:03d}/{epochs} - label change fraction: {delta_label:.6f}"
@@ -421,16 +435,115 @@ def train_dcec(
             running_kl += lc_loss.item() * batch_size
 
         n = len(dataloader.dataset)
+        epoch_total_loss = running_total / n
+        epoch_recon_loss = running_recon / n
+        epoch_kl_loss = running_kl / n
+        history["Total loss"].append(epoch_total_loss)
+        history["Recon loss"].append(epoch_recon_loss)
+        history["KL loss"].append(epoch_kl_loss)
+        
         if (epoch + 1) % print_pause == 0 or epoch == 0:
             print(
                 f"[DCEC] Epoch {epoch+1:03d}/{epochs} - "
-                f"Total: {running_total/n:.6f}, "
-                f"Recon: {running_recon/n:.6f}, "
-                f"KL: {running_kl/n:.6f}"
+                f"Total: {epoch_total_loss:.6f}, "
+                f"Recon: {epoch_recon_loss:.6f}, "
+                f"KL: {epoch_kl_loss:.6f}"
             )
+            
+    return history
         
-def save_z(model, z):
+        
+# --------------------------------------------------
+# 8. Visualization utilities
+# --------------------------------------------------        
+        
+def plot_training_history(pretrain_history=None, dcec_history=None, save_path=None):
+    plt.figure(figsize=(10, 6))
+    
+    if pretrain_history is not None:
+        plt.plot(pretrain_history["Recon loss"], label="CAE Pretrain Recon Loss", color='blue')
+    
+    if dcec_history is not None:
+        plt.plot(dcec_history["Total loss"], label="DCEC Total Loss", color='red')
+        plt.plot(dcec_history["Recon loss"], label="DCEC Recon Loss", color='orange')
+        plt.plot(dcec_history["KL loss"], label="DCEC KL Loss", color='green')
+        
+    plt.xlabel("Epoch")
+    plt.ylabel("Loss")
+    plt.title("Training History")
+    plt.legend()
+    plt.grid(True)
+    
+    if save_path is not None:
+        plt.savefig(save_path)
+    plt.show()
+    
+@torch.no_grad()
+def plot_reconstruction(model: DCEC, dataloader: DataLoader, device: str, n_samples=5, save_path=None):
     """
-    Save the latent embeddings z to a numpy file for later use in clustering evaluation.
+    Plots original vs reconstructed FC matrices for a few samples from the dataloader.
     """
-    np.save(f"z_embeddings_{model.cfg.name}.npy", z)
+    model.eval()
+    x_batch = next(iter(dataloader))[0][:n_samples].to(device)  # Get a batch of samples and limit to n_samples
+    x_hat, z = model.cae(x_batch)
+    
+    # Plot original and reconstructed FC matrices
+    fig, axes = plt.subplots(n_samples, 2, figsize=(8, 4 * n_samples))
+    
+    recon_losses = []
+    for i in range(n_samples):
+        loss = masked_mse_loss(
+            x_hat=torch.tensor(x_hat[i:i+1, 0]),
+            x=torch.tensor(x_batch[i, 0]), 
+            mask=make_upper_triangle_mask(n=x_batch.shape[-1], include_diagonal=False, device=device).unsqueeze(0)
+            ).item()
+        recon_losses.append(loss)
+
+    x_batch = x_batch.cpu().numpy()
+    x_hat = x_hat.cpu().numpy()
+
+    if n_samples == 1:
+        axes = np.array([axes])  # Ensure axes is 2D even for single sample
+    
+    for i in range(n_samples):
+        subject_id = f"Subject {i}"
+        
+        axes[i, 0].imshow(x_batch[i, 0], aspect='auto')
+        axes[i, 0].set_title(f"{subject_id} - Original FC")
+        axes[i, 0].axis('off')
+        
+        axes[i, 1].imshow(x_hat[i, 0], aspect='auto') 
+        axes[i, 1].set_title(f"{subject_id} - Reconstructed FC\nLoss: {recon_losses[i]:.4f}")
+        axes[i, 1].axis('off')
+    
+    plt.tight_layout()
+    if save_path is not None:
+        plt.savefig(save_path)
+    plt.show()
+    
+    
+def plot_clustering(model: DCEC, dataloader: DataLoader, device: str, save_path=None):
+    z_all = extract_embeddings(model, dataloader, device)
+    _, labels = predict_soft_assignments(model, dataloader, device, save=True)
+    
+    labels = labels.cpu().numpy() if torch.is_tensor(labels) else np.array(labels)
+    
+    tsne = TSNE(
+        random_state=42
+        )
+    z_2d = tsne.fit_transform(z_all)
+    
+    plt.figure(figsize=(8, 6))
+    plt.scatter(z_2d[:, 0], z_2d[:, 1], s=20, c=labels)
+    plt.title("t-SNE Visualization of Clusters")
+    plt.xlabel("t-SNE 1")
+    plt.ylabel("t-SNE 2")
+    # plt.colorbar(scatter, label="Cluster")
+    plt.grid(True)
+    plt.tight_layout()
+    
+    if save_path is not None:
+        plt.savefig(save_path)
+    plt.show()
+    
+    

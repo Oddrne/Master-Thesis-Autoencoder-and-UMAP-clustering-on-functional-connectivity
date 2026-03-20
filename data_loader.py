@@ -6,7 +6,7 @@ from scipy.io import loadmat, savemat
 # Vectorize the upper triangle of the FC matrix (excluding diagonal)
 def vectorize_fc_matrix(fc_matrix):
     n = fc_matrix.shape[0]
-    upper_tri_indices = np.triu_indices(n, k=1) # Removes diagnoal as well
+    upper_tri_indices = np.triu_indices(n, k=1) # Removes diagonal as well
     return fc_matrix[upper_tri_indices]
 
 
@@ -118,7 +118,7 @@ def load_workable_fc(filepath):
 
 # load_fc_mat_matrices()
 
-def load_static_functional_connectiviies(filepath="Input Data\ADHD_connectivity.mat"):
+def load_static_functional_connectivities(filepath="Input Data\ADHD_connectivity.mat"):
     file = loadmat(filepath)
     fc = file['connectivities']  # 487x672
     fc_coordinates = file['coordinates']  # 672x1
