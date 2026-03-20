@@ -164,7 +164,7 @@ class DCEC(nn.Module):
     def forward(self, x: torch.Tensor):
         x_hat, z = self.cae(x)
         q = self.clustering(z)
-        return x_hat, z, q
+        return x_hat, q, z
 
 
 # --------------------------------------------------
@@ -177,7 +177,7 @@ def target_distribution(q: torch.Tensor) -> torch.Tensor:
     p_ij = (q_ij^2 / f_j) / sum_j(q_ij^2 / f_j)
     where f_j = sum_i q_ij
     """
-    weight = q ** 2 / torch.sum(q, dim=0, keepdim=True)
+    weight = q ** 2 / torch.sum(q, dim=0)
     p = weight / torch.sum(weight, dim=1, keepdim=True)
     return p
 
@@ -224,8 +224,8 @@ def predict_soft_assignments(model: DCEC, dataloader: DataLoader, device: str, s
 
     q_final = np.concatenate(qs, axis=0)
     z_final = np.concatenate(zs, axis=0)
-    
     labels = q_final.argmax(axis=1)
+    
     if save:
         model.z = z_final  # Store the final embeddings in the model for later use
         model_name = model.cfg.name
@@ -257,11 +257,20 @@ def initialize_cluster_centers(
     """
     Pretrain CAE, then run k-means on embeddings z_i, then load centers into clustering layer.
     """
+    model.eval()
+    
     z_all = extract_embeddings(model, dataloader, device)
     kmeans = KMeans(n_clusters=model.n_clusters, n_init=20, random_state=42)
     y_pred = kmeans.fit_predict(z_all)
 
     centers = torch.tensor(kmeans.cluster_centers_, dtype=torch.float32, device=device)
+    # Check if KMeans returns fewwer centers than n_clusters
+    if centers.shape[0] < model.n_clusters:
+        print(f"Warning: KMeans returned {centers.shape[0]} centers, but expected {model.n_clusters}. Check the input data and KMeans parameters.")
+        print(f"Z_all shape: {z_all.shape}. Unique predicted labels: {np.unique(y_pred)}. Counts: {np.bincount(y_pred)}.")
+        # If fewer centers are returned, we can pad with random centers from the existing ones
+        raise ValueError("KMeans did not return the expected number of cluster centers. Check the input data and KMeans parameters.")
+    
     model.clustering.cluster_centers.data.copy_(centers)
 
     return y_pred
@@ -375,48 +384,54 @@ def train_dcec(
     
     
     # Initial q/p and label estimate
-    q_all, labels = predict_soft_assignments(model, dataloader, device)
-    y_pred_last = labels
+    q_all, y_pred_last = predict_soft_assignments(model, dataloader, device)
+    q_all = torch.tensor(q_all, dtype=torch.float32, device=device)
+    p_all = target_distribution(q_all)
 
+    update_iter = 1
+
+    finished = False
+    
     for epoch in range(epochs):
-        # Update target distribution every few epochs
-        if epoch % update_interval == 0:
-            q_all, labels = predict_soft_assignments(model, dataloader, device)
-            q_tensor = torch.tensor(q_all, dtype=torch.float32, device=device)
-            p_all = target_distribution(q_tensor).cpu().numpy()
-
-            y_pred = labels
-            delta_label = np.mean(y_pred != y_pred_last)
-            y_pred_last = y_pred.copy()
-            history["Label change fraction"].append(delta_label)
-
-            print(
-                f"[DCEC] Epoch {epoch:03d}/{epochs} - label change fraction: {delta_label:.6f}"
-            )
-
-            if epoch > 0 and delta_label < tol:
-                print("Stopping early: cluster assignments stabilized. Delta:", delta_label, "< Tol:", tol)
-                break
-
         model.train()
         running_total = 0.0
         running_recon = 0.0
         running_kl = 0.0
-
-        start_idx = 0
+        
+        batch_num = 1
+        
+        
+        
         for (x,) in dataloader:
-            batch_size = x.size(0)
             x = x.to(device)
+            batch_size = x.size(0)
+            
+            # Update target distribution every few batches
+            if (batch_num - 1) % update_interval == 0 and not (epoch == 0 and batch_num == 1):  # Skip update at the very beginning
+                q_all_np, y_pred = predict_soft_assignments(model, dataloader, device)
+                q_all = torch.tensor(q_all_np, dtype=torch.float32, device=device)
+                p_all = target_distribution(q_all)
 
-            p_batch = torch.tensor(
-                p_all[start_idx:start_idx + batch_size],
-                dtype=torch.float32,
-                device=device
-            )
-            start_idx += batch_size
+                delta_label = np.mean(y_pred != y_pred_last)
+                y_pred_last = np.copy(y_pred)
+                history["Label change fraction"].append(delta_label)
 
-            x_hat, z, q_batch = model(x)
+                print(
+                    f"[DCEC] Epoch {epoch:03d}/{epochs} \nBatch {batch_num:03d} - label change fraction: {delta_label:.6f}"
+                )
+                update_iter += 1
+                
+                if delta_label < tol:
+                    print("Stopping early: cluster assignments stabilized. Delta:", delta_label, "< Tol:", tol)
+                    finished = True
+                    break
+                
+            start_idx = (batch_num - 1) * dataloader.batch_size
+            end_idx = start_idx + batch_size
+            p_batch = p_all[start_idx:end_idx, :]
 
+            x_hat, q_batch, z_batch = model(x)
+            
             # Reconstruction loss
             lr_loss = masked_mse_loss(x_hat, x, mask)
 
@@ -430,14 +445,20 @@ def train_dcec(
             loss.backward()
             optimizer.step()
 
+            if lc_loss.item() * batch_size <= 0:
+                print(f"KL loss: {lc_loss.item()}. q_batch: {q_batch}. p_batch: {p_batch}. This should not happen. Check the training process.")
+            
             running_total += loss.item() * batch_size
             running_recon += lr_loss.item() * batch_size
             running_kl += lc_loss.item() * batch_size
 
+            batch_num += 1
+            
         n = len(dataloader.dataset)
         epoch_total_loss = running_total / n
         epoch_recon_loss = running_recon / n
         epoch_kl_loss = running_kl / n
+        
         history["Total loss"].append(epoch_total_loss)
         history["Recon loss"].append(epoch_recon_loss)
         history["KL loss"].append(epoch_kl_loss)
@@ -449,6 +470,11 @@ def train_dcec(
                 f"Recon: {epoch_recon_loss:.6f}, "
                 f"KL: {epoch_kl_loss:.6f}"
             )
+            if epoch_kl_loss <= 0:
+                raise ValueError(f"KL loss is non-positive: {running_kl}. This should not happen. Check the training process.")
+        
+        if finished:
+            break
             
     return history
         
@@ -533,14 +559,17 @@ def plot_clustering(model: DCEC, dataloader: DataLoader, device: str, save_path=
         )
     z_2d = tsne.fit_transform(z_all)
     
+    cluster_number = model.n_clusters
+    
     plt.figure(figsize=(8, 6))
     plt.scatter(z_2d[:, 0], z_2d[:, 1], s=20, c=labels)
-    plt.title("t-SNE Visualization of Clusters")
+    plt.title(f"t-SNE Visualization of Clusters {cluster_number}")
     plt.xlabel("t-SNE 1")
     plt.ylabel("t-SNE 2")
     # plt.colorbar(scatter, label="Cluster")
     plt.grid(True)
     plt.tight_layout()
+    plt.text(0.95, 0.01, f"Model: {model.cfg.name} has {np.unique(labels).size} clusters", ha='right', va='bottom', transform=plt.gcf().transFigure, fontsize=8)
     
     if save_path is not None:
         plt.savefig(save_path)

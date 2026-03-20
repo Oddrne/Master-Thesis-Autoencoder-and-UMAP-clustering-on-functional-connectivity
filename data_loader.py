@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 from scipy.io import loadmat, savemat
+import torch
+import random
 
 
 # Vectorize the upper triangle of the FC matrix (excluding diagonal)
@@ -131,3 +133,20 @@ def load_static_functional_connectivities(filepath="Input Data\ADHD_connectivity
     print(f"Final FC shape: {fc.shape}")
     
     return fc
+
+def set_seed(seed=42):
+    # Python's built-in random module
+    random.seed(seed)
+    
+    # Numpy's random module
+    np.random.seed(seed)
+    
+    # PyTorch seed for CPU
+    torch.manual_seed(seed)
+    
+    # PyTorch seed for all GPU devices (if using CUDA)
+    torch.cuda.manual_seed_all(seed)
+    
+    # Make sure to disable CuDNN's non-deterministic optimizations
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
