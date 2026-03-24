@@ -207,7 +207,8 @@ def plot_scores(
     plt.tight_layout()
     fig.text(0.5, 0.01, '[-1, 1] Higher silhouette scores indicate better-defined clusters.', ha='center', fontsize=10, color='gray')
     if save_path is not None:
-        plt.savefig(os.path.join(save_path, "silhouette_scores.png"))
+        # Join the save path with the filename without // inbetween
+        plt.savefig(save_path + "_silhouette_scores.png")
     plt.show()
     
     # Davies-Bouldin Score
@@ -231,7 +232,7 @@ def plot_scores(
     plt.tight_layout()
     fig.text(0.5, 0.01, '[0, inf] Lower Davies-Bouldin scores indicate better-defined clusters.', ha='center', fontsize=10, color='gray')
     if save_path is not None:
-        plt.savefig(os.path.join(save_path, "davies_bouldin_scores.png"))
+        plt.savefig(save_path + "_davies_bouldin_scores.png")
     plt.show()
     
     # Calinski-Harabasz Score
@@ -255,5 +256,5 @@ def plot_scores(
     plt.tight_layout()
     fig.text(0.5, 0.01, '[0, inf] Higher Calinski-Harabasz scores indicate better-defined clusters.', ha='center', fontsize=10, color='gray')
     if save_path is not None:           
-        plt.savefig(os.path.join(save_path, "calinski_harabasz_scores.png"))
+        plt.savefig(save_path + "_calinski_harabasz_scores.png")
     plt.show()
