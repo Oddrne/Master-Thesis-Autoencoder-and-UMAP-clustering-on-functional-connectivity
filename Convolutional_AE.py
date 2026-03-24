@@ -31,75 +31,9 @@ class DCECConfig:
     epochs_dcec: int = 100                                  # Number of epochs for joint DCEC training (reconstruction + clustering)    
     lr_pretrain: float = 1e-3                               # Learning rate for pretraining the CAE                
     lr_dcec: float = 1e-4                                   # Learning rate for joint DCEC training
-    update_interval: int = 5                                # How often to update the target distribution p_ij during DCEC training
+    update_interval: int = 3                                # How often to update the target distribution p_ij during DCEC training
     tol: float = 1e-3                                       # Tolerance for early stopping based on cluster assignment stability during DCEC training                       
     print_interval: int = 10                                # How often to print training progress during pretraining and DCEC training
-
-
-# --------------------------------------------------
-# 1. Convolutional Autoencoder
-# --------------------------------------------------
-
-class CAE(nn.Module):
-    """
-    Convolutional Autoencoder with a low-dimensional embedded layer z.
-    Assumes input images of shape (1, 28, 28), e.g. MNIST.
-    """
-
-    def __init__(self, latent_dim: int = 16, conv_layers_sizes: List[int] = [1, 32, 64, 128, 256], ):
-        super().__init__()
-        
-        self.latent_dim = latent_dim
-        self.conv_layers_sizes = conv_layers_sizes  # Encoder channel sizes
-
-        # Encoder
-        self.enc_conv1 = nn.Conv2d(conv_layers_sizes[0], conv_layers_sizes[1], kernel_size=5, stride=2, padding=2)   # 200x200x1 -> 100x100x32
-        self.enc_conv2 = nn.Conv2d(conv_layers_sizes[1], conv_layers_sizes[2], kernel_size=5, stride=2, padding=2)  # 100x100x32 -> 50x50x64
-        self.enc_conv3 = nn.Conv2d(conv_layers_sizes[2], conv_layers_sizes[3], kernel_size=5, stride=2, padding=2) # 50x50x64 -> 25x25x128
-        self.enc_conv4 = nn.Conv2d(conv_layers_sizes[3], conv_layers_sizes[4], kernel_size=3, stride=2, padding=0) # 25x25x128 -> 12x12x256
-        self.enc_conv5 = nn.Conv2d(conv_layers_sizes[4], conv_layers_sizes[4], kernel_size=4, stride=2, padding=1) # 12x12x256 -> 6x6x256
-        self.enc_conv6 = nn.Conv2d(conv_layers_sizes[4], conv_layers_sizes[4], kernel_size=4, stride=2, padding=1) # 6x6x256 -> 3x3x256
-
-        self.flatten = nn.Flatten() # 1x1152
-        self.fc_enc = nn.Linear(256 * 3 * 3, latent_dim)
-
-        # Decoder
-        self.fc_dec = nn.Linear(latent_dim, 256 * 3 * 3)
-
-        self.dec_deconv1 = nn.ConvTranspose2d(conv_layers_sizes[-1], conv_layers_sizes[-1], kernel_size=4, stride=2, padding=1, output_padding=0)  # 3x3x256 -> 6x6x256
-        self.dec_deconv2 = nn.ConvTranspose2d(conv_layers_sizes[-1], conv_layers_sizes[-1], kernel_size=4, stride=2, padding=1, output_padding=0)  # 6x6x256 -> 12x12x256
-        self.dec_deconv3 = nn.ConvTranspose2d(conv_layers_sizes[-1], conv_layers_sizes[-2], kernel_size=3, stride=2, padding=0, output_padding=0)  # 12x12x256 -> 25x25x128
-        self.dec_deconv4 = nn.ConvTranspose2d(conv_layers_sizes[-2], conv_layers_sizes[-3], kernel_size=5, stride=2, padding=2, output_padding=1)  # 25x25x128 -> 50x50x64 (if needed)
-        self.dec_deconv5 = nn.ConvTranspose2d(conv_layers_sizes[-3], conv_layers_sizes[-4], kernel_size=5, stride=2, padding=2, output_padding=1)  # 50x50x64 -> 100x100x32 (if needed)
-        self.dec_deconv6 = nn.ConvTranspose2d(conv_layers_sizes[-4], conv_layers_sizes[-5], kernel_size=5, stride=2, padding=2, output_padding=1)  # 100x100x32 -> 200x200x1 (if needed)
-
-
-    def encode(self, x: torch.Tensor) -> torch.Tensor:
-        x = F.relu(self.enc_conv1(x))
-        x = F.relu(self.enc_conv2(x))
-        x = F.relu(self.enc_conv3(x))
-        x = F.relu(self.enc_conv4(x))
-        x = F.relu(self.enc_conv5(x))
-        x = F.relu(self.enc_conv6(x))
-        x = self.flatten(x)
-        z = self.fc_enc(x)
-        return z
-
-    def decode(self, z: torch.Tensor) -> torch.Tensor:
-        x = self.fc_dec(z)
-        x = x.view(-1, self.conv_layers_sizes[-1], 3, 3)
-        x = F.relu(self.dec_deconv1(x))
-        x = F.relu(self.dec_deconv2(x))
-        x = F.relu(self.dec_deconv3(x))
-        x = F.relu(self.dec_deconv4(x))
-        x = F.relu(self.dec_deconv5(x))
-        x = torch.tanh(self.dec_deconv6(x))
-        return x
-
-    def forward(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
-        z = self.encode(x)
-        x_hat = self.decode(z)
-        return x_hat, z
 
 
 # --------------------------------------------------
@@ -120,7 +54,7 @@ class ClusteringLayer(nn.Module):
         self.alpha = alpha
 
         self.cluster_centers = nn.Parameter(torch.Tensor(n_clusters, embedding_dim))
-        nn.init.xavier_uniform_(self.cluster_centers.data)
+        nn.init.xavier_uniform_(self.cluster_centers)
 
     def forward(self, z: torch.Tensor) -> torch.Tensor:
         """
@@ -136,35 +70,111 @@ class ClusteringLayer(nn.Module):
             print("Warning: cluster_centers shape is", self.cluster_centers.shape, "but expected (n_clusters, embedding_dim)")
         
         # Squared distance to each cluster center
-        dist_sq = torch.sum((z.unsqueeze(1) - self.cluster_centers) ** 2, dim=2)
+        # dist_sq = torch.sum((z.unsqueeze(1) - self.cluster_centers) ** 2, dim=2)
 
+        z1 = z.unsqueeze(1) - self.cluster_centers # (batch_size, 1, embedding_dim)
+        z2 = torch.mul(z1, z1) # (batch_size, n_clusters, embedding_dim)
+        x3 = torch.sum(z2, dim=2) # (batch_size, n_clusters)
+        z4 = 1.0 + x3
+        z5 = 1.0 /z4
+        z6 = torch.t(z5) / torch.sum(z5, dim=1) # (n_clusters, batch_size) / (batch_size,) -> (n_clusters, batch_size)
+        q = torch.t(z6) # (batch_size, n_clusters)
+        
         # Student's t-distribution
-        numerator = (1.0 + dist_sq ) ** (-1.0)
-        q = numerator / torch.sum(numerator, dim=1, keepdim=True)
+        # numerator = (1.0 + dist_sq ) ** (-1.0)
+        # q = numerator / torch.sum(numerator, dim=1, keepdim=True)
         return q
 
+    def set_weight(self, tensor):
+        self.cluster_centers = nn.Parameter(tensor)
 
 # --------------------------------------------------
 # 3. Full DCEC model - Deep Convolutional Embedded Clustering
 # --------------------------------------------------
 
 class DCEC(nn.Module):
+    """
+    Convolutional Autoencoder with a low-dimensional embedded layer z.
+    Assumes input images of shape (1, 200, 200), e.g. FC matrices.
+    """
     def __init__(self, cfg: DCECConfig):
         super().__init__()
         self.cfg = cfg
-        self.cae = CAE(latent_dim=cfg.latent_dim)
         self.n_clusters = cfg.n_clusters
-        self.clustering = ClusteringLayer(
-            n_clusters=cfg.n_clusters,
-            embedding_dim=cfg.latent_dim,
-            alpha=cfg.alpha
-        )
-        self.z = None  # To store the final embeddings after training
+        self.z = None  # To store the final embeddings after training        
+        self.latent_dim = cfg.latent_dim
+        self.conv_layers_sizes = cfg.conv_layers_sizes  # Encoder channel sizes
 
-    def forward(self, x: torch.Tensor):
-        x_hat, z = self.cae(x)
+        conv_layers_sizes = cfg.conv_layers_sizes
+        if len(conv_layers_sizes) < 5:
+            conv_layers_sizes = [1, 32, 64, 128, 256]
+                    
+        # Encoder
+        self.enc_conv1 = nn.Conv2d(conv_layers_sizes[0], conv_layers_sizes[1], kernel_size=5, stride=2, padding=2)   # 200x200x1 -> 100x100x32
+        self.enc_conv2 = nn.Conv2d(conv_layers_sizes[1], conv_layers_sizes[2], kernel_size=5, stride=2, padding=2)  # 100x100x32 -> 50x50x64
+        self.enc_conv3 = nn.Conv2d(conv_layers_sizes[2], conv_layers_sizes[3], kernel_size=5, stride=2, padding=2) # 50x50x64 -> 25x25x128
+        self.enc_conv4 = nn.Conv2d(conv_layers_sizes[3], conv_layers_sizes[4], kernel_size=3, stride=2, padding=0) # 25x25x128 -> 12x12x256
+        self.enc_conv5 = nn.Conv2d(conv_layers_sizes[4], conv_layers_sizes[4], kernel_size=4, stride=2, padding=1) # 12x12x256 -> 6x6x256
+        self.enc_conv6 = nn.Conv2d(conv_layers_sizes[4], conv_layers_sizes[4], kernel_size=4, stride=2, padding=1) # 6x6x256 -> 3x3x256
+
+        self.flatten = nn.Flatten() # 1x1152
+        self.fc_enc = nn.Linear(256 * 3 * 3, self.latent_dim)
+        self.clustering = ClusteringLayer(n_clusters=self.n_clusters, embedding_dim=self.latent_dim, alpha=1)
+        
+        # Normalizations
+        self.bn1_1 = nn.BatchNorm2d(conv_layers_sizes[1])
+        self.bn1_2 = nn.BatchNorm2d(conv_layers_sizes[2])
+        self.bn1_3 = nn.BatchNorm2d(conv_layers_sizes[3])
+        self.bn1_4 = nn.BatchNorm2d(conv_layers_sizes[4])
+        self.bn1_5 = nn.BatchNorm2d(conv_layers_sizes[4])
+        
+
+
+        # Decoder
+        self.fc_dec = nn.Linear(self.latent_dim, 256 * 3 * 3)
+
+        self.dec_deconv1 = nn.ConvTranspose2d(conv_layers_sizes[-1], conv_layers_sizes[-1], kernel_size=4, stride=2, padding=1, output_padding=0)  # 3x3x256 -> 6x6x256
+        self.dec_deconv2 = nn.ConvTranspose2d(conv_layers_sizes[-1], conv_layers_sizes[-1], kernel_size=4, stride=2, padding=1, output_padding=0)  # 6x6x256 -> 12x12x256
+        self.dec_deconv3 = nn.ConvTranspose2d(conv_layers_sizes[-1], conv_layers_sizes[-2], kernel_size=3, stride=2, padding=0, output_padding=0)  # 12x12x256 -> 25x25x128
+        self.dec_deconv4 = nn.ConvTranspose2d(conv_layers_sizes[-2], conv_layers_sizes[-3], kernel_size=5, stride=2, padding=2, output_padding=1)  # 25x25x128 -> 50x50x64 (if needed)
+        self.dec_deconv5 = nn.ConvTranspose2d(conv_layers_sizes[-3], conv_layers_sizes[-4], kernel_size=5, stride=2, padding=2, output_padding=1)  # 50x50x64 -> 100x100x32 (if needed)
+        self.dec_deconv6 = nn.ConvTranspose2d(conv_layers_sizes[-4], conv_layers_sizes[-5], kernel_size=5, stride=2, padding=2, output_padding=1)  # 100x100x32 -> 200x200x1 (if needed)
+
+
+    def encode(self, x: torch.Tensor) -> torch.Tensor:
+        x = F.relu(self.enc_conv1(x))
+        x = self.bn1_1(x)
+        x = F.relu(self.enc_conv2(x))
+        x = self.bn1_2(x)
+        x = F.relu(self.enc_conv3(x))
+        x = self.bn1_3(x)
+        x = F.relu(self.enc_conv4(x))
+        x = self.bn1_4(x)
+        x = F.relu(self.enc_conv5(x))
+        x = self.bn1_5(x)
+        x = F.relu(self.enc_conv6(x))
+        x = self.flatten(x)
+        z = self.fc_enc(x)
+        return z
+
+    def decode(self, z: torch.Tensor) -> torch.Tensor:
+        x = self.fc_dec(z)
+        x = x.view(-1, self.conv_layers_sizes[-1], 3, 3)
+        x = F.relu(self.dec_deconv1(x))
+        x = F.relu(self.dec_deconv2(x))
+        x = F.relu(self.dec_deconv3(x))
+        x = F.relu(self.dec_deconv4(x))
+        x = F.relu(self.dec_deconv5(x))
+        x_hat = torch.tanh(self.dec_deconv6(x))
+        return x_hat
+
+    def forward(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+        z = self.encode(x)
         q = self.clustering(z)
-        return x_hat, q, z
+        x_hat = self.decode(z)
+        
+        return x_hat, q, z # Return the reconstructed x, the soft cluster assignments q, and the latent embeddings z
+
 
 
 # --------------------------------------------------
@@ -172,13 +182,17 @@ class DCEC(nn.Module):
 #    Matches the target distribution idea in the paper
 # --------------------------------------------------
 
-def target_distribution(q: torch.Tensor) -> torch.Tensor:
+def target_distribution(q: np.ndarray) -> np.ndarray:
     """
     p_ij = (q_ij^2 / f_j) / sum_j(q_ij^2 / f_j)
     where f_j = sum_i q_ij
+    
+    q: (N_samples, n_clusters)
+    returns p: (N_samples, n_clusters)
     """
-    weight = q ** 2 / torch.sum(q, dim=0)
-    p = weight / torch.sum(weight, dim=1, keepdim=True)
+    weight = q ** 2 / np.sum(q, axis=0)
+    #p = weight / torch.sum(weight, dim=1, keepdim=True)
+    p = np.transpose(np.transpose(weight) / np.sum(weight, axis=1))
     return p
 
 
@@ -193,41 +207,43 @@ def extract_embeddings(model: DCEC, dataloader: DataLoader, device: str) -> np.n
     Returns:
     - z_all: A numpy array of shape (N_samples, latent_dim) containing the embeddings for all samples.
     """
-    model.eval()
+    # model.eval()
     zs = []
 
     for (x,) in dataloader:
         x = x.to(device)
-        z = model.cae.encode(x)
+        z = model.encode(x)
         zs.append(z.cpu().numpy())
 
     return np.concatenate(zs, axis=0)
 
 
-@torch.no_grad()
+# @torch.no_grad()
 def predict_soft_assignments(model: DCEC, dataloader: DataLoader, device: str, save=False) -> Tuple[np.ndarray, np.ndarray]:
     """
         Predict the soft cluster assignments q_ij and the corresponding hard labels for all samples in the dataloader.
     Returns:
         Tuple[np.ndarray, np.ndarray]: A tuple containing: [q_final, labels]
     """
-    model.eval()    
-    qs = []
-    zs = []
+    # model.eval()    
+    qs = None
+    zs = None
 
     for (x,) in dataloader:
-        x = x.to(device)
-        z = model.cae.encode(x)
-        q = model.clustering(z)
-        zs.append(z.cpu().numpy())
-        qs.append(q.cpu().numpy())
+        x = x.to(device) # x = input
+        x_hat, q, z = model(x) # z 
+        
+        if qs is not None:
+            zs = np.concatenate((zs, z.cpu().detach().numpy()), axis=0) # z_array
+            qs = np.concatenate((qs, q.cpu().detach().numpy()), axis=0) # q_array = output_array
+        else:
+            zs = z.cpu().detach().numpy()
+            qs = q.cpu().detach().numpy()
 
-    q_final = np.concatenate(qs, axis=0)
-    z_final = np.concatenate(zs, axis=0)
-    labels = q_final.argmax(axis=1)
+    labels = np.argmax(qs.data, axis=1) # preds
     
     if save:
-        model.z = z_final  # Store the final embeddings in the model for later use
+        model.z = zs  # Store the final embeddings in the model for later use
         model_name = model.cfg.name
         
         # Count how many samples are assigned to each cluster and save to a dictionary
@@ -239,14 +255,11 @@ def predict_soft_assignments(model: DCEC, dataloader: DataLoader, device: str, s
         filename_labels = f"Clusters\\{model_name}_cluster_{model.n_clusters}_labels_predicted_labels_" + ".txt" # + "_".join([f"{name}_{count}" for name, count in label_counts.items()])
         filename_midlayer = f"Clusters\\{model_name}_cluster_{model.n_clusters}_middle_layer_predicted_labels_"  + ".txt" # + "_".join([f"{name}_{count}" for name, count in label_counts.items()])
         
-        save_object = (labels, z_final)  # Save both labels and embeddings for later analysis
-        
         # Save the predicted labels to a text file
         np.savetxt(filename_labels, labels, fmt="%d")
-        np.savetxt(filename_midlayer, z_final, fmt="%.6f")
+        np.savetxt(filename_midlayer, zs, fmt="%.6f")
     
-    
-    return q_final, labels
+    return qs, labels
 
 
 def initialize_cluster_centers(
@@ -263,7 +276,7 @@ def initialize_cluster_centers(
     kmeans = KMeans(n_clusters=model.n_clusters, n_init=20, random_state=42)
     y_pred = kmeans.fit_predict(z_all)
 
-    centers = torch.tensor(kmeans.cluster_centers_, dtype=torch.float32, device=device)
+    centers = torch.from_numpy(kmeans.cluster_centers_)
     # Check if KMeans returns fewwer centers than n_clusters
     if centers.shape[0] < model.n_clusters:
         print(f"Warning: KMeans returned {centers.shape[0]} centers, but expected {model.n_clusters}. Check the input data and KMeans parameters.")
@@ -271,7 +284,7 @@ def initialize_cluster_centers(
         # If fewer centers are returned, we can pad with random centers from the existing ones
         raise ValueError("KMeans did not return the expected number of cluster centers. Check the input data and KMeans parameters.")
     
-    model.clustering.cluster_centers.data.copy_(centers)
+    model.clustering.set_weight(centers.to(device))
 
     return y_pred
 
@@ -309,10 +322,11 @@ def pretrain_cae(
     lr: float = 1e-2,
     print_interval: int = 10
 ):
-    optimizer = torch.optim.Adam(model.cae.parameters(), lr=lr)
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     mask = make_upper_triangle_mask(n=200, include_diagonal=False, device=device).unsqueeze(0)  # Shape (1, 200, 200)
     #mse_loss = nn.MSELoss()
 
+    
     model.to(device)
 
     print_pause = epochs // print_interval
@@ -324,19 +338,26 @@ def pretrain_cae(
     for epoch in range(epochs):
         model.train()
         running_loss = 0.0
+        running_loss_rec = 0.0
+        running_loss_var = 0.0
 
         for (x,) in dataloader:
             x = x.to(device)
-
-            x_hat, _ = model.cae(x)
-            loss = masked_mse_loss(x_hat, x, mask)
-
+            
             optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
+            with torch.set_grad_enabled(True):
+                x_hat, q, z = model(x)
+                loss_rec = masked_mse_loss(x_hat, x, mask)
+                #loss_var = -torch.var(z, dim=0).mean()  # Variance regularization to encourage non-collapsed embeddings
+                loss = loss_rec #+ 1 * loss_var  # Total loss with variance
+                loss.backward()
+                optimizer.step()
 
+            # running_loss_var += loss_var.item() * x.size(0)
+            running_loss_rec += loss_rec.item() * x.size(0)
             running_loss += loss.item() * x.size(0)
 
+        # print(f"Epoch {epoch+1}, Batch loss: {running_loss/len(dataloader.dataset):.6f}, Recon loss: {running_loss_rec/len(dataloader.dataset):.6f}, Var loss: {running_loss_var/len(dataloader.dataset):.6f}")
         epoch_loss = running_loss / len(dataloader.dataset)
         history["Recon loss"].append(epoch_loss)
         
@@ -356,9 +377,10 @@ def train_dcec(
     gamma: float = 0.1,
     epochs: int = 100,
     lr: float = 1e-4,
-    update_interval: int = 5,
+    update_interval: int = 3, # For 9 bacthes, update every 3 batches means updating 3 times per epoch
     tol: float = 1e-3,
-    print_interval: int = 10
+    print_interval: int = 10 #,
+    # y_pred_initial: np.ndarray = None
 ):
     """
     Joint optimization of:
@@ -385,31 +407,27 @@ def train_dcec(
     
     # Initial q/p and label estimate
     q_all, y_pred_last = predict_soft_assignments(model, dataloader, device)
-    q_all = torch.tensor(q_all, dtype=torch.float32, device=device)
+    # q_all = torch.tensor(q_all, dtype=torch.float32, device=device)
     p_all = target_distribution(q_all)
-
-    update_iter = 1
+    # y_pred_last = y_pred_initial # Take the initial predicted labels from KMeans as the starting point for tracking label changes.
 
     finished = False
     
     for epoch in range(epochs):
-        model.train()
+        model.train(True)
         running_total = 0.0
         running_recon = 0.0
-        running_kl = 0.0
-        
-        batch_num = 1
+        running_kl = 0.0        
         
         
-        
-        for (x,) in dataloader:
+        for batch_num, (x,) in enumerate(dataloader): # batch_num starts at 0, but we want to start at 1 for the update_interval logic
             x = x.to(device)
             batch_size = x.size(0)
             
             # Update target distribution every few batches
-            if (batch_num - 1) % update_interval == 0 and not (epoch == 0 and batch_num == 1):  # Skip update at the very beginning
-                q_all_np, y_pred = predict_soft_assignments(model, dataloader, device)
-                q_all = torch.tensor(q_all_np, dtype=torch.float32, device=device)
+            if (batch_num+1) % update_interval == 0:   # Should update at batch 3, 6, 9 for batch_num starting at 1
+                q_all, y_pred = predict_soft_assignments(model, dataloader, device)
+                # q_all = torch.tensor(q_all_np, dtype=torch.float32, device=device)
                 p_all = target_distribution(q_all)
 
                 delta_label = np.mean(y_pred != y_pred_last)
@@ -417,42 +435,36 @@ def train_dcec(
                 history["Label change fraction"].append(delta_label)
 
                 print(
-                    f"[DCEC] Epoch {epoch:03d}/{epochs} \nBatch {batch_num:03d} - label change fraction: {delta_label:.6f}"
+                    f"[DCEC] Epoch {epoch:03d}/{epochs} \nBatch {batch_num+1:03d} - label change fraction: {delta_label:.6f}"
                 )
-                update_iter += 1
                 
-                if delta_label < tol:
+                if delta_label < tol and epoch > 0:
                     print("Stopping early: cluster assignments stabilized. Delta:", delta_label, "< Tol:", tol)
                     finished = True
                     break
                 
-            start_idx = (batch_num - 1) * dataloader.batch_size
+            start_idx = (batch_num) * dataloader.batch_size
             end_idx = start_idx + batch_size
             p_batch = p_all[start_idx:end_idx, :]
-
-            x_hat, q_batch, z_batch = model(x)
             
-            # Reconstruction loss
-            lr_loss = masked_mse_loss(x_hat, x, mask)
+            optimizer.zero_grad() # Zero gradients before backward pass
 
-            # KL(P || Q)
-            # F.kl_div expects log-probs as first input
-            lc_loss = F.kl_div(torch.log(q_batch + 1e-10), p_batch, reduction="batchmean")
+            with torch.set_grad_enabled(True):
+                x_hat, q_batch, z_batch = model(x)
+                p_batch = torch.tensor(p_batch, dtype=torch.float32, device=device)
+                lr_loss = masked_mse_loss(x_hat, x, mask) # Reconstruction loss
+                lc_loss = F.kl_div(torch.log(q_batch), p_batch, reduction="batchmean") # Clustering loss (KL divergence)
+                loss = lr_loss + gamma * lc_loss # Total loss
+                loss.backward()
+                optimizer.step()
 
-            loss = lr_loss + gamma * lc_loss
-
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-
-            if lc_loss.item() * batch_size <= 0:
-                print(f"KL loss: {lc_loss.item()}. q_batch: {q_batch}. p_batch: {p_batch}. This should not happen. Check the training process.")
+            if lc_loss.item() * batch_size < 0:
+                print(f"KL loss: {lc_loss.item()}. q_batch: {q_batch}. p_batch: {p_batch}. This should not happen. Check the training process.") 
             
             running_total += loss.item() * batch_size
             running_recon += lr_loss.item() * batch_size
             running_kl += lc_loss.item() * batch_size
-
-            batch_num += 1
+        
             
         n = len(dataloader.dataset)
         epoch_total_loss = running_total / n
@@ -470,9 +482,9 @@ def train_dcec(
                 f"Recon: {epoch_recon_loss:.6f}, "
                 f"KL: {epoch_kl_loss:.6f}"
             )
-            if epoch_kl_loss <= 0:
+            """ if epoch_kl_loss <= 0:
                 raise ValueError(f"KL loss is non-positive: {running_kl}. This should not happen. Check the training process.")
-        
+         """
         if finished:
             break
             
@@ -509,9 +521,9 @@ def plot_reconstruction(model: DCEC, dataloader: DataLoader, device: str, n_samp
     """
     Plots original vs reconstructed FC matrices for a few samples from the dataloader.
     """
-    model.eval()
+    # model.eval() #
     x_batch = next(iter(dataloader))[0][:n_samples].to(device)  # Get a batch of samples and limit to n_samples
-    x_hat, z = model.cae(x_batch)
+    x_hat, q, z = model(x_batch)
     
     # Plot original and reconstructed FC matrices
     fig, axes = plt.subplots(n_samples, 2, figsize=(8, 4 * n_samples))
