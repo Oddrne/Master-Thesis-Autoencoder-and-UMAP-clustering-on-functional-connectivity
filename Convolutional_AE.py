@@ -463,13 +463,13 @@ def train_dcec(
             
             running_total += loss.item() * batch_size
             running_recon += lr_loss.item() * batch_size
-            running_kl += lc_loss.item() * batch_size
+            running_kl += gamma * lc_loss.item() * batch_size
         
             
         n = len(dataloader.dataset)
         epoch_total_loss = running_total / n
         epoch_recon_loss = running_recon / n
-        epoch_kl_loss = running_kl / n
+        epoch_kl_loss =  running_kl / n
         
         history["Total loss"].append(epoch_total_loss)
         history["Recon loss"].append(epoch_recon_loss)
