@@ -5,6 +5,23 @@ import torch
 import random
 
 
+def set_seed(seed=42):
+    # Python's built-in random module
+    random.seed(seed)
+    
+    # Numpy's random module
+    np.random.seed(seed)
+    
+    # PyTorch seed for CPU
+    torch.manual_seed(seed)
+    
+    # PyTorch seed for all GPU devices (if using CUDA)
+    torch.cuda.manual_seed_all(seed)
+    
+    # Make sure to disable CuDNN's non-deterministic optimizations
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+
 # Vectorize the upper triangle of the FC matrix (excluding diagonal)
 def vectorize_fc_matrix(fc_matrix):
     n = fc_matrix.shape[0]
@@ -134,19 +151,3 @@ def load_static_functional_connectivities(filepath="Input Data\ADHD_connectivity
     
     return fc
 
-def set_seed(seed=42):
-    # Python's built-in random module
-    random.seed(seed)
-    
-    # Numpy's random module
-    np.random.seed(seed)
-    
-    # PyTorch seed for CPU
-    torch.manual_seed(seed)
-    
-    # PyTorch seed for all GPU devices (if using CUDA)
-    torch.cuda.manual_seed_all(seed)
-    
-    # Make sure to disable CuDNN's non-deterministic optimizations
-    torch.backends.cudnn.deterministic = True
-    torch.backends.cudnn.benchmark = False
