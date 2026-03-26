@@ -117,8 +117,8 @@ class DCEC(nn.Module):
         self.enc_conv5 = nn.Conv2d(conv_layers_sizes[4], conv_layers_sizes[4], kernel_size=4, stride=2, padding=1) # 12x12x256 -> 6x6x256
         self.enc_conv6 = nn.Conv2d(conv_layers_sizes[4], conv_layers_sizes[4], kernel_size=4, stride=2, padding=1) # 6x6x256 -> 3x3x256
 
-        self.flatten = nn.Flatten() # 1x1152
-        self.fc_enc = nn.Linear(256 * 3 * 3, self.latent_dim)
+        self.flatten = nn.Flatten() # 1x2304
+        self.fc_enc = nn.Linear(256 * 3 * 3, self.latent_dim) # 2304 -> latent_dim = 10
         self.clustering = ClusteringLayer(n_clusters=self.n_clusters, embedding_dim=self.latent_dim, alpha=1)
         
         # Normalizations
@@ -131,7 +131,7 @@ class DCEC(nn.Module):
 
 
         # Decoder
-        self.fc_dec = nn.Linear(self.latent_dim, 256 * 3 * 3)
+        self.fc_dec = nn.Linear(self.latent_dim, 256 * 3 * 3) # latent_dim -> 2304
 
         self.dec_deconv1 = nn.ConvTranspose2d(conv_layers_sizes[-1], conv_layers_sizes[-1], kernel_size=4, stride=2, padding=1, output_padding=0)  # 3x3x256 -> 6x6x256
         self.dec_deconv2 = nn.ConvTranspose2d(conv_layers_sizes[-1], conv_layers_sizes[-1], kernel_size=4, stride=2, padding=1, output_padding=0)  # 6x6x256 -> 12x12x256
