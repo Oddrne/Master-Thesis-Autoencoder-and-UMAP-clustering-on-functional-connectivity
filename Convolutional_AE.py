@@ -31,7 +31,7 @@ class DCECConfig:
     epochs_dcec: int = 100                                  # Number of epochs for joint DCEC training (reconstruction + clustering)    
     lr_pretrain: float = 1e-3                               # Learning rate for pretraining the CAE                
     lr_dcec: float = 1e-4                                   # Learning rate for joint DCEC training
-    update_interval: int = 3                                # How often to update the target distribution p_ij during DCEC training
+    update_interval: int = 8                                # How often to update the target distribution p_ij during DCEC training
     tol: float = 1e-3                                       # Tolerance for early stopping based on cluster assignment stability during DCEC training                       
     print_interval: int = 10                                # How often to print training progress during pretraining and DCEC training
 
@@ -123,11 +123,16 @@ class DCEC(nn.Module):
         
         # Normalizations
         self.bn1_1 = nn.BatchNorm2d(conv_layers_sizes[1])
-        self.bn1_2 = nn.BatchNorm2d(conv_layers_sizes[2])
-        self.bn1_3 = nn.BatchNorm2d(conv_layers_sizes[3])
-        self.bn1_4 = nn.BatchNorm2d(conv_layers_sizes[4])
+        self.bn1_2 = nn.BatchNorm2d(conv_layers_sizes[2]) 
+        self.bn1_3 = nn.BatchNorm2d(conv_layers_sizes[3]) 
+        self.bn1_4 = nn.BatchNorm2d(conv_layers_sizes[4]) 
         self.bn1_5 = nn.BatchNorm2d(conv_layers_sizes[4])
-        
+        self.gn1_1 = nn.GroupNorm(8, conv_layers_sizes[1]) # 32 channels -> 8 groups
+        self.gn1_2 = nn.GroupNorm(16, conv_layers_sizes[2]) # 64 channels -> 16 groups
+        self.gn1_3 = nn.GroupNorm(32, conv_layers_sizes[3]) # 128 channels -> 32 groups
+        self.gn1_4 = nn.GroupNorm(64, conv_layers_sizes[4]) # 256 channels -> 64 groups
+        self.gn1_5 = nn.GroupNorm(64, conv_layers_sizes[4]) # 256 channels -> 64 groups
+
 
 
         # Decoder
@@ -143,15 +148,16 @@ class DCEC(nn.Module):
 
     def encode(self, x: torch.Tensor) -> torch.Tensor:
         x = F.relu(self.enc_conv1(x))
-        x = self.bn1_1(x)
+        x = self.gn1_1(x)
+        # x = self.bn1_1(x)
         x = F.relu(self.enc_conv2(x))
-        x = self.bn1_2(x)
+        x = self.gn1_2(x)
         x = F.relu(self.enc_conv3(x))
-        x = self.bn1_3(x)
+        x = self.gn1_3(x)
         x = F.relu(self.enc_conv4(x))
-        x = self.bn1_4(x)
+        x = self.gn1_4(x)
         x = F.relu(self.enc_conv5(x))
-        x = self.bn1_5(x)
+        x = self.gn1_5(x)
         x = F.relu(self.enc_conv6(x))
         x = self.flatten(x)
         z = self.fc_enc(x)
@@ -207,7 +213,8 @@ def extract_embeddings(model: DCEC, dataloader: DataLoader, device: str) -> np.n
     Returns:
     - z_all: A numpy array of shape (N_samples, latent_dim) containing the embeddings for all samples.
     """
-    # model.eval()
+    was_training = model.training # Save if the model was in training mode
+    model.eval()
     zs = []
 
     for (x,) in dataloader:
@@ -215,17 +222,22 @@ def extract_embeddings(model: DCEC, dataloader: DataLoader, device: str) -> np.n
         z = model.encode(x)
         zs.append(z.cpu().numpy())
 
+    if was_training:
+        model.train() # Restore the original training mode of the model
+        
     return np.concatenate(zs, axis=0)
 
 
-# @torch.no_grad()
+@torch.no_grad() # No need to compute gradients when predicting cluster assignmentse
 def predict_soft_assignments(model: DCEC, dataloader: DataLoader, device: str, save=False) -> Tuple[np.ndarray, np.ndarray]:
     """
         Predict the soft cluster assignments q_ij and the corresponding hard labels for all samples in the dataloader.
     Returns:
         Tuple[np.ndarray, np.ndarray]: A tuple containing: [q_final, labels]
     """
-    # model.eval()    
+    was_training = model.training # Save if the model was in training mode
+    
+    model.eval()    
     qs = None
     zs = None
 
@@ -259,6 +271,9 @@ def predict_soft_assignments(model: DCEC, dataloader: DataLoader, device: str, s
         np.savetxt(filename_labels, labels, fmt="%d")
         np.savetxt(filename_midlayer, zs, fmt="%.6f")
     
+    if was_training:
+        model.train() # Restore the original training mode of the model
+        
     return qs, labels
 
 
@@ -377,7 +392,7 @@ def train_dcec(
     gamma: float = 0.1,
     epochs: int = 100,
     lr: float = 1e-4,
-    update_interval: int = 3, # For 9 bacthes, update every 3 batches means updating 3 times per epoch
+    update_interval: int = 8, # For 9 bacthes, update every 3 batches means updating 3 times per epoch
     tol: float = 1e-3,
     print_interval: int = 10 #,
     # y_pred_initial: np.ndarray = None
@@ -410,11 +425,14 @@ def train_dcec(
     # q_all = torch.tensor(q_all, dtype=torch.float32, device=device)
     p_all = target_distribution(q_all)
     # y_pred_last = y_pred_initial # Take the initial predicted labels from KMeans as the starting point for tracking label changes.
-
+    q_all_last = None # To track changes in q_all for early stopping
+    
     finished = False
+    update_number = 0
+    low_updates = 0
     
     for epoch in range(epochs):
-        model.train(True)
+        model.train()
         running_total = 0.0
         running_recon = 0.0
         running_kl = 0.0        
@@ -423,23 +441,34 @@ def train_dcec(
         for batch_num, (x,) in enumerate(dataloader): # batch_num starts at 0, but we want to start at 1 for the update_interval logic
             x = x.to(device)
             batch_size = x.size(0)
+            update_number += 1
             
             # Update target distribution every few batches
-            if (batch_num+1) % update_interval == 0:   # Should update at batch 3, 6, 9 for batch_num starting at 1
+            if (update_number) % update_interval == 0:   # Should update at batch 3, 6, 9 for batch_num starting at 1
                 q_all, y_pred = predict_soft_assignments(model, dataloader, device)
                 # q_all = torch.tensor(q_all_np, dtype=torch.float32, device=device)
                 p_all = target_distribution(q_all)
 
                 delta_label = np.mean(y_pred != y_pred_last)
+                if q_all_last is None:
+                    delta_q = np.inf
+                else:
+                    delta_q = np.mean(np.abs(q_all - q_all_last))
+                    
+                #print(f"[DCEC] Epoch {epoch:03d}/{epochs} Batch {batch_num+1:03d}/{len(dataloader)} Update {update_number} \n label change fraction: {delta_label:.6f} - Delta q: {delta_q if q_all_last is not None else 'N/A'}")
+                 
                 y_pred_last = np.copy(y_pred)
+                q_all_last = np.copy(q_all)
                 history["Label change fraction"].append(delta_label)
 
-                print(
-                    f"[DCEC] Epoch {epoch:03d}/{epochs} \nBatch {batch_num+1:03d} - label change fraction: {delta_label:.6f}"
-                )
                 
-                if delta_label < tol and epoch > 0:
-                    print("Stopping early: cluster assignments stabilized. Delta:", delta_label, "< Tol:", tol)
+                if delta_q < tol and epoch > 0:
+                    low_updates += 1
+                else:
+                    low_updates = 0
+                    
+                if low_updates > 2:
+                    print("Stopping early: cluster assignments stabilized. Delta:", delta_q, "< Tol:", tol)
                     finished = True
                     break
                 
@@ -486,6 +515,7 @@ def train_dcec(
                 raise ValueError(f"KL loss is non-positive: {running_kl}. This should not happen. Check the training process.")
          """
         if finished:
+            print("Stopped at epoch", epoch+1, "and batch", batch_num+1, "after", update_number, "updates.")
             break
             
     return history
