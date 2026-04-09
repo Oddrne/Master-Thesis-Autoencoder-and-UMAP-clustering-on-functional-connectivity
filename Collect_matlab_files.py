@@ -3,7 +3,7 @@ import scipy.io as sio
 import numpy as np
 
 folder_path = "C:\Mats og Odd Arne\Prosjektoppgave\sch407\OA\zFCmat"
-output_file = "OldAge_combined_run2_400.mat"
+output_file = "OldAge_combined_run1_400_noZ.mat"
 
 # The filenames with list names are:
 # YoungAge_combined_run1_400 - run1_data, subject_names
@@ -16,7 +16,7 @@ matrices = []
 names = []
 
 for filename in sorted(os.listdir(folder_path)):
-    if filename.endswith(".mat") and "run-2_" in filename:
+    if filename.endswith(".mat") and "run-1_" in filename:
         file_path = os.path.join(folder_path, filename)
 
         mat_data = sio.loadmat(file_path)
@@ -25,6 +25,8 @@ for filename in sorted(os.listdir(folder_path)):
         # Assume one main variable per file
         key = list(mat_data.keys())[0]
         matrix = mat_data[key]
+
+        matrix = np.tanh(matrix)  # Apply tanh to the matrix to retrieve original values in range [-1, 1]
 
         # Sanity check
         if matrix.shape != (454, 454):
@@ -42,7 +44,7 @@ stacked = np.stack(matrices, axis=0)
 
 # Save
 sio.savemat(output_file, {
-    "run2_data": stacked,
+    "run1_data": stacked,
     "subject_names": names
 })
 

@@ -110,12 +110,12 @@ class DCEC(nn.Module):
             conv_layers_sizes = [1, 32, 64, 128, 256]
                     
         # Encoder
-        self.enc_conv1 = nn.Conv2d(conv_layers_sizes[0], conv_layers_sizes[1], kernel_size=5, stride=2, padding=2)   # 200x200x1 -> 100x100x32
-        self.enc_conv2 = nn.Conv2d(conv_layers_sizes[1], conv_layers_sizes[2], kernel_size=5, stride=2, padding=2)  # 100x100x32 -> 50x50x64
-        self.enc_conv3 = nn.Conv2d(conv_layers_sizes[2], conv_layers_sizes[3], kernel_size=5, stride=2, padding=2) # 50x50x64 -> 25x25x128
-        self.enc_conv4 = nn.Conv2d(conv_layers_sizes[3], conv_layers_sizes[4], kernel_size=3, stride=2, padding=0) # 25x25x128 -> 12x12x256
-        self.enc_conv5 = nn.Conv2d(conv_layers_sizes[4], conv_layers_sizes[4], kernel_size=4, stride=2, padding=1) # 12x12x256 -> 6x6x256
-        self.enc_conv6 = nn.Conv2d(conv_layers_sizes[4], conv_layers_sizes[4], kernel_size=4, stride=2, padding=1) # 6x6x256 -> 3x3x256
+        self.enc_conv1 = nn.Conv2d(conv_layers_sizes[0], conv_layers_sizes[1], kernel_size=6, stride=2, padding=2)   # 400x400x1 -> 200x200x32
+        self.enc_conv2 = nn.Conv2d(conv_layers_sizes[1], conv_layers_sizes[2], kernel_size=6, stride=2, padding=2)  # 200x200x32 -> 100x100x64
+        self.enc_conv3 = nn.Conv2d(conv_layers_sizes[2], conv_layers_sizes[3], kernel_size=6, stride=2, padding=2) # 100x100x64 -> 50x50x128
+        self.enc_conv4 = nn.Conv2d(conv_layers_sizes[3], conv_layers_sizes[4], kernel_size=5, stride=3, padding=3) # 50x50x128 -> 25x25x256
+        self.enc_conv5 = nn.Conv2d(conv_layers_sizes[4], conv_layers_sizes[4], kernel_size=4, stride=2, padding=1) # 25x25x256 -> 12x12x256
+        self.enc_conv6 = nn.Conv2d(conv_layers_sizes[4], conv_layers_sizes[4], kernel_size=5, stride=3, padding=1) # 12x12x256 -> 6x6x256
 
         self.flatten = nn.Flatten() # 1x2304
         self.fc_enc = nn.Linear(256 * 3 * 3, self.latent_dim) # 2304 -> latent_dim = 10
@@ -138,12 +138,12 @@ class DCEC(nn.Module):
         # Decoder
         self.fc_dec = nn.Linear(self.latent_dim, 256 * 3 * 3) # latent_dim -> 2304
 
-        self.dec_deconv1 = nn.ConvTranspose2d(conv_layers_sizes[-1], conv_layers_sizes[-1], kernel_size=4, stride=2, padding=1, output_padding=0)  # 3x3x256 -> 6x6x256
+        self.dec_deconv1 = nn.ConvTranspose2d(conv_layers_sizes[-1], conv_layers_sizes[-1], kernel_size=5, stride=3, padding=1, output_padding=0)  # 3x3x256 -> 6x6x256
         self.dec_deconv2 = nn.ConvTranspose2d(conv_layers_sizes[-1], conv_layers_sizes[-1], kernel_size=4, stride=2, padding=1, output_padding=0)  # 6x6x256 -> 12x12x256
-        self.dec_deconv3 = nn.ConvTranspose2d(conv_layers_sizes[-1], conv_layers_sizes[-2], kernel_size=3, stride=2, padding=0, output_padding=0)  # 12x12x256 -> 25x25x128
-        self.dec_deconv4 = nn.ConvTranspose2d(conv_layers_sizes[-2], conv_layers_sizes[-3], kernel_size=5, stride=2, padding=2, output_padding=1)  # 25x25x128 -> 50x50x64 (if needed)
-        self.dec_deconv5 = nn.ConvTranspose2d(conv_layers_sizes[-3], conv_layers_sizes[-4], kernel_size=5, stride=2, padding=2, output_padding=1)  # 50x50x64 -> 100x100x32 (if needed)
-        self.dec_deconv6 = nn.ConvTranspose2d(conv_layers_sizes[-4], conv_layers_sizes[-5], kernel_size=5, stride=2, padding=2, output_padding=1)  # 100x100x32 -> 200x200x1 (if needed)
+        self.dec_deconv3 = nn.ConvTranspose2d(conv_layers_sizes[-1], conv_layers_sizes[-2], kernel_size=5, stride=3, padding=3, output_padding=0)  # 12x12x256 -> 25x25x128
+        self.dec_deconv4 = nn.ConvTranspose2d(conv_layers_sizes[-2], conv_layers_sizes[-3], kernel_size=6, stride=2, padding=2, output_padding=0)  # 25x25x128 -> 50x50x64 (if needed)
+        self.dec_deconv5 = nn.ConvTranspose2d(conv_layers_sizes[-3], conv_layers_sizes[-4], kernel_size=6, stride=2, padding=2, output_padding=0)  # 50x50x64 -> 100x100x32 (if needed)
+        self.dec_deconv6 = nn.ConvTranspose2d(conv_layers_sizes[-4], conv_layers_sizes[-5], kernel_size=6, stride=2, padding=2, output_padding=0)  # 100x100x32 -> 200x200x1 (if needed)
 
 
     def encode(self, x: torch.Tensor) -> torch.Tensor:
@@ -338,7 +338,7 @@ def pretrain_cae(
     print_interval: int = 10
 ):
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
-    mask = make_upper_triangle_mask(n=200, include_diagonal=False, device=device).unsqueeze(0)  # Shape (1, 200, 200)
+    mask = make_upper_triangle_mask(n=400, include_diagonal=False, device=device).unsqueeze(0)  # Shape (1, 400, 400)
     #mse_loss = nn.MSELoss()
 
     
