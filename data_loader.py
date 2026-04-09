@@ -1,12 +1,31 @@
 import numpy as np
 import pandas as pd
 from scipy.io import loadmat, savemat
+import torch
+import random
 
+
+def set_seed(seed=42):
+    # Python's built-in random module
+    random.seed(seed)
+    
+    # Numpy's random module
+    np.random.seed(seed)
+    
+    # PyTorch seed for CPU
+    torch.manual_seed(seed)
+    
+    # PyTorch seed for all GPU devices (if using CUDA)
+    torch.cuda.manual_seed_all(seed)
+    
+    # Make sure to disable CuDNN's non-deterministic optimizations
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
 
 # Vectorize the upper triangle of the FC matrix (excluding diagonal)
 def vectorize_fc_matrix(fc_matrix):
     n = fc_matrix.shape[0]
-    upper_tri_indices = np.triu_indices(n, k=1) # Removes diagnoal as well
+    upper_tri_indices = np.triu_indices(n, k=1) # Removes diagonal as well
     return fc_matrix[upper_tri_indices]
 
 
@@ -35,7 +54,7 @@ def load_fc_matrix():
 
     savemat("C:\\Mats og Odd Arne\\Prosjektoppgave\\sch407\\YA\\200_schaefer_vectorized_fc.mat", {"200_vectorized_fc": subjects}) 
 
-load_fc_matrix()
+# load_fc_matrix()
 
 
 def load_fc_mat_matrices():
@@ -116,7 +135,19 @@ def load_workable_fc(filepath):
     return cleaned_features
 
 
-<<<<<<< HEAD
 # load_fc_mat_matrices()
-=======
->>>>>>> b601814d129671db8cd7afa5a4da2179594a41e6
+
+def load_static_functional_connectivities(filepath="Input Data\ADHD_connectivity.mat"):
+    file = loadmat(filepath)
+    fc = file['connectivities']  # 487x672
+    fc_coordinates = file['coordinates']  # 672x1
+    
+    print(f"Original FC shape: {fc.shape}")
+
+    # Keep every column in fc if the row in fc_coordinates begins with "SFC"
+    fc = fc[:, [i for i in range(fc_coordinates.shape[0]) if fc_coordinates[i][0][0].startswith("SFC")]]
+    
+    print(f"Final FC shape: {fc.shape}")
+    
+    return fc
+

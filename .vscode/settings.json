@@ -1,16 +1,37 @@
 {
     "cSpell.words": [
         "Backpropagate",
+        "batchmean",
+        "bouldin",
+        "Calinski",
         "cdist",
+        "clustersing",
+        "Cmat",
         "connectivities",
+        "cuda",
+        "DCEC",
+        "deconv",
+        "diagnoal",
         "DMACN",
+        "frobenius",
+        "Harabasz",
         "keepdim",
+        "kmeans",
+        "linalg",
         "loadmat",
+        "loadtxt",
+        "midlayer",
         "MKFC",
         "oddar",
+        "Pretraining",
+        "Prosjektoppgave",
         "PTSD",
         "RKHS",
+        "savemat",
         "savetxt",
-        "ubar"
+        "schaefer",
+        "triu",
+        "ubar",
+        "zfcmatrix"
     ]
 }
