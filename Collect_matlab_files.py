@@ -3,13 +3,13 @@ import scipy.io as sio
 import numpy as np
 
 folder_path = "C:\Mats og Odd Arne\Prosjektoppgave\sch407\OA\zFCmat"
-output_file = "OldAge_combined_run1_400.mat"
+output_file = "OldAge_combined_run2_400.mat"
 
 matrices = []
 names = []
 
 for filename in sorted(os.listdir(folder_path)):
-    if filename.endswith(".mat") and "run-1_" in filename:
+    if filename.endswith(".mat") and "run-2_" in filename:
         file_path = os.path.join(folder_path, filename)
 
         mat_data = sio.loadmat(file_path)
@@ -35,7 +35,7 @@ stacked = np.stack(matrices, axis=0)
 
 # Save
 sio.savemat(output_file, {
-    "run1_data": stacked,
+    "run2_data": stacked,
     "subject_names": names
 })
 
