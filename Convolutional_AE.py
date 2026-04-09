@@ -128,9 +128,9 @@ class DCEC(nn.Module):
         self.bn1_4 = nn.BatchNorm2d(conv_layers_sizes[4]) 
         self.bn1_5 = nn.BatchNorm2d(conv_layers_sizes[4])
         self.gn1_1 = nn.GroupNorm(8, conv_layers_sizes[1]) # 32 channels -> 8 groups
-        self.gn1_2 = nn.GroupNorm(16, conv_layers_sizes[2]) # 64 channels -> 16 groups
-        self.gn1_3 = nn.GroupNorm(32, conv_layers_sizes[3]) # 128 channels -> 32 groups
-        self.gn1_4 = nn.GroupNorm(64, conv_layers_sizes[4]) # 256 channels -> 64 groups
+        self.gn1_2 = nn.GroupNorm(8, conv_layers_sizes[2]) # 64 channels -> 16 groups
+        self.gn1_3 = nn.GroupNorm(16, conv_layers_sizes[3]) # 128 channels -> 32 groups
+        self.gn1_4 = nn.GroupNorm(32, conv_layers_sizes[4]) # 256 channels -> 64 groups
         self.gn1_5 = nn.GroupNorm(64, conv_layers_sizes[4]) # 256 channels -> 64 groups
 
 
@@ -147,18 +147,23 @@ class DCEC(nn.Module):
 
 
     def encode(self, x: torch.Tensor) -> torch.Tensor:
-        x = F.relu(self.enc_conv1(x))
+        x = self.enc_conv1(x)
         x = self.gn1_1(x)
-        # x = self.bn1_1(x)
-        x = F.relu(self.enc_conv2(x))
+        x = F.relu(x)
+        x = self.enc_conv2(x)
         x = self.gn1_2(x)
-        x = F.relu(self.enc_conv3(x))
+        x = F.relu(x)
+        x = self.enc_conv3(x)
         x = self.gn1_3(x)
-        x = F.relu(self.enc_conv4(x))
+        x = F.relu(x)
+        x = self.enc_conv4(x)
         x = self.gn1_4(x)
-        x = F.relu(self.enc_conv5(x))
+        x = F.relu(x)
+        x = self.enc_conv5(x)
         x = self.gn1_5(x)
-        x = F.relu(self.enc_conv6(x))
+        x = F.relu(x)
+        x = self.enc_conv6(x)
+        x = F.relu(x)
         x = self.flatten(x)
         z = self.fc_enc(x)
         return z
