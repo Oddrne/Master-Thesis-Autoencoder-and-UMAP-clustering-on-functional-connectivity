@@ -5,6 +5,13 @@ import numpy as np
 folder_path = "C:\Mats og Odd Arne\Prosjektoppgave\sch407\OA\zFCmat"
 output_file = "OldAge_combined_run2_400.mat"
 
+# The filenames with list names are:
+# YoungAge_combined_run1_400 - run1_data, subject_names
+# YoungAge_combined_run2_400 - run2_data, subject_names
+# OldAge_combined_run1_400 - run1_data, subject_names
+# OldAge_combined_run2_400 - run2_data, subject_names
+
+
 matrices = []
 names = []
 
