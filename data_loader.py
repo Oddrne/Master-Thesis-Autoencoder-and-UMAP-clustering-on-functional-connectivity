@@ -118,7 +118,7 @@ def remove_duplicate_pairs(df):
             keep.append(c)
     return df[keep]
 
-filepath = "Prosjektoppgave-Odd-Arne-og-Mats-main\subject_features.npz" # All subjects, 50 features
+filepath = "Prosjektoppgave-Odd-Arne-og-Mats-main\\subject_features.npz" # All subjects, 50 features
 
 
 def load_workable_fc(filepath):
@@ -137,7 +137,7 @@ def load_workable_fc(filepath):
 
 # load_fc_mat_matrices()
 
-def load_static_functional_connectivities(filepath="Input Data\ADHD_connectivity.mat"):
+def load_static_functional_connectivities(filepath="Input Data\\ADHD_connectivity.mat"):
     file = loadmat(filepath)
     fc = file['connectivities']  # 487x672
     fc_coordinates = file['coordinates']  # 672x1
@@ -151,3 +151,34 @@ def load_static_functional_connectivities(filepath="Input Data\ADHD_connectivity
     
     return fc
 
+
+# Function for extracting res_scores from the CSV file. Used un the project thesis.
+def extract_res_scores_from_csv(file_path: str) -> pd.DataFrame:
+    """
+    Extracts the 'Subject' and 'Emo_res' columns from the specified CSV file.
+    Parameters    ----------
+    file_path : str
+    Returns    -------
+    pd.DataFrame        A DataFrame containing the 'Subject' and 'Emo_res' columns.
+    pd.DataFrame        The entire DataFrame loaded from the CSV file for further use if needed.
+    """
+    all_data = pd.read_csv(file_path)
+    res_scores_df = all_data[["Subject", "Emo_res", "Sex", "dEV_neu", "dEV_neg", "DS", "rmet"]]
+
+    return res_scores_df, all_data
+
+def extract_cluster_labels_from_txt(file_path: str, df: pd.DataFrame, column_name: str = "Predicted_Labels") -> pd.DataFrame:
+    """
+    Extracts cluster labels from a specified text file.
+    Parameters    ----------
+    file_path : str
+    subject_ids : list, optional
+        A list of subject IDs to filter the cluster labels.
+    Returns    -------
+    pd.DataFrame        A DataFrame containing the cluster labels.
+    """
+    # Idea: Read the cluster labels from the text file from each clustering.
+    cluster_labels = pd.read_csv(file_path, header=None)[0]
+
+    df[column_name] = cluster_labels.astype(int)
+    return df
