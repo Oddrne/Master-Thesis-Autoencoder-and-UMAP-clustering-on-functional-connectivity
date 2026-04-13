@@ -3,7 +3,8 @@ import pandas as pd
 from scipy.io import loadmat, savemat
 import torch
 import random
-
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 def set_seed(seed=42):
     # Python's built-in random module
@@ -182,3 +183,35 @@ def extract_cluster_labels_from_txt(file_path: str, df: pd.DataFrame, column_nam
 
     df[column_name] = cluster_labels.astype(int)
     return df
+
+def extract_all_cluster_labels_from_txt(start_string: str, df: pd.DataFrame, clusters_range: range = range(2, 11)) -> pd.DataFrame:
+    """
+    Extracts cluster labels from multiple text files and adds them to the DataFrame.
+    Parameters    ----------
+    start_string : str
+        The common prefix for the cluster label text files.
+    df : pd.DataFrame
+        The DataFrame to which the cluster labels will be added.
+    clusters_range : range, optional
+        The range of cluster numbers to extract (default is range(2, 11)).
+    Returns    -------
+    pd.DataFrame
+        The updated DataFrame with cluster labels added as new columns.
+    """
+    for i in clusters_range:
+        cluster_path = f"{start_string}cluster_{i}_labels_predicted_labels_.txt"
+        df = extract_cluster_labels_from_txt(cluster_path, df=df, column_name=f"Cluster_{i}")
+    
+    return df
+
+def plot_correlation_heatmap(df: pd.DataFrame, plt_title: str = "Pearson Correlation Heatmap for [Age] subjects and run [x] ([emotion] movie)", save_path: str = None):
+    df = df.drop(columns=["Subject"])
+    correlation_matrix = df.corr()
+    
+    plt.figure(figsize=(10, 8))
+    sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', vmin=-1, vmax=1)
+    plt.title(plt_title)
+    plt.show()
+
+    if save_path:
+        plt.savefig(save_path)
