@@ -215,3 +215,93 @@ def plot_correlation_heatmap(df: pd.DataFrame, plt_title: str = "Pearson Correla
 
     if save_path:
         plt.savefig(save_path)
+
+def load_whole_behavioural_data(csv_path: str, included_ids_path: str, cluster_labels_path: str, clusters_range: range = range(2, 11)):
+    """
+    Load the whole behavioural data, including the res scores and the cluster labels for each clustering.
+
+    Parameters    
+    ----------
+    csv_path : str
+    included_ids_path : str
+    cluster_labels_path : str
+    clusters_range : range, optional
+        The range of cluster numbers to extract (default is range(2, 11)).
+
+    Returns    
+    -------
+    tuple
+        A tuple containing the updated DataFrame and a list of appropriate column names.
+    """
+    csv_ids = pd.read_csv(included_ids_path)
+    _, all_scores = extract_res_scores_from_csv(csv_path)
+
+    all_scores = all_scores[all_scores["Subject"].isin(csv_ids["Subject"])]
+    all_scores = all_scores.reset_index(drop=True)
+
+    df = extract_all_cluster_labels_from_txt(start_string=cluster_labels_path, df=all_scores, clusters_range=clusters_range)
+
+    columns = df.columns.tolist()
+    columns.remove("Subject") 
+    columns.remove("Group") 
+    columns.remove("Gender")
+    columns.remove("Handedness")  # Remove non-behavioural variables
+    columns.remove("Medicine")  # Remove non-behavioural variables
+    columns.remove("Cluster_2")  # Remove other cluster columns
+    columns.remove("Cluster_3")  # Remove other cluster columns
+    columns.remove("Cluster_4")  # Remove other cluster columns
+    columns.remove("Cluster_5")  # Remove other cluster columns
+    columns.remove("Cluster_6")  # Remove other cluster columns
+    columns.remove("Cluster_7")  # Remove other cluster columns
+    columns.remove("Cluster_8")  # Remove other cluster columns
+    columns.remove("Cluster_9")  # Remove other cluster columns
+    columns.remove("Cluster_10")  # Remove other cluster columns
+
+    return df, columns
+
+def combine_cca_mlr_pipeline_outputs(cca_pipeline_output: dict, mlr_pipeline_output: dict):
+    """
+    Combine CCA and MLR pipeline outputs in a fixed order.
+
+    Expected keys in cca_pipeline_output:
+        - cca_all_variables_results
+        - cca_selected_variables_results
+        - cca_removed_subjects_results
+        - cca_selected_variables
+        - cca_removed_subjects
+
+    Expected keys in mlr_pipeline_output:
+        - mlr_all_variables_results
+        - mlr_selected_variables_results
+        - mlr_removed_subjects_results
+        - mlr_selected_variables
+        - mlr_removed_subjects
+
+    Returns
+    -------
+    dict
+        Combined dictionary in the requested order.
+    """
+    combined_output = {
+        "cca_all_variables_results": cca_pipeline_output["cca_all_variables_results"],
+        "cca_selected_variables_results": cca_pipeline_output["cca_selected_variables_results"],
+        "cca_removed_subjects_results": cca_pipeline_output["cca_removed_subjects_results"],
+        "mlr_all_variables_results": mlr_pipeline_output["mlr_all_variables_results"],
+        "mlr_selected_variables_results": mlr_pipeline_output["mlr_selected_variables_results"],
+        "mlr_removed_subjects_results": mlr_pipeline_output["mlr_removed_subjects_results"],
+        "cca_selected_variables": cca_pipeline_output["cca_selected_variables"],
+        "mlr_selected_variables": mlr_pipeline_output["mlr_selected_variables"],
+        "cca_removed_subjects": cca_pipeline_output["cca_removed_subjects"],
+        "mlr_removed_subjects": mlr_pipeline_output["mlr_removed_subjects"],
+    }
+
+    return combined_output
+
+def convert_numpy(obj):
+    if isinstance(obj, np.integer):
+        return int(obj)
+    if isinstance(obj, np.floating):
+        return float(obj)
+    if isinstance(obj, np.ndarray):
+        return obj.tolist()
+    raise TypeError(f"Object of type {type(obj)} is not JSON serializable")
