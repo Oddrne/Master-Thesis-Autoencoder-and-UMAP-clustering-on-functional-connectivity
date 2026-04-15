@@ -420,7 +420,7 @@ def train_dcec(
         L_c = KL(P || Q)
     """
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
-    mask = make_upper_triangle_mask(n=400, include_diagonal=False, device=device).unsqueeze(0)  # Shape (1, 400, 400)
+    mask = make_upper_triangle_mask(n=1000, include_diagonal=False, device=device).unsqueeze(0)  # Shape (1, 400, 400)
 
     model.to(device)
     
