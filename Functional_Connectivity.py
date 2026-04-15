@@ -63,17 +63,24 @@ def compute_fc_directory(input_dir):
 
     return results, run_id
 
-def save_fc_results(results, output_file="fc_results.mat"):
+def save_fc_results(results, output_file="fc_results.mat", run_id=1):
     """
     Save each FC matrix under a key:
     '{input_name}_run_{run_id}'
     """
-    save_dict = {}
 
-    for r in results:
-        key = f"{r['subject_id']}"
-        save_dict[key] = r["fc_matrix"]
+    filtered = [r for r in results]
+
+    subject_names = np.stack([r["subject_id"] for r in filtered], axis=0)
+    fc_stack = np.stack([r["fc_matrix"] for r in filtered], axis=0)
+
+    run_name = f"run{run_id}_data"
+
+    save_dict = {
+        "subject_names": np.array(subject_names, dtype=object),
+        run_name: fc_stack
+    }
 
     savemat(output_file, save_dict)
 
-    print(f"\nSaved {len(results)} FC matrices to {output_file}")
+    print(f"\nSaved {len(filtered)} FC matrices to {output_file}")
