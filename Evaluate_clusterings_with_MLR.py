@@ -84,6 +84,7 @@ def evaluate_mlr_cv(
     X = df[variable_cols].copy()
     y = df[cluster_col].astype(str).copy()
 
+
     label_encoder = LabelEncoder()
     y_encoded = label_encoder.fit_transform(y)
 
@@ -92,6 +93,11 @@ def evaluate_mlr_cv(
     majority_class_accuracy = class_counts.max() / class_counts.sum()
 
     pipe = build_mlr_pipeline(X)
+    
+    min_class_count = class_counts.min()
+    if min_class_count < cv_splits:
+        print(f"Warning: Reducing cv_splits from {cv_splits} to {max(min_class_count, 3)} due to class imbalance.")
+        cv_splits = max(min_class_count, 3)
 
     cv = StratifiedKFold(n_splits=cv_splits, shuffle=True, random_state=random_state)
     scores = cross_val_score(pipe, X, y_encoded, cv=cv, scoring="accuracy")

@@ -172,6 +172,12 @@ def cross_validated_cca_correlations(
     kept_cols = [c for c in variable_cols if pd.api.types.is_numeric_dtype(df[c])]
     if not kept_cols:
         raise ValueError("No numeric dependent variables found for CCA.")
+    
+    class_counts = df[cluster_col].value_counts()
+    min_class_count = class_counts.min()
+    if min_class_count < n_splits:
+        print(f"Warning: Reducing n_splits from {n_splits} to {max(min_class_count, 3)} due to class imbalance.")
+        n_splits = max(min_class_count, 3)  # Ensure at least 3  splits
 
     kf = KFold(n_splits=n_splits, shuffle=True, random_state=random_state)
     fold_results = []
@@ -539,6 +545,11 @@ def sequential_subject_removal_cca(
     for step in range(1, max_removals + 1):
         if len(current_data) <= cv_splits + 2:
             print("Stopping: too few subjects left.")
+            break
+        
+        smallest_cluster_size = current_data[cluster_col].value_counts().min()
+        if smallest_cluster_size < 2:
+            print(f"Stopping: cluster sizes too small for CV (smallest cluster size={smallest_cluster_size}).")
             break
 
         candidate_rows = []

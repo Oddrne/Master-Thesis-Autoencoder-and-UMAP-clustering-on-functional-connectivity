@@ -1,0 +1,243 @@
+{
+    "Cluster_2_results": {
+        "cca_all_variables_results": {
+            "cc": 0.9805239972414156,
+            "cv_mean_cc": 0.10472084438926783,
+            "cv_std_cc": 0.14035459285207355
+        },
+        "cca_selected_variables_results": {
+            "cc": 0.561322578870042,
+            "cv_mean_cc": 0.5656585490266756,
+            "cv_std_cc": 0.15428184926038283
+        },
+        "cca_removed_subjects_results": {
+            "cc": 0.561322578870042,
+            "cv_mean_cc": 0.5656585490266756,
+            "cv_std_cc": 0.15428184926038283
+        },
+        "mlr_all_variables_results": {
+            "mean_accuracy": 0.6296703296703297,
+            "std_accuracy": 0.09360676676504114,
+            "chance_accuracy_majority_class": 0.7014925373134329
+        },
+        "mlr_selected_variables_results": {
+            "mean_accuracy": 0.8065934065934066,
+            "std_accuracy": 0.032856959093903404,
+            "chance_accuracy_majority_class": 0.7014925373134329
+        },
+        "mlr_removed_subjects_results": {
+            "mean_accuracy": 0.8065934065934066,
+            "std_accuracy": 0.032856959093903404,
+            "chance_accuracy_majority_class": 0.7014925373134329
+        },
+        "cca_selected_variables": [
+            "hd_negative",
+            "Q3_GHQ28SomaticSymptoms",
+            "Q5CD_RISC",
+            "rBLA",
+            "WM",
+            "mean_accuracy"
+        ],
+        "mlr_selected_variables": [
+            "hd_negative",
+            "EV_base",
+            "Q8Cog_em",
+            "EnglishYearsSpeaking"
+        ],
+        "cca_removed_subjects": [],
+        "mlr_removed_subjects": []
+    },
+    "Cluster_3_results": {
+        "cca_removed_subjects_results": {
+            "mean_correlation": null,
+            "removed_subjects": null
+        },
+        "mlr_removed_subjects_results": {
+            "mean_accuracy": null,
+            "removed_subjects": null
+        }
+    },
+    "Cluster_4_results": {
+        "cca_all_variables_results": {
+            "cc": 0.9768974720848282,
+            "cv_mean_cc": 0.03528248637726299,
+            "cv_std_cc": 0.28408563063517317
+        },
+        "cca_selected_variables_results": {
+            "cc": 0.5769038922281331,
+            "cv_mean_cc": 0.5784003949810359,
+            "cv_std_cc": 0.16345676763255648
+        },
+        "cca_removed_subjects_results": {
+            "cc": 0.5769038922281331,
+            "cv_mean_cc": 0.5784003949810359,
+            "cv_std_cc": 0.16345676763255648
+        },
+        "mlr_all_variables_results": {
+            "mean_accuracy": 0.37252747252747254,
+            "std_accuracy": 0.07520852146052165,
+            "chance_accuracy_majority_class": 0.44776119402985076
+        },
+        "mlr_selected_variables_results": {
+            "mean_accuracy": 0.5692307692307692,
+            "std_accuracy": 0.11107058258016067,
+            "chance_accuracy_majority_class": 0.44776119402985076
+        },
+        "mlr_removed_subjects_results": {
+            "mean_accuracy": 0.5692307692307692,
+            "std_accuracy": 0.11107058258016067,
+            "chance_accuracy_majority_class": 0.44776119402985076
+        },
+        "cca_selected_variables": [
+            "WM",
+            "dEV_neu",
+            "ER_base",
+            "Q8Cog_em",
+            "YearsEducation",
+            "rCMA"
+        ],
+        "mlr_selected_variables": [
+            "Q8personal_distress",
+            "Q2_DERSNONACCEPT",
+            "Q1_DASSStress"
+        ],
+        "cca_removed_subjects": [],
+        "mlr_removed_subjects": []
+    },
+    "Cluster_5_results": {
+        "cca_removed_subjects_results": {
+            "mean_correlation": null,
+            "removed_subjects": null
+        },
+        "mlr_removed_subjects_results": {
+            "mean_accuracy": null,
+            "removed_subjects": null
+        }
+    },
+    "Cluster_6_results": {
+        "cca_removed_subjects_results": {
+            "mean_correlation": null,
+            "removed_subjects": null
+        },
+        "mlr_removed_subjects_results": {
+            "mean_accuracy": null,
+            "removed_subjects": null
+        }
+    },
+    "Cluster_7_results": {
+        "cca_all_variables_results": {
+            "cc": 0.9549503586922202,
+            "cv_mean_cc": 0.07380466855723651,
+            "cv_std_cc": 0.17100345745739046
+        },
+        "cca_selected_variables_results": {
+            "cc": 0.5686387373069205,
+            "cv_mean_cc": 0.4383768689703434,
+            "cv_std_cc": 0.31098627057099765
+        },
+        "cca_removed_subjects_results": {
+            "cc": 0.633154196814804,
+            "cv_mean_cc": 0.5959369275548627,
+            "cv_std_cc": 0.07681321016404263
+        },
+        "mlr_all_variables_results": {
+            "mean_accuracy": 0.9552042160737813,
+            "std_accuracy": 0.0009316294877293062,
+            "chance_accuracy_majority_class": 0.9552238805970149
+        },
+        "mlr_selected_variables_results": {
+            "mean_accuracy": 0.9552042160737813,
+            "std_accuracy": 0.0009316294877293062,
+            "chance_accuracy_majority_class": 0.9552238805970149
+        },
+        "mlr_removed_subjects_results": {
+            "mean_accuracy": 0.9552042160737813,
+            "std_accuracy": 0.0009316294877293062,
+            "chance_accuracy_majority_class": 0.9552238805970149
+        },
+        "cca_selected_variables": [
+            "mean_RT",
+            "CSF",
+            "Q3_GHQ28Score",
+            "Q3_GHQ28Anxiety_Insomnia",
+            "Relationshipstatus",
+            "Q5CD_RISC"
+        ],
+        "mlr_selected_variables": [
+            "Age"
+        ],
+        "cca_removed_subjects": [
+            12008,
+            12059,
+            12089
+        ],
+        "mlr_removed_subjects": []
+    },
+    "Cluster_8_results": {
+        "cca_removed_subjects_results": {
+            "mean_correlation": null,
+            "removed_subjects": null
+        },
+        "mlr_removed_subjects_results": {
+            "mean_accuracy": null,
+            "removed_subjects": null
+        }
+    },
+    "Cluster_9_results": {
+        "cca_removed_subjects_results": {
+            "mean_correlation": null,
+            "removed_subjects": null
+        },
+        "mlr_removed_subjects_results": {
+            "mean_accuracy": null,
+            "removed_subjects": null
+        }
+    },
+    "Cluster_10_results": {
+        "cca_all_variables_results": {
+            "cc": 0.9999836360511668,
+            "cv_mean_cc": 0.09571188428600358,
+            "cv_std_cc": 0.028779434057823964
+        },
+        "cca_selected_variables_results": {
+            "cc": 0.6585456464280428,
+            "cv_mean_cc": 0.5535363293625241,
+            "cv_std_cc": 0.11224927561916113
+        },
+        "cca_removed_subjects_results": {
+            "cc": 0.6585456464280428,
+            "cv_mean_cc": 0.5535363293625241,
+            "cv_std_cc": 0.11224927561916113
+        },
+        "mlr_all_variables_results": {
+            "mean_accuracy": 0.26679841897233203,
+            "std_accuracy": 0.08997341705719548,
+            "chance_accuracy_majority_class": 0.23880597014925373
+        },
+        "mlr_selected_variables_results": {
+            "mean_accuracy": 0.4328063241106719,
+            "std_accuracy": 0.055687758117017275,
+            "chance_accuracy_majority_class": 0.23880597014925373
+        },
+        "mlr_removed_subjects_results": {
+            "mean_accuracy": 0.4328063241106719,
+            "std_accuracy": 0.055687758117017275,
+            "chance_accuracy_majority_class": 0.23880597014925373
+        },
+        "cca_selected_variables": [
+            "Q2_DERSSTRATEGIES",
+            "PsychDiagnosis",
+            "hd_negative",
+            "Q2_DERSGOALS",
+            "CSF",
+            "EV_neg"
+        ],
+        "mlr_selected_variables": [
+            "ER_base",
+            "EV_neu",
+            "Q4Anxiety"
+        ],
+        "cca_removed_subjects": [],
+        "mlr_removed_subjects": []
+    }
+}
