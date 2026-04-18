@@ -1,0 +1,308 @@
+{
+    "Cluster_2_results": {
+        "cca_all_variables_results": {
+            "cc": 0.9342459671590753,
+            "cv_mean_cc": -0.013663354457179958,
+            "cv_std_cc": 0.11344336959196441
+        },
+        "cca_selected_variables_results": {
+            "cc": 0.39517352899815783,
+            "cv_mean_cc": 0.47651044432362355,
+            "cv_std_cc": 0.1971255299752865
+        },
+        "cca_removed_subjects_results": {
+            "cc": 0.39517352899815783,
+            "cv_mean_cc": 0.47651044432362355,
+            "cv_std_cc": 0.1971255299752865
+        },
+        "mlr_all_variables_results": {
+            "mean_accuracy": 0.6895238095238094,
+            "std_accuracy": 0.07471184250459119,
+            "chance_accuracy_majority_class": 0.7746478873239436
+        },
+        "mlr_selected_variables_results": {
+            "mean_accuracy": 0.8171428571428571,
+            "std_accuracy": 0.033073819722257765,
+            "chance_accuracy_majority_class": 0.7746478873239436
+        },
+        "mlr_removed_subjects_results": {
+            "mean_accuracy": 0.8171428571428571,
+            "std_accuracy": 0.033073819722257765,
+            "chance_accuracy_majority_class": 0.7746478873239436
+        },
+        "cca_selected_variables": [
+            "hd_negative",
+            "YearsEducation"
+        ],
+        "mlr_selected_variables": [
+            "Q1_DASSStress",
+            "Q2_DERSSTRATEGIES",
+            "Q2_DERSIMPULSE"
+        ],
+        "cca_removed_subjects": [],
+        "mlr_removed_subjects": []
+    },
+    "Cluster_3_results": {
+        "cca_all_variables_results": {
+            "cc": 0.9863757068737793,
+            "cv_mean_cc": 0.03619825948973008,
+            "cv_std_cc": 0.2328486046307429
+        },
+        "cca_selected_variables_results": {
+            "cc": 0.6359212823653951,
+            "cv_mean_cc": 0.5997882782607904,
+            "cv_std_cc": 0.18464873810691468
+        },
+        "cca_removed_subjects_results": {
+            "cc": 0.6359212823653951,
+            "cv_mean_cc": 0.5997882782607904,
+            "cv_std_cc": 0.18464873810691468
+        },
+        "mlr_all_variables_results": {
+            "mean_accuracy": 0.46761904761904766,
+            "std_accuracy": 0.15200548981612594,
+            "chance_accuracy_majority_class": 0.4647887323943662
+        },
+        "mlr_selected_variables_results": {
+            "mean_accuracy": 0.6638095238095237,
+            "std_accuracy": 0.09540936980090053,
+            "chance_accuracy_majority_class": 0.4647887323943662
+        },
+        "mlr_removed_subjects_results": {
+            "mean_accuracy": 0.6638095238095237,
+            "std_accuracy": 0.09540936980090053,
+            "chance_accuracy_majority_class": 0.4647887323943662
+        },
+        "cca_selected_variables": [
+            "Q8empathic_concern",
+            "hd_negative",
+            "ER_neg",
+            "Q2_DERSAWARENESS",
+            "Q5CD_RISC",
+            "Q8Fantasy"
+        ],
+        "mlr_selected_variables": [
+            "Q9Perspective",
+            "EV_neu",
+            "Q8personal_distress",
+            "ER_neg",
+            "rmet"
+        ],
+        "cca_removed_subjects": [],
+        "mlr_removed_subjects": []
+    },
+    "Cluster_4_results": {
+        "cca_all_variables_results": {
+            "cc": 0.9890163271706789,
+            "cv_mean_cc": 0.14229204913250385,
+            "cv_std_cc": 0.16115376862938788
+        },
+        "cca_selected_variables_results": {
+            "cc": 0.6289313907747429,
+            "cv_mean_cc": 0.5722268902186746,
+            "cv_std_cc": 0.165401861380273
+        },
+        "cca_removed_subjects_results": {
+            "cc": 0.6289313907747429,
+            "cv_mean_cc": 0.5722268902186746,
+            "cv_std_cc": 0.165401861380273
+        },
+        "mlr_all_variables_results": {
+            "mean_accuracy": 0.4628571428571428,
+            "std_accuracy": 0.13779606344899992,
+            "chance_accuracy_majority_class": 0.29577464788732394
+        },
+        "mlr_selected_variables_results": {
+            "mean_accuracy": 0.6219047619047618,
+            "std_accuracy": 0.13796709982789604,
+            "chance_accuracy_majority_class": 0.29577464788732394
+        },
+        "mlr_removed_subjects_results": {
+            "mean_accuracy": 0.6219047619047618,
+            "std_accuracy": 0.13796709982789604,
+            "chance_accuracy_majority_class": 0.29577464788732394
+        },
+        "cca_selected_variables": [
+            "rCMA",
+            "Q2_DERSIMPULSE",
+            "Sex",
+            "dER_neg",
+            "Q9StateAnxiety",
+            "Q2_DERSCLARITY"
+        ],
+        "mlr_selected_variables": [
+            "hd_negative",
+            "GM",
+            "Q2_DERSIMPULSE",
+            "ACC",
+            "Q3SocialDysfunction",
+            "hd_neutral"
+        ],
+        "cca_removed_subjects": [],
+        "mlr_removed_subjects": []
+    },
+    "Cluster_5_results": {
+        "cca_removed_subjects_results": {
+            "mean_correlation": null,
+            "removed_subjects": null
+        },
+        "mlr_removed_subjects_results": {
+            "mean_accuracy": null,
+            "removed_subjects": null
+        }
+    },
+    "Cluster_6_results": {
+        "cca_all_variables_results": {
+            "cc": 0.9502758990521171,
+            "cv_mean_cc": -0.15423405682032715,
+            "cv_std_cc": 0.2359223842591411
+        },
+        "cca_selected_variables_results": {
+            "cc": 0.532759246674976,
+            "cv_mean_cc": 0.507168794760864,
+            "cv_std_cc": 0.18877262385636903
+        },
+        "cca_removed_subjects_results": {
+            "cc": 0.6016952213195425,
+            "cv_mean_cc": 0.5762281273569484,
+            "cv_std_cc": 0.053753205158088506
+        },
+        "mlr_all_variables_results": {
+            "mean_accuracy": 0.548202614379085,
+            "std_accuracy": 0.14505488303034797,
+            "chance_accuracy_majority_class": 0.6338028169014085
+        },
+        "mlr_selected_variables_results": {
+            "mean_accuracy": 0.7475490196078431,
+            "std_accuracy": 0.058885905563047035,
+            "chance_accuracy_majority_class": 0.6338028169014085
+        },
+        "mlr_removed_subjects_results": {
+            "mean_accuracy": 0.7475490196078431,
+            "std_accuracy": 0.058885905563047035,
+            "chance_accuracy_majority_class": 0.6338028169014085
+        },
+        "cca_selected_variables": [
+            "hd_negative",
+            "Q8empathic_concern",
+            "PsychDiagnosis",
+            "EV_base",
+            "Q2_DERSAWARENESS"
+        ],
+        "mlr_selected_variables": [
+            "hd_negative",
+            "dER_neu",
+            "YearsEducation",
+            "Q7Unifactorial"
+        ],
+        "cca_removed_subjects": [
+            11201,
+            11127,
+            11073
+        ],
+        "mlr_removed_subjects": []
+    },
+    "Cluster_7_results": {
+        "cca_removed_subjects_results": {
+            "mean_correlation": null,
+            "removed_subjects": null
+        },
+        "mlr_removed_subjects_results": {
+            "mean_accuracy": null,
+            "removed_subjects": null
+        }
+    },
+    "Cluster_8_results": {
+        "cca_all_variables_results": {
+            "cc": 0.991356158896647,
+            "cv_mean_cc": -0.2798559686896984,
+            "cv_std_cc": 0.24618614910652745
+        },
+        "cca_selected_variables_results": {
+            "cc": 0.5670099161611531,
+            "cv_mean_cc": 0.5134484608533607,
+            "cv_std_cc": 0.10986756054439346
+        },
+        "cca_removed_subjects_results": {
+            "cc": 0.5670099161611531,
+            "cv_mean_cc": 0.5134484608533607,
+            "cv_std_cc": 0.10986756054439346
+        },
+        "mlr_all_variables_results": {
+            "mean_accuracy": 0.5362318840579711,
+            "std_accuracy": 0.06150533515222821,
+            "chance_accuracy_majority_class": 0.6338028169014085
+        },
+        "mlr_selected_variables_results": {
+            "mean_accuracy": 0.6757246376811595,
+            "std_accuracy": 0.023804834957037488,
+            "chance_accuracy_majority_class": 0.6338028169014085
+        },
+        "mlr_removed_subjects_results": {
+            "mean_accuracy": 0.6757246376811595,
+            "std_accuracy": 0.023804834957037488,
+            "chance_accuracy_majority_class": 0.6338028169014085
+        },
+        "cca_selected_variables": [
+            "Q3_GHQ28Score",
+            "rBLA",
+            "dER_neu",
+            "Q2_DERSNONACCEPT",
+            "dEV_neu"
+        ],
+        "mlr_selected_variables": [
+            "hd_negative",
+            "Q9Perspective",
+            "ER_base"
+        ],
+        "cca_removed_subjects": [],
+        "mlr_removed_subjects": []
+    },
+    "Cluster_9_results": {
+        "cca_all_variables_results": {
+            "cc": 0.9906869160336833,
+            "cv_mean_cc": -0.1743580543336857,
+            "cv_std_cc": 0.18119064061747536
+        },
+        "cca_selected_variables_results": {
+            "cc": 0.6760695934597735,
+            "cv_mean_cc": 0.6726637125750758,
+            "cv_std_cc": 0.05732649697083902
+        },
+        "cca_removed_subjects_results": {
+            "cc": 0.6760695934597735,
+            "cv_mean_cc": 0.6726637125750758,
+            "cv_std_cc": 0.05732649697083902
+        },
+        "mlr_all_variables_results": {
+            "mean_accuracy": 0.4504830917874396,
+            "std_accuracy": 0.03578631012084312,
+            "chance_accuracy_majority_class": 0.49295774647887325
+        },
+        "mlr_selected_variables_results": {
+            "mean_accuracy": 0.6056763285024155,
+            "std_accuracy": 0.017143803824370023,
+            "chance_accuracy_majority_class": 0.49295774647887325
+        },
+        "mlr_removed_subjects_results": {
+            "mean_accuracy": 0.6056763285024155,
+            "std_accuracy": 0.017143803824370023,
+            "chance_accuracy_majority_class": 0.49295774647887325
+        },
+        "cca_selected_variables": [
+            "TIV",
+            "Q1_DASSStress",
+            "Relationshipstatus",
+            "Q4Anxiety",
+            "m1_tISC",
+            "ER_neu"
+        ],
+        "mlr_selected_variables": [
+            "Q1_DASSStress",
+            "rBLA",
+            "dEV_neu"
+        ],
+        "cca_removed_subjects": [],
+        "mlr_removed_subjects": []
+    }
+}
