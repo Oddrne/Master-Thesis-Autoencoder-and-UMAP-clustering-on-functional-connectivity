@@ -1,0 +1,46 @@
+{
+    "cluster_number": "3",
+    "common_variables": [
+        "hd_negative"
+    ],
+    "variable_counts_sorted": [
+        [
+            "hd_negative",
+            2
+        ],
+        [
+            "lSFA",
+            1
+        ],
+        [
+            "Q9Perspective",
+            1
+        ],
+        [
+            "ER_neg",
+            1
+        ],
+        [
+            "Q2_DERSAWARENESS",
+            1
+        ]
+    ],
+    "common_removed_subjects": [
+        11073,
+        11074
+    ],
+    "removed_subjects_counts_sorted": [
+        [
+            11073,
+            2
+        ],
+        [
+            11074,
+            2
+        ],
+        [
+            "Young_run1_cluster_behavioural_results",
+            1
+        ]
+    ]
+}

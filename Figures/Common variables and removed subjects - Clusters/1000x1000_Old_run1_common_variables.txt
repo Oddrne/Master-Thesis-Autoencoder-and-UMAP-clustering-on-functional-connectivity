@@ -1,0 +1,50 @@
+{
+    "json_file": "Results\\\\1000x1000_Old_run1_cluster_behavioural_results.json",
+    "common_variables": [],
+    "variable_counts_sorted": [
+        [
+            "Q8emo_em",
+            2
+        ],
+        [
+            "Q4Depression",
+            2
+        ],
+        [
+            "Q2_DERSSTRATEGIES",
+            2
+        ],
+        [
+            "Q3_GHQ28SomaticSymptoms",
+            2
+        ],
+        [
+            "m1_tISC",
+            2
+        ]
+    ],
+    "common_removed_subjects": [
+        12011,
+        12152,
+        12292,
+        12320
+    ],
+    "removed_subjects_counts_sorted": [
+        [
+            12152,
+            1
+        ],
+        [
+            12320,
+            1
+        ],
+        [
+            12011,
+            1
+        ],
+        [
+            12292,
+            1
+        ]
+    ]
+}

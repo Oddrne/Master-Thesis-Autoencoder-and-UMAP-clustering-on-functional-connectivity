@@ -1,0 +1,56 @@
+{
+    "json_file": "Results\\\\Old_run1_cluster_behavioural_results.json",
+    "common_variables": [],
+    "variable_counts_sorted": [
+        [
+            "Q3SevereDepression",
+            3
+        ],
+        [
+            "Q8personal_distress",
+            3
+        ],
+        [
+            "Q9Perspective",
+            2
+        ],
+        [
+            "Q2_DERSSTRATEGIES",
+            2
+        ],
+        [
+            "ACC",
+            2
+        ]
+    ],
+    "common_removed_subjects": [
+        12010,
+        12017,
+        12062,
+        12152,
+        12183,
+        12216
+    ],
+    "removed_subjects_counts_sorted": [
+        [
+            12017,
+            1
+        ],
+        [
+            12152,
+            1
+        ],
+        [
+            12183,
+            1
+        ],
+        [
+            12216,
+            1
+        ],
+        [
+            12010,
+            1
+        ]
+    ]
+}

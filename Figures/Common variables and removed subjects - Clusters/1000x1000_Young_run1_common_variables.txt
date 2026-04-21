@@ -1,0 +1,45 @@
+{
+    "json_file": "Results\\\\1000x1000_Young_run1_cluster_behavioural_results.json",
+    "common_variables": [],
+    "variable_counts_sorted": [
+        [
+            "hd_negative",
+            5
+        ],
+        [
+            "YearsEducation",
+            2
+        ],
+        [
+            "Q2_DERSIMPULSE",
+            2
+        ],
+        [
+            "Q1_DASSStress",
+            2
+        ],
+        [
+            "Q9Perspective",
+            2
+        ]
+    ],
+    "common_removed_subjects": [
+        11073,
+        11127,
+        11201
+    ],
+    "removed_subjects_counts_sorted": [
+        [
+            11073,
+            1
+        ],
+        [
+            11201,
+            1
+        ],
+        [
+            11127,
+            1
+        ]
+    ]
+}

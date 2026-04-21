@@ -505,3 +505,792 @@ def plot_clustering_scores_sorted(
     plt.show()
 
     return raw_results
+
+# ___________________________________________________________________________
+# Plot the relationships from the behavioural analysis
+# ___________________________________________________________________________
+
+# Plot the CCA and MLR scores across clusters
+import json
+from pathlib import Path
+import matplotlib.pyplot as plt
+
+
+def load_json_results(json_path):
+    """
+    Load clustering results from a JSON file.
+
+    Parameters
+    ----------
+    json_path : str or Path
+        Path to the JSON file.
+
+    Returns
+    -------
+    dict
+        Parsed JSON dictionary.
+    """
+    json_path = Path(json_path)
+    with open(json_path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def get_nested_value(d, key_path):
+    """
+    Safely get a nested value from a dictionary.
+
+    Parameters
+    ----------
+    d : dict
+        Dictionary to search.
+    key_path : str
+        Colon-separated path, e.g.
+        'cca_removed_subjects_results:cv_mean_cc'
+
+    Returns
+    -------
+    value or None
+        The value if found, otherwise None.
+    """
+    keys = key_path.split(":")
+    current = d
+    for key in keys:
+        if not isinstance(current, dict) or key not in current:
+            return None
+        current = current[key]
+    return current
+
+
+def plot_cca_mlr_across_clusters(
+    json_path,
+    cca_metric="cca_removed_subjects_results:cv_mean_cc",
+    mlr_metric="mlr_removed_subjects_results:mean_accuracy",
+    title="CCA and MLR across clusters",
+    xlabel="Cluster",
+    ylabel="Score",
+    save_path=None,
+    annotate=False,
+    figsize=(10, 6)
+):
+    """
+    Plot two line graphs across clusters:
+      - CCA values
+      - MLR values
+
+    Parameters
+    ----------
+    json_path : str or Path
+        Path to JSON file.
+    cca_metric : str
+        Colon-separated path to the CCA metric.
+    mlr_metric : str
+        Colon-separated path to the MLR metric.
+    title : str
+        Plot title.
+    xlabel : str
+        X-axis label.
+    ylabel : str
+        Y-axis label.
+    save_path : str or Path or None
+        If provided, save figure here.
+    annotate : bool
+        If True, annotate each point with its value.
+    figsize : tuple
+        Figure size.
+    """
+    json_path = Path(json_path)
+
+    with open(json_path, "r", encoding="utf-8") as f:
+        results = json.load(f)
+
+    # Sort clusters numerically
+    sorted_items = sorted(
+        results.items(),
+        key=lambda item: int(item[0].split("_")[1])
+    )
+
+    cluster_numbers = []
+    cca_values = []
+    mlr_values = []
+
+    for cluster_name, cluster_data in sorted_items:
+        cluster_num = int(cluster_name.split("_")[1])
+
+        cca_val = get_nested_value(cluster_data, cca_metric)
+        mlr_val = get_nested_value(cluster_data, mlr_metric)
+        
+        cluster_numbers.append(cluster_num)
+
+        # Skip clusters where either value is missing/null
+        if cca_val is None or mlr_val is None:
+            cca_values.append(0.0)
+            mlr_values.append(0.0)
+            continue
+
+        cca_values.append(cca_val)
+        mlr_values.append(mlr_val)
+
+    plt.figure(figsize=figsize)
+
+    plt.plot(cluster_numbers, cca_values, marker="o", label="CCA")
+    plt.plot(cluster_numbers, mlr_values, marker="o", label="MLR")
+
+    if annotate:
+        for x, y in zip(cluster_numbers, cca_values):
+            plt.annotate(f"{y:.3f}", (x, y), xytext=(0, 6), textcoords="offset points", ha="center")
+        for x, y in zip(cluster_numbers, mlr_values):
+            plt.annotate(f"{y:.3f}", (x, y), xytext=(0, -12), textcoords="offset points", ha="center")
+
+    plt.xticks(cluster_numbers, [f"Cluster {n}" for n in cluster_numbers], rotation=45)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.title(title)
+    plt.grid(True)
+    plt.legend()
+
+    footnote_text = (
+    "Canonical Correlation Analysis (CCA) [0, 1] and Multinomial Logistic Regression (MLR) [0, 1] scores across clusters. Both cross-validated. "
+    )
+
+    plt.figtext(
+        0.5, -0.02,  # x (center), y (slightly below plot)
+        footnote_text,
+        ha='center',
+        fontsize=9
+    )
+
+    plt.tight_layout()
+
+    if save_path is not None:
+        plt.savefig(save_path, dpi=300, bbox_inches="tight")
+
+    plt.show()
+
+    return cluster_numbers, cca_values, mlr_values
+
+
+# Plot the scores for the best clustering results
+import json
+from pathlib import Path
+import matplotlib.pyplot as plt
+
+
+def load_json_results(json_path):
+    with open(json_path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def get_nested_value(d, key_path):
+    keys = key_path.split(":")
+    current = d
+    for key in keys:
+        if not isinstance(current, dict) or key not in current:
+            return None
+        current = current[key]
+    return current
+
+
+def format_list(lst, max_len=5):
+    """
+    Format list for annotation (avoid huge text blocks).
+    """
+    if not lst:
+        return "None"
+    if len(lst) <= max_len:
+        return ", ".join(map(str, lst))
+    return ", ".join(map(str, lst[:max_len])) + ", ..."
+
+
+def plot_single_cluster_cca_mlr_variants(
+    json_path,
+    cluster_number,
+    cca_value_key="cv_mean_cc",
+    mlr_value_key="mean_accuracy",
+    dead_value=0.0,
+    title=None,
+    save_path=None,
+    annotate=True,
+    figsize=(10, 7)
+):
+    """
+    Plot one chosen cluster across:
+      - all variables
+      - selected variables
+      - removed subjects
+
+    Produces two lines:
+      - CCA
+      - MLR
+
+    Adds figure text below the plot containing selected variables
+    and removed subjects for both CCA and MLR.
+    """
+    results = load_json_results(json_path)
+
+    cluster_key = f"Cluster_{cluster_number}_results"
+    if cluster_key not in results:
+        raise ValueError(f"{cluster_key} not found in JSON file.")
+
+    cluster_data = results[cluster_key]
+
+    categories = ["All variables", "Selected variables", "Removed subjects"]
+
+    cca_paths = [
+        f"cca_all_variables_results:{cca_value_key}",
+        f"cca_selected_variables_results:{cca_value_key}",
+        f"cca_removed_subjects_results:{cca_value_key}",
+    ]
+
+    mlr_paths = [
+        f"mlr_all_variables_results:{mlr_value_key}",
+        f"mlr_selected_variables_results:{mlr_value_key}",
+        f"mlr_removed_subjects_results:{mlr_value_key}",
+    ]
+
+    cca_values = []
+    mlr_values = []
+
+    for path in cca_paths:
+        value = get_nested_value(cluster_data, path)
+        cca_values.append(dead_value if value is None else value)
+
+    for path in mlr_paths:
+        value = get_nested_value(cluster_data, path)
+        mlr_values.append(dead_value if value is None else value)
+
+    x = list(range(len(categories)))
+
+    fig, ax = plt.subplots(figsize=figsize)
+
+    ax.plot(x, cca_values, marker="o", label="CCA")
+    ax.plot(x, mlr_values, marker="o", label="MLR")
+
+    if annotate:
+        for xi, yi in zip(x, cca_values):
+            ax.annotate(f"{yi:.3f}", (xi, yi), xytext=(0, 7),
+                        textcoords="offset points", ha="center")
+        for xi, yi in zip(x, mlr_values):
+            ax.annotate(f"{yi:.3f}", (xi, yi), xytext=(0, -14),
+                        textcoords="offset points", ha="center")
+
+    ax.set_xticks(x)
+    ax.set_xticklabels(categories)
+    ax.set_ylabel("Score")
+    ax.set_title(title or f"Cluster {cluster_number}: CCA and MLR across result types")
+    ax.grid(True)
+    ax.legend()
+
+    # Figure text below plot
+    cca_selected = format_list(cluster_data.get("cca_selected_variables", []))
+    mlr_selected = format_list(cluster_data.get("mlr_selected_variables", []))
+    cca_removed = format_list(cluster_data.get("cca_removed_subjects", []))
+    mlr_removed = format_list(cluster_data.get("mlr_removed_subjects", []))
+
+    fig_text = (
+        f"CCA selected variables: {cca_selected}\n"
+        f"MLR selected variables: {mlr_selected}\n"
+        f"CCA removed subjects: {cca_removed}\n"
+        f"MLR removed subjects: {mlr_removed}"
+    )
+
+    fig.text(
+        0.02, 0.01,
+        fig_text,
+        ha="left",
+        va="bottom",
+        fontsize=9
+    )
+
+    # Leave extra room at the bottom for figure text
+    plt.tight_layout(rect=[0, 0.15, 1, 1])
+
+    if save_path is not None:
+        plt.savefig(save_path, dpi=300, bbox_inches="tight")
+
+    plt.show()
+
+    return {
+        "categories": categories,
+        "cca_values": cca_values,
+        "mlr_values": mlr_values,
+        "figure_text": fig_text
+    }
+
+
+# Find the common removed subjects and the common selected variables across 
+import json
+from pathlib import Path
+from collections import Counter
+
+
+def _count_occurrences(dict_of_sets):
+    """
+    Count how many times each element appears across sets.
+
+    Example:
+        {'Cluster_2': {A, B}, 'Cluster_3': {A, C}}
+    -> Counter({A: 2, B: 1, C: 1})
+    """
+    counter = Counter()
+
+    for s in dict_of_sets.values():
+        counter.update(s)
+
+    return counter
+
+def load_json_results(json_path):
+    with open(json_path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def _safe_set(value):
+    """
+    Convert a list-like value to a set.
+    Returns empty set for None or missing values.
+    """
+    if value is None:
+        return set()
+    if isinstance(value, list):
+        return set(value)
+    return set()
+
+
+def _cluster_sort_key(cluster_name):
+    return int(cluster_name.split("_")[1])
+
+
+def _extract_common_and_union(dict_of_sets):
+    """
+    Compute intersection and union across non-empty sets.
+    """
+    nonempty_items = {k: v for k, v in dict_of_sets.items() if len(v) > 0}
+
+    if len(nonempty_items) == 0:
+        return {
+            "common": set(),
+            "union": set(),
+            "used_entries": [],
+        }
+
+    sets = list(nonempty_items.values())
+
+    return {
+        "common": set.intersection(*sets),
+        "union": set.union(*sets),
+        "used_entries": list(nonempty_items.keys()),
+    }
+
+
+def _normalize_keys(keys):
+    """
+    Accept either:
+      - a string
+      - a list/tuple of strings
+    and always return a list of strings.
+    """
+    if isinstance(keys, str):
+        return [keys]
+    if isinstance(keys, (list, tuple)):
+        return list(keys)
+    raise TypeError("Keys must be a string or a list/tuple of strings.")
+
+
+def _combine_keys_as_set(data_dict, keys):
+    """
+    Combine multiple list-valued keys from one cluster/run into one set.
+
+    Example:
+        keys = ["cca_removed_subjects", "mlr_removed_subjects"]
+
+    Result:
+        union of both lists as a set
+    """
+    keys = _normalize_keys(keys)
+
+    combined = set()
+    for key in keys:
+        combined |= _safe_set(data_dict.get(key, []))
+    return combined
+
+
+def compare_common_across_clusters(
+    json_path,
+    variable_keys="cca_selected_variables",
+    removed_subjects_keys="cca_removed_subjects",
+    clusters_to_include=None,
+    ignore_empty=True
+):
+    """
+    Compare common selected variables and removed subjects across clusters
+    within a single JSON file.
+
+    Supports both single keys and multiple keys, e.g.
+        variable_keys=["cca_selected_variables", "mlr_selected_variables"]
+        removed_subjects_keys=["cca_removed_subjects", "mlr_removed_subjects"]
+
+    Parameters
+    ----------
+    json_path : str or Path
+    variable_keys : str or list[str]
+        Key(s) for variables to combine before comparison.
+    removed_subjects_keys : str or list[str]
+        Key(s) for removed subjects to combine before comparison.
+    clusters_to_include : list[int] or None
+    ignore_empty : bool
+
+    Returns
+    -------
+    dict
+    """
+    results = load_json_results(json_path)
+
+    cluster_variable_sets = {}
+    cluster_removed_sets = {}
+
+    sorted_items = sorted(results.items(), key=lambda item: _cluster_sort_key(item[0]))
+
+    for cluster_name, cluster_data in sorted_items:
+        cluster_num = _cluster_sort_key(cluster_name)
+
+        if clusters_to_include is not None and cluster_num not in clusters_to_include:
+            continue
+
+        short_name = f"Cluster_{cluster_num}"
+
+        var_set = _combine_keys_as_set(cluster_data, variable_keys)
+        rem_set = _combine_keys_as_set(cluster_data, removed_subjects_keys)
+
+        cluster_variable_sets[short_name] = var_set
+        cluster_removed_sets[short_name] = rem_set
+
+    if ignore_empty:
+        variable_summary = _extract_common_and_union(cluster_variable_sets)
+        removed_summary = _extract_common_and_union(cluster_removed_sets)
+    else:
+        if len(cluster_variable_sets) > 0:
+            variable_summary = {
+                "common": set.intersection(*cluster_variable_sets.values()),
+                "union": set.union(*cluster_variable_sets.values()),
+                "used_entries": list(cluster_variable_sets.keys()),
+            }
+        else:
+            variable_summary = {"common": set(), "union": set(), "used_entries": []}
+
+        if len(cluster_removed_sets) > 0:
+            removed_summary = {
+                "common": set.intersection(*cluster_removed_sets.values()),
+                "union": set.union(*cluster_removed_sets.values()),
+                "used_entries": list(cluster_removed_sets.keys()),
+            }
+        else:
+            removed_summary = {"common": set(), "union": set(), "used_entries": []}
+
+    variable_counts = _count_occurrences(cluster_variable_sets)
+    removed_counts = _count_occurrences(cluster_removed_sets)
+
+    return {
+        "json_file": str(json_path),
+        "variable_keys": _normalize_keys(variable_keys),
+        "removed_subjects_keys": _normalize_keys(removed_subjects_keys),
+        "per_cluster_variables": {k: sorted(v) for k, v in cluster_variable_sets.items()},
+        "per_cluster_removed_subjects": {k: sorted(v) for k, v in cluster_removed_sets.items()},
+        "common_variables": sorted(variable_summary["common"]),
+        "union_variables": sorted(variable_summary["union"]),
+        "variable_counts": dict(variable_counts),
+        "variable_counts_sorted": sorted(variable_counts.items(), key=lambda x: -x[1]),
+        "clusters_used_for_variables": variable_summary["used_entries"],
+        "common_removed_subjects": sorted(removed_summary["common"]),
+        "union_removed_subjects": sorted(removed_summary["union"]),
+        "clusters_used_for_removed_subjects": removed_summary["used_entries"],
+        "removed_subjects_counts": dict(removed_counts),
+        "removed_subjects_counts_sorted": sorted(removed_counts.items(), key=lambda x: -x[1]),
+    }
+
+
+def compare_common_across_runs_same_cluster(
+    json_paths,
+    cluster_number,
+    variable_keys="cca_selected_variables",
+    removed_subjects_keys="cca_removed_subjects",
+    run_names=None,
+    ignore_empty=True
+):
+    """
+    Compare common selected variables and removed subjects across multiple runs
+    for the same cluster.
+
+    Supports both single keys and multiple keys, e.g.
+        variable_keys=["cca_selected_variables", "mlr_selected_variables"]
+        removed_subjects_keys=["cca_removed_subjects", "mlr_removed_subjects"]
+    """
+    json_paths = [Path(p) for p in json_paths]
+
+    if run_names is None:
+        run_names = [p.stem for p in json_paths]
+
+    if len(run_names) != len(json_paths):
+        raise ValueError("run_names must have the same length as json_paths.")
+
+    cluster_key = f"Cluster_{cluster_number}_results"
+
+    run_variable_sets = {}
+    run_removed_sets = {}
+
+    for json_path, run_name in zip(json_paths, run_names):
+        results = load_json_results(json_path)
+
+        if cluster_key not in results:
+            raise ValueError(f"{cluster_key} not found in {json_path}")
+
+        cluster_data = results[cluster_key]
+
+        run_variable_sets[run_name] = _combine_keys_as_set(cluster_data, variable_keys)
+        run_removed_sets[run_name] = _combine_keys_as_set(cluster_data, removed_subjects_keys)
+
+    if ignore_empty:
+        variable_summary = _extract_common_and_union(run_variable_sets)
+        removed_summary = _extract_common_and_union(run_removed_sets)
+    else:
+        variable_summary = {
+            "common": set.intersection(*run_variable_sets.values()) if len(run_variable_sets) > 0 else set(),
+            "union": set.union(*run_variable_sets.values()) if len(run_variable_sets) > 0 else set(),
+            "used_entries": list(run_variable_sets.keys()),
+        }
+        removed_summary = {
+            "common": set.intersection(*run_removed_sets.values()) if len(run_removed_sets) > 0 else set(),
+            "union": set.union(*run_removed_sets.values()) if len(run_removed_sets) > 0 else set(),
+            "used_entries": list(run_removed_sets.keys()),
+        }
+
+    variable_counts = _count_occurrences(variable_summary)
+    removed_counts = _count_occurrences(removed_summary)
+
+    return {
+        "cluster_number": cluster_number,
+        "variable_keys": _normalize_keys(variable_keys),
+        "removed_subjects_keys": _normalize_keys(removed_subjects_keys),
+        "per_run_variables": {k: sorted(v) for k, v in run_variable_sets.items()},
+        "per_run_removed_subjects": {k: sorted(v) for k, v in run_removed_sets.items()},
+        "common_variables": sorted(variable_summary["common"]),
+        "union_variables": sorted(variable_summary["union"]),
+        "variable_counts": dict(variable_counts),
+        "variable_counts_sorted": sorted(variable_counts.items(), key=lambda x: -x[1]),
+        "runs_used_for_variables": variable_summary["used_entries"],
+        "common_removed_subjects": sorted(removed_summary["common"]),
+        "union_removed_subjects": sorted(removed_summary["union"]),
+        "removed_subjects_counts": dict(removed_counts),
+        "removed_subjects_counts_sorted": sorted(removed_counts.items(), key=lambda x: -x[1]),
+        "runs_used_for_removed_subjects": removed_summary["used_entries"],
+    }
+
+
+def print_comparison_summary(comparison_result, save_path=None):
+    """
+    Pretty-print the result.
+    """
+    if "json_file" in comparison_result:
+        print(f"\nComparison across clusters in: {comparison_result['json_file']}")
+        save_results = {
+            "json_file": comparison_result["json_file"],
+        }
+    else:
+        print(f"\nComparison across runs for Cluster {comparison_result['cluster_number']}")
+        save_results = {
+            "cluster_number": comparison_result["cluster_number"],
+        }
+
+    print(f"Variable keys: {comparison_result['variable_keys']}")
+    print(f"Removed-subject keys: {comparison_result['removed_subjects_keys']}")
+
+    print("\nCommon variables:")
+    print(comparison_result["common_variables"])
+
+    print("\nVariable counts across clusters/runs:")
+    top_5_vars = comparison_result["variable_counts_sorted"][:5]
+    for var, count in top_5_vars:
+        print(f"{var}: {count}")
+
+    print("\nCommon removed subjects:")
+    print(comparison_result["common_removed_subjects"])
+
+    print("\nRemoved subject counts across clusters/runs:")
+    top_5_subjects = comparison_result["removed_subjects_counts_sorted"][:5]
+    for subject, count in top_5_subjects:
+        print(f"{subject}: {count}")
+
+    save_results.update({
+        "common_variables": comparison_result["common_variables"],
+        "variable_counts_sorted": comparison_result["variable_counts_sorted"][:5],
+        "common_removed_subjects": comparison_result["common_removed_subjects"],
+        "removed_subjects_counts_sorted": comparison_result["removed_subjects_counts_sorted"][:5],
+    })
+
+    if save_path is not None:
+        with open(save_path, "w", encoding="utf-8") as f:
+            json.dump(save_results, f, indent=4)
+        print(f"\nComparison result saved to: {save_path}")
+
+
+# Compare between the ages
+import json
+from pathlib import Path
+import matplotlib.pyplot as plt
+
+
+def load_json_results(json_path):
+    with open(json_path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def get_nested_value(d, key_path):
+    """
+    Safely get a nested value from a dictionary using a colon-separated path.
+    Example:
+        'cca_removed_subjects_results:cv_mean_cc'
+    """
+    keys = key_path.split(":")
+    current = d
+    for key in keys:
+        if not isinstance(current, dict) or key not in current:
+            return None
+        current = current[key]
+    return current
+
+import matplotlib.colors as mcolors
+
+def adjust_lightness(color, amount=1.2):
+    """
+    amount > 1 → lighter
+    amount < 1 → darker
+    """
+    import colorsys
+    r, g, b = mcolors.to_rgb(color)
+    h, l, s = colorsys.rgb_to_hls(r, g, b)
+    l = max(0, min(1, l * amount))
+    return colorsys.hls_to_rgb(h, l, s)
+
+def plot_cca_mlr_two_jsons_across_clusters(
+    young_json_path,
+    old_json_path,
+    cca_metric="cca_removed_subjects_results:cv_mean_cc",
+    mlr_metric="mlr_removed_subjects_results:mean_accuracy",
+    label_1="Young",
+    label_2="Old",
+    dead_value=0.0,
+    include_all_clusters=True,
+    annotate=False,
+    title="CCA and MLR across clusters for two JSON files",
+    xlabel="Cluster",
+    ylabel="Score",
+    save_path=None,
+    figsize=(11, 6)
+):
+    """
+    Plot 4 lines across clusters:
+      - CCA from JSON 1
+      - MLR from JSON 1
+      - CCA from JSON 2
+      - MLR from JSON 2
+
+    Parameters
+    ----------
+    json_path_1 : str or Path
+    json_path_2 : str or Path
+    cca_metric : str
+        Colon-separated path to the CCA metric inside each cluster.
+    mlr_metric : str
+        Colon-separated path to the MLR metric inside each cluster.
+    label_1 : str
+        Label prefix for first JSON file.
+    label_2 : str
+        Label prefix for second JSON file.
+    dead_value : float
+        Value used when metric is missing/null.
+    include_all_clusters : bool
+        If True, includes all cluster numbers found in either JSON.
+        Missing clusters are plotted as dead_value.
+        If False, only clusters present in both JSONs are included.
+    annotate : bool
+        If True, annotate each point with its numeric value.
+    title : str
+    xlabel : str
+    ylabel : str
+    save_path : str or Path or None
+    figsize : tuple
+
+    Returns
+    -------
+    dict
+        Extracted plotting values.
+    """
+    results_young = load_json_results(young_json_path)
+    results_old = load_json_results(old_json_path)
+
+    clusters_young = {int(name.split("_")[1]) for name in results_young.keys()}
+    clusters_old = {int(name.split("_")[1]) for name in results_old.keys()}
+
+    if include_all_clusters:
+        cluster_numbers = sorted(clusters_young | clusters_old)
+    else:
+        cluster_numbers = sorted(clusters_young & clusters_old)
+
+    cca_values_young = []
+    mlr_values_young = []
+    cca_values_old = []
+    mlr_values_old = []
+
+    for cluster_num in cluster_numbers:
+        cluster_key = f"Cluster_{cluster_num}_results"
+
+        cluster_data_1 = results_young.get(cluster_key, {})
+        cluster_data_2 = results_old.get(cluster_key, {})
+
+        cca_young = get_nested_value(cluster_data_1, cca_metric)
+        mlr_young = get_nested_value(cluster_data_1, mlr_metric)
+        cca_old = get_nested_value(cluster_data_2, cca_metric)
+        mlr_old = get_nested_value(cluster_data_2, mlr_metric)
+
+        cca_values_young.append(dead_value if cca_young is None else cca_young)
+        mlr_values_young.append(dead_value if mlr_young is None else mlr_young)
+        cca_values_old.append(dead_value if cca_old is None else cca_old)
+        mlr_values_old.append(dead_value if mlr_old is None else mlr_old)
+
+    plt.figure(figsize=figsize)
+
+    base_colors = {"CCA": "green", "MLR": "red"}
+
+    plt.plot(cluster_numbers, cca_values_young, marker="o", label=f"{label_1} - CCA", color=adjust_lightness(base_colors["CCA"], 0.7))
+    plt.plot(cluster_numbers, mlr_values_young, marker="o", label=f"{label_1} - MLR", color=adjust_lightness(base_colors["MLR"], 0.7))
+    plt.plot(cluster_numbers, cca_values_old, marker="o", label=f"{label_2} - CCA", color=adjust_lightness(base_colors["CCA"], 1.3))
+    plt.plot(cluster_numbers, mlr_values_old, marker="o", label=f"{label_2} - MLR", color=adjust_lightness(base_colors["MLR"], 1.3))
+
+    if annotate:
+        for x, y in zip(cluster_numbers, cca_values_young):
+            plt.annotate(f"{y:.3f}", (x, y), xytext=(0, 7), textcoords="offset points", ha="center", fontsize=8)
+        for x, y in zip(cluster_numbers, mlr_values_young):
+            plt.annotate(f"{y:.3f}", (x, y), xytext=(0, -12), textcoords="offset points", ha="center", fontsize=8)
+        for x, y in zip(cluster_numbers, cca_values_old):
+            plt.annotate(f"{y:.3f}", (x, y), xytext=(10, 7), textcoords="offset points", ha="center", fontsize=8)
+        for x, y in zip(cluster_numbers, mlr_values_old):
+            plt.annotate(f"{y:.3f}", (x, y), xytext=(10, -12), textcoords="offset points", ha="center", fontsize=8)
+
+    plt.xticks(cluster_numbers, [f"Cluster {n}" for n in cluster_numbers], rotation=45)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.title(title)
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+
+    if save_path is not None:
+        plt.savefig(save_path, dpi=300, bbox_inches="tight")
+
+    plt.show()
+
+    return {
+        "cluster_numbers": cluster_numbers,
+        "young_cca": cca_values_young,
+        "young_mlr": mlr_values_young,
+        "old_cca": cca_values_old,
+        "old_mlr": mlr_values_old,
+    }

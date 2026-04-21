@@ -1,0 +1,54 @@
+{
+    "cluster_number": "8",
+    "common_variables": [],
+    "variable_counts_sorted": [
+        [
+            "hd_negative",
+            1
+        ],
+        [
+            "Q7F1",
+            1
+        ],
+        [
+            "TIV",
+            1
+        ],
+        [
+            "Q9Perspective",
+            1
+        ],
+        [
+            "ER_neu",
+            1
+        ]
+    ],
+    "common_removed_subjects": [
+        11012,
+        11021,
+        11108,
+        11207
+    ],
+    "removed_subjects_counts_sorted": [
+        [
+            11012,
+            2
+        ],
+        [
+            11108,
+            2
+        ],
+        [
+            11021,
+            2
+        ],
+        [
+            11207,
+            2
+        ],
+        [
+            "Young_run2_cluster_behavioural_results",
+            1
+        ]
+    ]
+}

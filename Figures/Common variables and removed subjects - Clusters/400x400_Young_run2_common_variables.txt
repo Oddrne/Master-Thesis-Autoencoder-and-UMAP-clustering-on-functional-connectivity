@@ -1,0 +1,49 @@
+{
+    "json_file": "Results\\\\Young_run2_cluster_behavioural_results.json",
+    "common_variables": [],
+    "variable_counts_sorted": [
+        [
+            "hd_negative",
+            7
+        ],
+        [
+            "Q3SevereDepression",
+            6
+        ],
+        [
+            "Order",
+            4
+        ],
+        [
+            "Q8empathic_concern",
+            3
+        ],
+        [
+            "Relationshipstatus",
+            3
+        ]
+    ],
+    "common_removed_subjects": [],
+    "removed_subjects_counts_sorted": [
+        [
+            11024,
+            2
+        ],
+        [
+            11050,
+            1
+        ],
+        [
+            11197,
+            1
+        ],
+        [
+            11018,
+            1
+        ],
+        [
+            11159,
+            1
+        ]
+    ]
+}

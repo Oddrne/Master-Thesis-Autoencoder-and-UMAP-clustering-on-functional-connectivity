@@ -1,0 +1,28 @@
+{
+    "cluster_number": "5",
+    "common_variables": [],
+    "variable_counts_sorted": [
+        [
+            "Q8emo_em",
+            1
+        ],
+        [
+            "Cognitive_PC",
+            1
+        ],
+        [
+            "Q9StateAnxiety",
+            1
+        ],
+        [
+            "Q4Depression",
+            1
+        ],
+        [
+            "Avg_Sleep",
+            1
+        ]
+    ],
+    "common_removed_subjects": [],
+    "removed_subjects_counts_sorted": []
+}

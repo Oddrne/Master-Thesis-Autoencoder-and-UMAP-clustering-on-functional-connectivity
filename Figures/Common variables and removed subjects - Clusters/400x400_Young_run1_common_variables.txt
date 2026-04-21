@@ -1,0 +1,49 @@
+{
+    "json_file": "Results\\\\Young_run1_cluster_behavioural_results.json",
+    "common_variables": [],
+    "variable_counts_sorted": [
+        [
+            "hd_negative",
+            6
+        ],
+        [
+            "Q2_DERSNONACCEPT",
+            4
+        ],
+        [
+            "hd_neutral",
+            3
+        ],
+        [
+            "Age",
+            3
+        ],
+        [
+            "WM",
+            3
+        ]
+    ],
+    "common_removed_subjects": [],
+    "removed_subjects_counts_sorted": [
+        [
+            11050,
+            1
+        ],
+        [
+            11108,
+            1
+        ],
+        [
+            11073,
+            1
+        ],
+        [
+            11074,
+            1
+        ],
+        [
+            11024,
+            1
+        ]
+    ]
+}
