@@ -1129,3 +1129,168 @@ def print_comparison_summary(comparison_result, save_path=None):
         with open(save_path, "w", encoding="utf-8") as f:
             json.dump(save_results, f, indent=4)
         print(f"\nComparison result saved to: {save_path}")
+
+
+# Compare between the ages
+import json
+from pathlib import Path
+import matplotlib.pyplot as plt
+
+
+def load_json_results(json_path):
+    with open(json_path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def get_nested_value(d, key_path):
+    """
+    Safely get a nested value from a dictionary using a colon-separated path.
+    Example:
+        'cca_removed_subjects_results:cv_mean_cc'
+    """
+    keys = key_path.split(":")
+    current = d
+    for key in keys:
+        if not isinstance(current, dict) or key not in current:
+            return None
+        current = current[key]
+    return current
+
+import matplotlib.colors as mcolors
+
+def adjust_lightness(color, amount=1.2):
+    """
+    amount > 1 → lighter
+    amount < 1 → darker
+    """
+    import colorsys
+    r, g, b = mcolors.to_rgb(color)
+    h, l, s = colorsys.rgb_to_hls(r, g, b)
+    l = max(0, min(1, l * amount))
+    return colorsys.hls_to_rgb(h, l, s)
+
+def plot_cca_mlr_two_jsons_across_clusters(
+    young_json_path,
+    old_json_path,
+    cca_metric="cca_removed_subjects_results:cv_mean_cc",
+    mlr_metric="mlr_removed_subjects_results:mean_accuracy",
+    label_1="Young",
+    label_2="Old",
+    dead_value=0.0,
+    include_all_clusters=True,
+    annotate=False,
+    title="CCA and MLR across clusters for two JSON files",
+    xlabel="Cluster",
+    ylabel="Score",
+    save_path=None,
+    figsize=(11, 6)
+):
+    """
+    Plot 4 lines across clusters:
+      - CCA from JSON 1
+      - MLR from JSON 1
+      - CCA from JSON 2
+      - MLR from JSON 2
+
+    Parameters
+    ----------
+    json_path_1 : str or Path
+    json_path_2 : str or Path
+    cca_metric : str
+        Colon-separated path to the CCA metric inside each cluster.
+    mlr_metric : str
+        Colon-separated path to the MLR metric inside each cluster.
+    label_1 : str
+        Label prefix for first JSON file.
+    label_2 : str
+        Label prefix for second JSON file.
+    dead_value : float
+        Value used when metric is missing/null.
+    include_all_clusters : bool
+        If True, includes all cluster numbers found in either JSON.
+        Missing clusters are plotted as dead_value.
+        If False, only clusters present in both JSONs are included.
+    annotate : bool
+        If True, annotate each point with its numeric value.
+    title : str
+    xlabel : str
+    ylabel : str
+    save_path : str or Path or None
+    figsize : tuple
+
+    Returns
+    -------
+    dict
+        Extracted plotting values.
+    """
+    results_young = load_json_results(young_json_path)
+    results_old = load_json_results(old_json_path)
+
+    clusters_young = {int(name.split("_")[1]) for name in results_young.keys()}
+    clusters_old = {int(name.split("_")[1]) for name in results_old.keys()}
+
+    if include_all_clusters:
+        cluster_numbers = sorted(clusters_young | clusters_old)
+    else:
+        cluster_numbers = sorted(clusters_young & clusters_old)
+
+    cca_values_young = []
+    mlr_values_young = []
+    cca_values_old = []
+    mlr_values_old = []
+
+    for cluster_num in cluster_numbers:
+        cluster_key = f"Cluster_{cluster_num}_results"
+
+        cluster_data_1 = results_young.get(cluster_key, {})
+        cluster_data_2 = results_old.get(cluster_key, {})
+
+        cca_young = get_nested_value(cluster_data_1, cca_metric)
+        mlr_young = get_nested_value(cluster_data_1, mlr_metric)
+        cca_old = get_nested_value(cluster_data_2, cca_metric)
+        mlr_old = get_nested_value(cluster_data_2, mlr_metric)
+
+        cca_values_young.append(dead_value if cca_young is None else cca_young)
+        mlr_values_young.append(dead_value if mlr_young is None else mlr_young)
+        cca_values_old.append(dead_value if cca_old is None else cca_old)
+        mlr_values_old.append(dead_value if mlr_old is None else mlr_old)
+
+    plt.figure(figsize=figsize)
+
+    base_colors = {"CCA": "green", "MLR": "red"}
+
+    plt.plot(cluster_numbers, cca_values_young, marker="o", label=f"{label_1} - CCA", color=adjust_lightness(base_colors["CCA"], 0.7))
+    plt.plot(cluster_numbers, mlr_values_young, marker="o", label=f"{label_1} - MLR", color=adjust_lightness(base_colors["MLR"], 0.7))
+    plt.plot(cluster_numbers, cca_values_old, marker="o", label=f"{label_2} - CCA", color=adjust_lightness(base_colors["CCA"], 1.3))
+    plt.plot(cluster_numbers, mlr_values_old, marker="o", label=f"{label_2} - MLR", color=adjust_lightness(base_colors["MLR"], 1.3))
+
+    if annotate:
+        for x, y in zip(cluster_numbers, cca_values_young):
+            plt.annotate(f"{y:.3f}", (x, y), xytext=(0, 7), textcoords="offset points", ha="center", fontsize=8)
+        for x, y in zip(cluster_numbers, mlr_values_young):
+            plt.annotate(f"{y:.3f}", (x, y), xytext=(0, -12), textcoords="offset points", ha="center", fontsize=8)
+        for x, y in zip(cluster_numbers, cca_values_old):
+            plt.annotate(f"{y:.3f}", (x, y), xytext=(10, 7), textcoords="offset points", ha="center", fontsize=8)
+        for x, y in zip(cluster_numbers, mlr_values_old):
+            plt.annotate(f"{y:.3f}", (x, y), xytext=(10, -12), textcoords="offset points", ha="center", fontsize=8)
+
+    plt.xticks(cluster_numbers, [f"Cluster {n}" for n in cluster_numbers], rotation=45)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.title(title)
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+
+    if save_path is not None:
+        plt.savefig(save_path, dpi=300, bbox_inches="tight")
+
+    plt.show()
+
+    return {
+        "cluster_numbers": cluster_numbers,
+        "young_cca": cca_values_young,
+        "young_mlr": mlr_values_young,
+        "old_cca": cca_values_old,
+        "old_mlr": mlr_values_old,
+    }
