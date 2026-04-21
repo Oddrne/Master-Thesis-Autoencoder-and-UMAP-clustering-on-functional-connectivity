@@ -1,0 +1,53 @@
+{
+    "cluster_number": "2",
+    "common_variables": [
+        "hd_negative"
+    ],
+    "variable_counts_sorted": [
+        [
+            "hd_negative",
+            2
+        ],
+        [
+            "Q7Unifactorial",
+            1
+        ],
+        [
+            "Q2_DERSCLARITY",
+            1
+        ],
+        [
+            "Q9StateAnxiety",
+            1
+        ],
+        [
+            "Q4Depression",
+            1
+        ]
+    ],
+    "common_removed_subjects": [
+        11050
+    ],
+    "removed_subjects_counts_sorted": [
+        [
+            11050,
+            2
+        ],
+        [
+            11024,
+            1
+        ],
+        [
+            11108,
+            1
+        ],
+        [
+            11197,
+            1
+        ],
+        [
+            "Young_run1_cluster_behavioural_results",
+            1
+        ]
+    ]
+}

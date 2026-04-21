@@ -815,3 +815,317 @@ def plot_single_cluster_cca_mlr_variants(
         "mlr_values": mlr_values,
         "figure_text": fig_text
     }
+
+
+# Find the common removed subjects and the common selected variables across 
+import json
+from pathlib import Path
+from collections import Counter
+
+
+def _count_occurrences(dict_of_sets):
+    """
+    Count how many times each element appears across sets.
+
+    Example:
+        {'Cluster_2': {A, B}, 'Cluster_3': {A, C}}
+    -> Counter({A: 2, B: 1, C: 1})
+    """
+    counter = Counter()
+
+    for s in dict_of_sets.values():
+        counter.update(s)
+
+    return counter
+
+def load_json_results(json_path):
+    with open(json_path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def _safe_set(value):
+    """
+    Convert a list-like value to a set.
+    Returns empty set for None or missing values.
+    """
+    if value is None:
+        return set()
+    if isinstance(value, list):
+        return set(value)
+    return set()
+
+
+def _cluster_sort_key(cluster_name):
+    return int(cluster_name.split("_")[1])
+
+
+def _extract_common_and_union(dict_of_sets):
+    """
+    Compute intersection and union across non-empty sets.
+    """
+    nonempty_items = {k: v for k, v in dict_of_sets.items() if len(v) > 0}
+
+    if len(nonempty_items) == 0:
+        return {
+            "common": set(),
+            "union": set(),
+            "used_entries": [],
+        }
+
+    sets = list(nonempty_items.values())
+
+    return {
+        "common": set.intersection(*sets),
+        "union": set.union(*sets),
+        "used_entries": list(nonempty_items.keys()),
+    }
+
+
+def _normalize_keys(keys):
+    """
+    Accept either:
+      - a string
+      - a list/tuple of strings
+    and always return a list of strings.
+    """
+    if isinstance(keys, str):
+        return [keys]
+    if isinstance(keys, (list, tuple)):
+        return list(keys)
+    raise TypeError("Keys must be a string or a list/tuple of strings.")
+
+
+def _combine_keys_as_set(data_dict, keys):
+    """
+    Combine multiple list-valued keys from one cluster/run into one set.
+
+    Example:
+        keys = ["cca_removed_subjects", "mlr_removed_subjects"]
+
+    Result:
+        union of both lists as a set
+    """
+    keys = _normalize_keys(keys)
+
+    combined = set()
+    for key in keys:
+        combined |= _safe_set(data_dict.get(key, []))
+    return combined
+
+
+def compare_common_across_clusters(
+    json_path,
+    variable_keys="cca_selected_variables",
+    removed_subjects_keys="cca_removed_subjects",
+    clusters_to_include=None,
+    ignore_empty=True
+):
+    """
+    Compare common selected variables and removed subjects across clusters
+    within a single JSON file.
+
+    Supports both single keys and multiple keys, e.g.
+        variable_keys=["cca_selected_variables", "mlr_selected_variables"]
+        removed_subjects_keys=["cca_removed_subjects", "mlr_removed_subjects"]
+
+    Parameters
+    ----------
+    json_path : str or Path
+    variable_keys : str or list[str]
+        Key(s) for variables to combine before comparison.
+    removed_subjects_keys : str or list[str]
+        Key(s) for removed subjects to combine before comparison.
+    clusters_to_include : list[int] or None
+    ignore_empty : bool
+
+    Returns
+    -------
+    dict
+    """
+    results = load_json_results(json_path)
+
+    cluster_variable_sets = {}
+    cluster_removed_sets = {}
+
+    sorted_items = sorted(results.items(), key=lambda item: _cluster_sort_key(item[0]))
+
+    for cluster_name, cluster_data in sorted_items:
+        cluster_num = _cluster_sort_key(cluster_name)
+
+        if clusters_to_include is not None and cluster_num not in clusters_to_include:
+            continue
+
+        short_name = f"Cluster_{cluster_num}"
+
+        var_set = _combine_keys_as_set(cluster_data, variable_keys)
+        rem_set = _combine_keys_as_set(cluster_data, removed_subjects_keys)
+
+        cluster_variable_sets[short_name] = var_set
+        cluster_removed_sets[short_name] = rem_set
+
+    if ignore_empty:
+        variable_summary = _extract_common_and_union(cluster_variable_sets)
+        removed_summary = _extract_common_and_union(cluster_removed_sets)
+    else:
+        if len(cluster_variable_sets) > 0:
+            variable_summary = {
+                "common": set.intersection(*cluster_variable_sets.values()),
+                "union": set.union(*cluster_variable_sets.values()),
+                "used_entries": list(cluster_variable_sets.keys()),
+            }
+        else:
+            variable_summary = {"common": set(), "union": set(), "used_entries": []}
+
+        if len(cluster_removed_sets) > 0:
+            removed_summary = {
+                "common": set.intersection(*cluster_removed_sets.values()),
+                "union": set.union(*cluster_removed_sets.values()),
+                "used_entries": list(cluster_removed_sets.keys()),
+            }
+        else:
+            removed_summary = {"common": set(), "union": set(), "used_entries": []}
+
+    variable_counts = _count_occurrences(cluster_variable_sets)
+    removed_counts = _count_occurrences(cluster_removed_sets)
+
+    return {
+        "json_file": str(json_path),
+        "variable_keys": _normalize_keys(variable_keys),
+        "removed_subjects_keys": _normalize_keys(removed_subjects_keys),
+        "per_cluster_variables": {k: sorted(v) for k, v in cluster_variable_sets.items()},
+        "per_cluster_removed_subjects": {k: sorted(v) for k, v in cluster_removed_sets.items()},
+        "common_variables": sorted(variable_summary["common"]),
+        "union_variables": sorted(variable_summary["union"]),
+        "variable_counts": dict(variable_counts),
+        "variable_counts_sorted": sorted(variable_counts.items(), key=lambda x: -x[1]),
+        "clusters_used_for_variables": variable_summary["used_entries"],
+        "common_removed_subjects": sorted(removed_summary["common"]),
+        "union_removed_subjects": sorted(removed_summary["union"]),
+        "clusters_used_for_removed_subjects": removed_summary["used_entries"],
+        "removed_subjects_counts": dict(removed_counts),
+        "removed_subjects_counts_sorted": sorted(removed_counts.items(), key=lambda x: -x[1]),
+    }
+
+
+def compare_common_across_runs_same_cluster(
+    json_paths,
+    cluster_number,
+    variable_keys="cca_selected_variables",
+    removed_subjects_keys="cca_removed_subjects",
+    run_names=None,
+    ignore_empty=True
+):
+    """
+    Compare common selected variables and removed subjects across multiple runs
+    for the same cluster.
+
+    Supports both single keys and multiple keys, e.g.
+        variable_keys=["cca_selected_variables", "mlr_selected_variables"]
+        removed_subjects_keys=["cca_removed_subjects", "mlr_removed_subjects"]
+    """
+    json_paths = [Path(p) for p in json_paths]
+
+    if run_names is None:
+        run_names = [p.stem for p in json_paths]
+
+    if len(run_names) != len(json_paths):
+        raise ValueError("run_names must have the same length as json_paths.")
+
+    cluster_key = f"Cluster_{cluster_number}_results"
+
+    run_variable_sets = {}
+    run_removed_sets = {}
+
+    for json_path, run_name in zip(json_paths, run_names):
+        results = load_json_results(json_path)
+
+        if cluster_key not in results:
+            raise ValueError(f"{cluster_key} not found in {json_path}")
+
+        cluster_data = results[cluster_key]
+
+        run_variable_sets[run_name] = _combine_keys_as_set(cluster_data, variable_keys)
+        run_removed_sets[run_name] = _combine_keys_as_set(cluster_data, removed_subjects_keys)
+
+    if ignore_empty:
+        variable_summary = _extract_common_and_union(run_variable_sets)
+        removed_summary = _extract_common_and_union(run_removed_sets)
+    else:
+        variable_summary = {
+            "common": set.intersection(*run_variable_sets.values()) if len(run_variable_sets) > 0 else set(),
+            "union": set.union(*run_variable_sets.values()) if len(run_variable_sets) > 0 else set(),
+            "used_entries": list(run_variable_sets.keys()),
+        }
+        removed_summary = {
+            "common": set.intersection(*run_removed_sets.values()) if len(run_removed_sets) > 0 else set(),
+            "union": set.union(*run_removed_sets.values()) if len(run_removed_sets) > 0 else set(),
+            "used_entries": list(run_removed_sets.keys()),
+        }
+
+    variable_counts = _count_occurrences(variable_summary)
+    removed_counts = _count_occurrences(removed_summary)
+
+    return {
+        "cluster_number": cluster_number,
+        "variable_keys": _normalize_keys(variable_keys),
+        "removed_subjects_keys": _normalize_keys(removed_subjects_keys),
+        "per_run_variables": {k: sorted(v) for k, v in run_variable_sets.items()},
+        "per_run_removed_subjects": {k: sorted(v) for k, v in run_removed_sets.items()},
+        "common_variables": sorted(variable_summary["common"]),
+        "union_variables": sorted(variable_summary["union"]),
+        "variable_counts": dict(variable_counts),
+        "variable_counts_sorted": sorted(variable_counts.items(), key=lambda x: -x[1]),
+        "runs_used_for_variables": variable_summary["used_entries"],
+        "common_removed_subjects": sorted(removed_summary["common"]),
+        "union_removed_subjects": sorted(removed_summary["union"]),
+        "removed_subjects_counts": dict(removed_counts),
+        "removed_subjects_counts_sorted": sorted(removed_counts.items(), key=lambda x: -x[1]),
+        "runs_used_for_removed_subjects": removed_summary["used_entries"],
+    }
+
+
+def print_comparison_summary(comparison_result, save_path=None):
+    """
+    Pretty-print the result.
+    """
+    if "json_file" in comparison_result:
+        print(f"\nComparison across clusters in: {comparison_result['json_file']}")
+        save_results = {
+            "json_file": comparison_result["json_file"],
+        }
+    else:
+        print(f"\nComparison across runs for Cluster {comparison_result['cluster_number']}")
+        save_results = {
+            "cluster_number": comparison_result["cluster_number"],
+        }
+
+    print(f"Variable keys: {comparison_result['variable_keys']}")
+    print(f"Removed-subject keys: {comparison_result['removed_subjects_keys']}")
+
+    print("\nCommon variables:")
+    print(comparison_result["common_variables"])
+
+    print("\nVariable counts across clusters/runs:")
+    top_5_vars = comparison_result["variable_counts_sorted"][:5]
+    for var, count in top_5_vars:
+        print(f"{var}: {count}")
+
+    print("\nCommon removed subjects:")
+    print(comparison_result["common_removed_subjects"])
+
+    print("\nRemoved subject counts across clusters/runs:")
+    top_5_subjects = comparison_result["removed_subjects_counts_sorted"][:5]
+    for subject, count in top_5_subjects:
+        print(f"{subject}: {count}")
+
+    save_results.update({
+        "common_variables": comparison_result["common_variables"],
+        "variable_counts_sorted": comparison_result["variable_counts_sorted"][:5],
+        "common_removed_subjects": comparison_result["common_removed_subjects"],
+        "removed_subjects_counts_sorted": comparison_result["removed_subjects_counts_sorted"][:5],
+    })
+
+    if save_path is not None:
+        with open(save_path, "w", encoding="utf-8") as f:
+            json.dump(save_results, f, indent=4)
+        print(f"\nComparison result saved to: {save_path}")

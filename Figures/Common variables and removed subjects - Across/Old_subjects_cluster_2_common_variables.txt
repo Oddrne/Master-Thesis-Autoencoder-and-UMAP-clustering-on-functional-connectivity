@@ -1,0 +1,56 @@
+{
+    "cluster_number": "2",
+    "common_variables": [],
+    "variable_counts_sorted": [
+        [
+            "Q2_DERSNONACCEPT",
+            1
+        ],
+        [
+            "Q8personal_distress",
+            1
+        ],
+        [
+            "hd_negative",
+            1
+        ],
+        [
+            "EnglishYearsSpeaking",
+            1
+        ],
+        [
+            "WM",
+            1
+        ]
+    ],
+    "common_removed_subjects": [
+        12010,
+        12017,
+        12062,
+        12152,
+        12183,
+        12216
+    ],
+    "removed_subjects_counts_sorted": [
+        [
+            12017,
+            2
+        ],
+        [
+            12152,
+            2
+        ],
+        [
+            12183,
+            2
+        ],
+        [
+            12216,
+            2
+        ],
+        [
+            12010,
+            2
+        ]
+    ]
+}
