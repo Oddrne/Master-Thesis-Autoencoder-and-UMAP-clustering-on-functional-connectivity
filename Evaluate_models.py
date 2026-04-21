@@ -505,3 +505,164 @@ def plot_clustering_scores_sorted(
     plt.show()
 
     return raw_results
+
+# ___________________________________________________________________________
+# Plot the relationships from the behavioural analysis
+# ___________________________________________________________________________
+
+import json
+from pathlib import Path
+import matplotlib.pyplot as plt
+
+
+def load_json_results(json_path):
+    """
+    Load clustering results from a JSON file.
+
+    Parameters
+    ----------
+    json_path : str or Path
+        Path to the JSON file.
+
+    Returns
+    -------
+    dict
+        Parsed JSON dictionary.
+    """
+    json_path = Path(json_path)
+    with open(json_path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def get_nested_value(d, key_path):
+    """
+    Safely get a nested value from a dictionary.
+
+    Parameters
+    ----------
+    d : dict
+        Dictionary to search.
+    key_path : str
+        Colon-separated path, e.g.
+        'cca_removed_subjects_results:cv_mean_cc'
+
+    Returns
+    -------
+    value or None
+        The value if found, otherwise None.
+    """
+    keys = key_path.split(":")
+    current = d
+    for key in keys:
+        if not isinstance(current, dict) or key not in current:
+            return None
+        current = current[key]
+    return current
+
+
+def plot_cca_mlr_across_clusters(
+    json_path,
+    cca_metric="cca_removed_subjects_results:cv_mean_cc",
+    mlr_metric="mlr_removed_subjects_results:mean_accuracy",
+    title="CCA and MLR across clusters",
+    xlabel="Cluster",
+    ylabel="Score",
+    save_path=None,
+    annotate=False,
+    figsize=(10, 6)
+):
+    """
+    Plot two line graphs across clusters:
+      - CCA values
+      - MLR values
+
+    Parameters
+    ----------
+    json_path : str or Path
+        Path to JSON file.
+    cca_metric : str
+        Colon-separated path to the CCA metric.
+    mlr_metric : str
+        Colon-separated path to the MLR metric.
+    title : str
+        Plot title.
+    xlabel : str
+        X-axis label.
+    ylabel : str
+        Y-axis label.
+    save_path : str or Path or None
+        If provided, save figure here.
+    annotate : bool
+        If True, annotate each point with its value.
+    figsize : tuple
+        Figure size.
+    """
+    json_path = Path(json_path)
+
+    with open(json_path, "r", encoding="utf-8") as f:
+        results = json.load(f)
+
+    # Sort clusters numerically
+    sorted_items = sorted(
+        results.items(),
+        key=lambda item: int(item[0].split("_")[1])
+    )
+
+    cluster_numbers = []
+    cca_values = []
+    mlr_values = []
+
+    for cluster_name, cluster_data in sorted_items:
+        cluster_num = int(cluster_name.split("_")[1])
+
+        cca_val = get_nested_value(cluster_data, cca_metric)
+        mlr_val = get_nested_value(cluster_data, mlr_metric)
+        
+        cluster_numbers.append(cluster_num)
+
+        # Skip clusters where either value is missing/null
+        if cca_val is None or mlr_val is None:
+            cca_values.append(0.0)
+            mlr_values.append(0.0)
+            continue
+
+        cca_values.append(cca_val)
+        mlr_values.append(mlr_val)
+
+    plt.figure(figsize=figsize)
+
+    plt.plot(cluster_numbers, cca_values, marker="o", label="CCA")
+    plt.plot(cluster_numbers, mlr_values, marker="o", label="MLR")
+
+    if annotate:
+        for x, y in zip(cluster_numbers, cca_values):
+            plt.annotate(f"{y:.3f}", (x, y), xytext=(0, 6), textcoords="offset points", ha="center")
+        for x, y in zip(cluster_numbers, mlr_values):
+            plt.annotate(f"{y:.3f}", (x, y), xytext=(0, -12), textcoords="offset points", ha="center")
+
+    plt.xticks(cluster_numbers, [f"Cluster {n}" for n in cluster_numbers], rotation=45)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.title(title)
+    plt.grid(True)
+    plt.legend()
+
+    footnote_text = (
+    "Canonical Correlation Analysis (CCA) [0, 1] and Multinomial Logistic Regression (MLR) [0, 1] scores across clusters. Both cross-validated. "
+    )
+
+    plt.figtext(
+        0.5, -0.02,  # x (center), y (slightly below plot)
+        footnote_text,
+        ha='center',
+        fontsize=9
+    )
+
+    plt.tight_layout()
+
+    if save_path is not None:
+        plt.savefig(save_path, dpi=300, bbox_inches="tight")
+
+    plt.show()
+
+    return cluster_numbers, cca_values, mlr_values
