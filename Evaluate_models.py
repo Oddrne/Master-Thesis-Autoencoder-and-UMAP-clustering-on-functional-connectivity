@@ -510,6 +510,7 @@ def plot_clustering_scores_sorted(
 # Plot the relationships from the behavioural analysis
 # ___________________________________________________________________________
 
+# Plot the CCA and MLR scores across clusters
 import json
 from pathlib import Path
 import matplotlib.pyplot as plt
@@ -666,3 +667,151 @@ def plot_cca_mlr_across_clusters(
     plt.show()
 
     return cluster_numbers, cca_values, mlr_values
+
+
+# Plot the scores for the best clustering results
+import json
+from pathlib import Path
+import matplotlib.pyplot as plt
+
+
+def load_json_results(json_path):
+    with open(json_path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def get_nested_value(d, key_path):
+    keys = key_path.split(":")
+    current = d
+    for key in keys:
+        if not isinstance(current, dict) or key not in current:
+            return None
+        current = current[key]
+    return current
+
+
+def format_list(lst, max_len=5):
+    """
+    Format list for annotation (avoid huge text blocks).
+    """
+    if not lst:
+        return "None"
+    if len(lst) <= max_len:
+        return ", ".join(map(str, lst))
+    return ", ".join(map(str, lst[:max_len])) + ", ..."
+
+
+def plot_single_cluster_cca_mlr_variants(
+    json_path,
+    cluster_number,
+    cca_value_key="cv_mean_cc",
+    mlr_value_key="mean_accuracy",
+    dead_value=0.0,
+    title=None,
+    save_path=None,
+    annotate=True,
+    figsize=(10, 7)
+):
+    """
+    Plot one chosen cluster across:
+      - all variables
+      - selected variables
+      - removed subjects
+
+    Produces two lines:
+      - CCA
+      - MLR
+
+    Adds figure text below the plot containing selected variables
+    and removed subjects for both CCA and MLR.
+    """
+    results = load_json_results(json_path)
+
+    cluster_key = f"Cluster_{cluster_number}_results"
+    if cluster_key not in results:
+        raise ValueError(f"{cluster_key} not found in JSON file.")
+
+    cluster_data = results[cluster_key]
+
+    categories = ["All variables", "Selected variables", "Removed subjects"]
+
+    cca_paths = [
+        f"cca_all_variables_results:{cca_value_key}",
+        f"cca_selected_variables_results:{cca_value_key}",
+        f"cca_removed_subjects_results:{cca_value_key}",
+    ]
+
+    mlr_paths = [
+        f"mlr_all_variables_results:{mlr_value_key}",
+        f"mlr_selected_variables_results:{mlr_value_key}",
+        f"mlr_removed_subjects_results:{mlr_value_key}",
+    ]
+
+    cca_values = []
+    mlr_values = []
+
+    for path in cca_paths:
+        value = get_nested_value(cluster_data, path)
+        cca_values.append(dead_value if value is None else value)
+
+    for path in mlr_paths:
+        value = get_nested_value(cluster_data, path)
+        mlr_values.append(dead_value if value is None else value)
+
+    x = list(range(len(categories)))
+
+    fig, ax = plt.subplots(figsize=figsize)
+
+    ax.plot(x, cca_values, marker="o", label="CCA")
+    ax.plot(x, mlr_values, marker="o", label="MLR")
+
+    if annotate:
+        for xi, yi in zip(x, cca_values):
+            ax.annotate(f"{yi:.3f}", (xi, yi), xytext=(0, 7),
+                        textcoords="offset points", ha="center")
+        for xi, yi in zip(x, mlr_values):
+            ax.annotate(f"{yi:.3f}", (xi, yi), xytext=(0, -14),
+                        textcoords="offset points", ha="center")
+
+    ax.set_xticks(x)
+    ax.set_xticklabels(categories)
+    ax.set_ylabel("Score")
+    ax.set_title(title or f"Cluster {cluster_number}: CCA and MLR across result types")
+    ax.grid(True)
+    ax.legend()
+
+    # Figure text below plot
+    cca_selected = format_list(cluster_data.get("cca_selected_variables", []))
+    mlr_selected = format_list(cluster_data.get("mlr_selected_variables", []))
+    cca_removed = format_list(cluster_data.get("cca_removed_subjects", []))
+    mlr_removed = format_list(cluster_data.get("mlr_removed_subjects", []))
+
+    fig_text = (
+        f"CCA selected variables: {cca_selected}\n"
+        f"MLR selected variables: {mlr_selected}\n"
+        f"CCA removed subjects: {cca_removed}\n"
+        f"MLR removed subjects: {mlr_removed}"
+    )
+
+    fig.text(
+        0.02, 0.01,
+        fig_text,
+        ha="left",
+        va="bottom",
+        fontsize=9
+    )
+
+    # Leave extra room at the bottom for figure text
+    plt.tight_layout(rect=[0, 0.15, 1, 1])
+
+    if save_path is not None:
+        plt.savefig(save_path, dpi=300, bbox_inches="tight")
+
+    plt.show()
+
+    return {
+        "categories": categories,
+        "cca_values": cca_values,
+        "mlr_values": mlr_values,
+        "figure_text": fig_text
+    }
