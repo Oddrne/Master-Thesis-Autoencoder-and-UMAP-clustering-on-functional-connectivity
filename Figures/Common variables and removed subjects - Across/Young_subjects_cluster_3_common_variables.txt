@@ -1,27 +1,25 @@
 {
     "cluster_number": "3",
-    "common_variables": [
-        "hd_negative"
-    ],
+    "common_variables": [],
     "variable_counts_sorted": [
         [
-            "hd_negative",
-            2
+            "Q1_DASSAnxiety",
+            1
+        ],
+        [
+            "dER_neu",
+            1
+        ],
+        [
+            "Relationshipstatus",
+            1
+        ],
+        [
+            "Q8personal_distress",
+            1
         ],
         [
             "lSFA",
-            1
-        ],
-        [
-            "Q9Perspective",
-            1
-        ],
-        [
-            "ER_neg",
-            1
-        ],
-        [
-            "Q2_DERSAWARENESS",
             1
         ]
     ],

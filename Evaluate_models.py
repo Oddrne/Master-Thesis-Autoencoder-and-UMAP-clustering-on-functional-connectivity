@@ -345,6 +345,7 @@ def plot_clustering_scores_sorted(
     save_path=None,
     normalize=False,
     cluster_range=range(2, 11),
+    ytop=None,
     figsize=(12, 7),
     annotate_points=True
 ):
@@ -475,6 +476,8 @@ def plot_clustering_scores_sorted(
         plt.ylabel("Score")
 
     plt.xlabel("Number of clusters")
+    if ytop is not None:
+        plt.ylim(bottom=-0.1, top=ytop)
     plt.xticks(list(cluster_range))
     plt.grid(True, alpha=0.3)
     plt.legend()
