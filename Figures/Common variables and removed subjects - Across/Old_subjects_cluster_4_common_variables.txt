@@ -3,23 +3,23 @@
     "common_variables": [],
     "variable_counts_sorted": [
         [
+            "Q8emo_em",
+            1
+        ],
+        [
+            "YearsEducation",
+            1
+        ],
+        [
+            "Q1_DASSStress",
+            1
+        ],
+        [
             "Q2_DERSNONACCEPT",
             1
         ],
         [
-            "Q8personal_distress",
-            1
-        ],
-        [
-            "Q8Cog_em",
-            1
-        ],
-        [
-            "rCMA",
-            1
-        ],
-        [
-            "Order",
+            "rmet",
             1
         ]
     ],
