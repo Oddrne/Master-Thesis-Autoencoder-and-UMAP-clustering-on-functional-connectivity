@@ -1,44 +1,50 @@
 {
-    "json_file": "Results\\\\Old_run2_cluster_behavioural_results.json",
+    "json_file": "Results\\\\400x400_Old_run2_cluster_behavioural_results.json",
     "common_variables": [],
     "variable_counts_sorted": [
         [
-            "hd_negative",
-            2
+            "Q3_GHQ28Anxiety_Insomnia",
+            5
         ],
         [
-            "WM",
-            2
+            "ER_neg",
+            4
         ],
         [
-            "Q5CD_RISC",
-            2
+            "dEV_neg",
+            4
         ],
         [
-            "Q8Cog_em",
-            2
+            "Q3_GHQ28SomaticSymptoms",
+            3
         ],
         [
-            "ER_base",
-            2
+            "Q8personal_distress",
+            3
         ]
     ],
     "common_removed_subjects": [
-        12008,
-        12059,
-        12089
+        12127
     ],
     "removed_subjects_counts_sorted": [
         [
-            12008,
+            12127,
+            2
+        ],
+        [
+            12130,
             1
         ],
         [
-            12089,
+            12102,
             1
         ],
         [
-            12059,
+            12202,
+            1
+        ],
+        [
+            12075,
             1
         ]
     ]

@@ -1,0 +1,44 @@
+{
+    "cluster_number": "4",
+    "common_variables": [],
+    "variable_counts_sorted": [
+        [
+            "Q2_DERSNONACCEPT",
+            1
+        ],
+        [
+            "Q8personal_distress",
+            1
+        ],
+        [
+            "Q8Cog_em",
+            1
+        ],
+        [
+            "rCMA",
+            1
+        ],
+        [
+            "Order",
+            1
+        ]
+    ],
+    "common_removed_subjects": [
+        12270,
+        12288
+    ],
+    "removed_subjects_counts_sorted": [
+        [
+            12288,
+            2
+        ],
+        [
+            12270,
+            2
+        ],
+        [
+            "1000x1000_Old_run1_cluster_behavioural_results",
+            1
+        ]
+    ]
+}

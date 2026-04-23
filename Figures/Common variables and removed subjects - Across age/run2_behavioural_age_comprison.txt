@@ -1,105 +1,121 @@
 {
-    "young_json_path": "Results\\\\Young_run2_cluster_behavioural_results.json",
-    "old_json_path": "Results\\\\Old_run2_cluster_behavioural_results.json",
+    "young_json_path": "Results\\\\400x400_Young_run2_cluster_behavioural_results.json",
+    "old_json_path": "Results\\\\400x400_Old_run2_cluster_behavioural_results.json",
     "counts_sorted": [
         [
             "hd_negative",
-            14
-        ],
-        [
-            "Q3SevereDepression",
-            6
+            9
         ],
         [
             "Order",
-            5
-        ],
-        [
-            "Q2_DERSNONACCEPT",
-            4
-        ],
-        [
-            "Q8Cog_em",
-            4
-        ],
-        [
-            "Q8empathic_concern",
-            4
-        ],
-        [
-            "Relationshipstatus",
-            4
-        ],
-        [
-            "WM",
-            4
-        ],
-        [
-            "Q5CD_RISC",
-            3
-        ],
-        [
-            "Q9Perspective",
-            3
-        ],
-        [
-            "mean_accuracy",
-            3
-        ],
-        [
-            11024,
-            2
-        ],
-        [
-            "CSF",
-            2
-        ],
-        [
-            "ER_base",
-            2
-        ],
-        [
-            "ER_neg",
-            2
-        ],
-        [
-            "EV_neg",
-            2
-        ],
-        [
-            "EV_neu",
-            2
-        ],
-        [
-            "NeuroImpairment",
-            2
-        ],
-        [
-            "Q1_DASSDepression",
-            2
-        ],
-        [
-            "Q1_DASSStress",
-            2
-        ],
-        [
-            "Q2_DERSAWARENESS",
-            2
-        ],
-        [
-            "Q2_DERSSTRATEGIES",
-            2
-        ],
-        [
-            "Q3_GHQ28Score",
-            2
+            8
         ],
         [
             "Q3_GHQ28SomaticSymptoms",
-            2
+            8
+        ],
+        [
+            "dEV_neg",
+            6
+        ],
+        [
+            "ER_neg",
+            5
+        ],
+        [
+            "Q1_DASSStress",
+            5
+        ],
+        [
+            "Q2_DERSCLARITY",
+            5
+        ],
+        [
+            "Q3_GHQ28Anxiety_Insomnia",
+            5
+        ],
+        [
+            "Q9Perspective",
+            5
+        ],
+        [
+            "lBLA",
+            5
+        ],
+        [
+            "Q3SevereDepression",
+            4
         ],
         [
             "Q8personal_distress",
+            4
+        ],
+        [
+            "spanForward",
+            4
+        ],
+        [
+            "ACC",
+            3
+        ],
+        [
+            "ER_base",
+            3
+        ],
+        [
+            "EV_neg",
+            3
+        ],
+        [
+            "Q2_DERSNONACCEPT",
+            3
+        ],
+        [
+            "Q2_DERSSTRATEGIES",
+            3
+        ],
+        [
+            "Q2_DERSScore",
+            3
+        ],
+        [
+            "Q3_GHQ28Score",
+            3
+        ],
+        [
+            "Q6PSS",
+            3
+        ],
+        [
+            "YearsEducation",
+            3
+        ],
+        [
+            "hd_neutral",
+            3
+        ],
+        [
+            12127,
+            2
+        ],
+        [
+            "ER_neu",
+            2
+        ],
+        [
+            "Q2_DERSIMPULSE",
+            2
+        ],
+        [
+            "Q3SocialDysfunction",
+            2
+        ],
+        [
+            "Q4Depression",
+            2
+        ],
+        [
+            "Q7F1",
             2
         ],
         [
@@ -107,43 +123,27 @@
             2
         ],
         [
-            "TIV",
+            "Q9TraitAnxiety",
             2
         ],
         [
-            "YearsEducation",
+            "Relationshipstatus",
             2
         ],
         [
-            "rBLA",
+            "lSFA",
             2
         ],
         [
-            "rCMA",
+            "spanBackwards",
             2
         ],
         [
-            "spanForward",
-            2
-        ],
-        [
-            11012,
+            11074,
             1
         ],
         [
-            11018,
-            1
-        ],
-        [
-            11021,
-            1
-        ],
-        [
-            11050,
-            1
-        ],
-        [
-            11108,
+            11079,
             1
         ],
         [
@@ -151,23 +151,43 @@
             1
         ],
         [
-            11197,
+            12010,
             1
         ],
         [
-            11207,
+            12075,
             1
         ],
         [
-            12008,
+            12102,
             1
         ],
         [
-            12059,
+            12130,
             1
         ],
         [
-            12089,
+            12169,
+            1
+        ],
+        [
+            12202,
+            1
+        ],
+        [
+            12236,
+            1
+        ],
+        [
+            12254,
+            1
+        ],
+        [
+            12283,
+            1
+        ],
+        [
+            12334,
             1
         ],
         [
@@ -175,7 +195,7 @@
             1
         ],
         [
-            "Cognitive_PC",
+            "DS",
             1
         ],
         [
@@ -183,23 +203,27 @@
             1
         ],
         [
+            "EV_neu",
+            1
+        ],
+        [
+            "Emo_res",
+            1
+        ],
+        [
             "EnglishYearsSpeaking",
             1
         ],
         [
-            "PsychDiagnosis",
+            "GM",
             1
         ],
         [
-            "Q2_DERSGOALS",
+            "Q1_DASSAnxiety",
             1
         ],
         [
-            "Q2_DERSScore",
-            1
-        ],
-        [
-            "Q3_GHQ28Anxiety_Insomnia",
+            "Q1_DASSDepression",
             1
         ],
         [
@@ -207,15 +231,7 @@
             1
         ],
         [
-            "Q7F1",
-            1
-        ],
-        [
-            "Q7F2",
-            1
-        ],
-        [
-            "Q8Fantasy",
+            "Q8Cog_em",
             1
         ],
         [
@@ -223,7 +239,27 @@
             1
         ],
         [
-            "Q9TraitAnxiety",
+            "Q8emo_em",
+            1
+        ],
+        [
+            "Q8empathic_concern",
+            1
+        ],
+        [
+            "Sex",
+            1
+        ],
+        [
+            "TIV",
+            1
+        ],
+        [
+            "dER_neg",
+            1
+        ],
+        [
+            "dER_neu",
             1
         ],
         [
@@ -235,19 +271,15 @@
             1
         ],
         [
-            "m2_tISC",
+            "mean_accuracy",
             1
         ],
         [
-            "mean_RT",
+            "rBLA",
             1
         ],
         [
             "rmet",
-            1
-        ],
-        [
-            "spanBackwards",
             1
         ]
     ]

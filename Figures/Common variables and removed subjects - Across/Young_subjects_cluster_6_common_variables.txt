@@ -1,48 +1,51 @@
 {
-    "json_file": "Results\\\\1000x1000_Young_run1_cluster_behavioural_results.json",
-    "common_variables": [],
+    "cluster_number": "6",
+    "common_variables": [
+        "Q9Perspective",
+        "hd_negative"
+    ],
     "variable_counts_sorted": [
         [
             "hd_negative",
-            6
+            2
         ],
         [
-            "rmet",
-            5
+            "Q9Perspective",
+            2
         ],
         [
-            "ER_neg",
-            4
+            "Q3_GHQ28SomaticSymptoms",
+            1
+        ],
+        [
+            "Q2_DERSNONACCEPT",
+            1
         ],
         [
             "Q2_DERSGOALS",
-            4
-        ],
-        [
-            "spanForward",
-            4
+            1
         ]
     ],
     "common_removed_subjects": [],
     "removed_subjects_counts_sorted": [
         [
-            11073,
-            1
-        ],
-        [
-            11074,
-            1
-        ],
-        [
             11024,
             1
         ],
         [
-            11103,
+            11201,
             1
         ],
         [
-            11201,
+            11159,
+            1
+        ],
+        [
+            11018,
+            1
+        ],
+        [
+            11020,
             1
         ]
     ]
