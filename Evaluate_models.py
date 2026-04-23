@@ -573,7 +573,8 @@ def plot_cca_mlr_across_clusters(
     ylabel="Score",
     save_path=None,
     annotate=False,
-    figsize=(10, 6)
+    figsize=(10, 6),
+    ylim=1.0
 ):
     """
     Plot two line graphs across clusters:
@@ -600,6 +601,8 @@ def plot_cca_mlr_across_clusters(
         If True, annotate each point with its value.
     figsize : tuple
         Figure size.
+    ylim : float
+        Y-axis limit.
     """
     json_path = Path(json_path)
 
@@ -647,6 +650,7 @@ def plot_cca_mlr_across_clusters(
     plt.xticks(cluster_numbers, [f"Cluster {n}" for n in cluster_numbers], rotation=45)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
+    plt.ylim(bottom=0, top=ylim)  # Assuming scores are non-negative
     plt.title(title)
     plt.grid(True)
     plt.legend()
