@@ -717,7 +717,8 @@ def plot_single_cluster_cca_mlr_variants(
     title=None,
     save_path=None,
     annotate=True,
-    figsize=(10, 7)
+    figsize=(10, 7),
+    ylim=1.0
 ):
     """
     Plot one chosen cluster across:
@@ -784,6 +785,7 @@ def plot_single_cluster_cca_mlr_variants(
     ax.set_xticklabels(categories)
     ax.set_ylabel("Score")
     ax.set_title(title or f"Cluster {cluster_number}: CCA and MLR across result types")
+    ax.set_ylim(0, ylim)
     ax.grid(True)
     ax.legend()
 
