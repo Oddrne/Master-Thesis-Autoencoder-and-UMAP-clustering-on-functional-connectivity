@@ -1,0 +1,44 @@
+{
+    "cluster_number": "4",
+    "common_variables": [],
+    "variable_counts_sorted": [
+        [
+            "Q8emo_em",
+            1
+        ],
+        [
+            "YearsEducation",
+            1
+        ],
+        [
+            "Q1_DASSStress",
+            1
+        ],
+        [
+            "Q2_DERSNONACCEPT",
+            1
+        ],
+        [
+            "rmet",
+            1
+        ]
+    ],
+    "common_removed_subjects": [
+        12270,
+        12288
+    ],
+    "removed_subjects_counts_sorted": [
+        [
+            12288,
+            2
+        ],
+        [
+            12270,
+            2
+        ],
+        [
+            "1000x1000_Old_run1_cluster_behavioural_results",
+            1
+        ]
+    ]
+}

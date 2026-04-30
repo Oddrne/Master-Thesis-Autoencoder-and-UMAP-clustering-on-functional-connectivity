@@ -110,13 +110,13 @@ class DCEC(nn.Module):
             conv_layers_sizes = [1, 32, 64, 128, 256]
 
         # Define the kernel sizes for 400x400
-        kernel_sizes = [6, 6, 6, 5, 4, 5]
-        strides = [2, 2, 2, 3, 2, 3]
-        paddings = [2, 2, 2, 3, 1, 1]
+        #kernel_sizes = [6, 6, 6, 5, 4, 5]
+        #strides = [2, 2, 2, 3, 2, 3]
+        #paddings = [2, 2, 2, 3, 1, 1]
         # Define the kernel sizes for 1000x1000
-        #kernel_sizes = [6, 6, 5, 6, 5, 5]
-        #strides = [2, 2, 3, 3, 3, 3]
-        #paddings = [2, 2, 2, 0, 1, 1]
+        kernel_sizes = [6, 6, 5, 6, 5, 5]
+        strides = [2, 2, 3, 3, 3, 3]
+        paddings = [2, 2, 2, 0, 1, 1]
 
                     
         # Encoder
@@ -318,7 +318,7 @@ def initialize_cluster_centers(
 
     return y_pred
 
-def make_upper_triangle_mask(n=400, include_diagonal=False, device='cpu'):
+def make_upper_triangle_mask(n=1000, include_diagonal=False, device='cpu'):
     if include_diagonal:
         mask = torch.triu(torch.ones(n, n, dtype=torch.bool, device=device), diagonal=0)
     else:
@@ -353,7 +353,7 @@ def pretrain_cae(
     print_interval: int = 10
 ):
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
-    mask = make_upper_triangle_mask(n=400, include_diagonal=False, device=device).unsqueeze(0)  # Shape (1, 400, 400)
+    mask = make_upper_triangle_mask(n=1000, include_diagonal=False, device=device).unsqueeze(0)  # Shape (1, 1000, 1000)
     #mse_loss = nn.MSELoss()
 
     
@@ -420,7 +420,7 @@ def train_dcec(
         L_c = KL(P || Q)
     """
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
-    mask = make_upper_triangle_mask(n=400, include_diagonal=False, device=device).unsqueeze(0)  # Shape (1, 400, 400)
+    mask = make_upper_triangle_mask(n=1000, include_diagonal=False, device=device).unsqueeze(0)  # Shape (1, 1000, 1000)
 
     model.to(device)
     

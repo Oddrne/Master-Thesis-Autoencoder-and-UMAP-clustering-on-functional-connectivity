@@ -3,47 +3,46 @@
     "common_variables": [],
     "variable_counts_sorted": [
         [
-            "Q8emo_em",
+            "Q3_GHQ28Anxiety_Insomnia",
+            3
+        ],
+        [
+            "rmet",
+            3
+        ],
+        [
+            "Q2_DERSScore",
+            3
+        ],
+        [
+            "Q1_DASSAnxiety",
             2
         ],
         [
-            "Q4Depression",
-            2
-        ],
-        [
-            "Q2_DERSSTRATEGIES",
-            2
-        ],
-        [
-            "Q3_GHQ28SomaticSymptoms",
-            2
-        ],
-        [
-            "m1_tISC",
+            "Q3SevereDepression",
             2
         ]
     ],
-    "common_removed_subjects": [
-        12011,
-        12152,
-        12292,
-        12320
-    ],
+    "common_removed_subjects": [],
     "removed_subjects_counts_sorted": [
         [
-            12152,
-            1
+            12122,
+            2
         ],
         [
-            12320,
-            1
+            12238,
+            2
         ],
         [
-            12011,
-            1
+            12288,
+            2
         ],
         [
-            12292,
+            12270,
+            2
+        ],
+        [
+            12160,
             1
         ]
     ]

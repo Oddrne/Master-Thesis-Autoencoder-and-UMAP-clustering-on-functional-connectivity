@@ -1,43 +1,50 @@
 {
     "cluster_number": "3",
-    "common_variables": [],
+    "common_variables": [
+        "hd_negative"
+    ],
     "variable_counts_sorted": [
         [
-            "Q1_DASSAnxiety",
-            1
+            "hd_negative",
+            2
         ],
         [
             "dER_neu",
             1
         ],
         [
-            "Relationshipstatus",
-            1
-        ],
-        [
-            "Q8personal_distress",
+            "Q2_DERSNONACCEPT",
             1
         ],
         [
             "lSFA",
             1
+        ],
+        [
+            "Q8personal_distress",
+            1
         ]
     ],
-    "common_removed_subjects": [
-        11073,
-        11074
-    ],
+    "common_removed_subjects": [],
     "removed_subjects_counts_sorted": [
         [
+            11024,
+            1
+        ],
+        [
             11073,
-            2
+            1
         ],
         [
             11074,
-            2
+            1
         ],
         [
-            "Young_run1_cluster_behavioural_results",
+            11103,
+            1
+        ],
+        [
+            "1000x1000_Young_run1_cluster_behavioural_results",
             1
         ]
     ]

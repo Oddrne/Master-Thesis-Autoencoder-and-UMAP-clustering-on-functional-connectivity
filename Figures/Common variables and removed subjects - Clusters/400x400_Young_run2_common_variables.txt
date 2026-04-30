@@ -1,44 +1,40 @@
 {
-    "json_file": "Results\\\\Young_run2_cluster_behavioural_results.json",
+    "json_file": "Results\\\\400x400_Young_run2_cluster_behavioural_results.json",
     "common_variables": [],
     "variable_counts_sorted": [
         [
             "hd_negative",
-            7
-        ],
-        [
-            "Q3SevereDepression",
             6
         ],
         [
             "Order",
+            6
+        ],
+        [
+            "Q2_DERSCLARITY",
             4
         ],
         [
-            "Q8empathic_concern",
-            3
+            "Q3_GHQ28SomaticSymptoms",
+            4
         ],
         [
-            "Relationshipstatus",
+            "Q3SevereDepression",
             3
         ]
     ],
-    "common_removed_subjects": [],
+    "common_removed_subjects": [
+        11074,
+        11079,
+        11159
+    ],
     "removed_subjects_counts_sorted": [
         [
-            11024,
-            2
-        ],
-        [
-            11050,
+            11074,
             1
         ],
         [
-            11197,
-            1
-        ],
-        [
-            11018,
+            11079,
             1
         ],
         [

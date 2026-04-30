@@ -7,22 +7,43 @@
             6
         ],
         [
-            "hd_neutral",
+            "rmet",
+            5
+        ],
+        [
+            "ER_neg",
             4
         ],
         [
-            "Age",
+            "Q2_DERSGOALS",
             4
         ],
         [
-            "Q8empathic_concern",
-            3
-        ],
-        [
-            "Q7F2",
-            3
+            "spanForward",
+            4
         ]
     ],
     "common_removed_subjects": [],
-    "removed_subjects_counts_sorted": []
+    "removed_subjects_counts_sorted": [
+        [
+            11073,
+            1
+        ],
+        [
+            11074,
+            1
+        ],
+        [
+            11024,
+            1
+        ],
+        [
+            11103,
+            1
+        ],
+        [
+            11201,
+            1
+        ]
+    ]
 }

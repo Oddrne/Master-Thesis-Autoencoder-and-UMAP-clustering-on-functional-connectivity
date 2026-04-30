@@ -9,32 +9,34 @@
             2
         ],
         [
-            "Q7Unifactorial",
+            "Q3_GHQ28SomaticSymptoms",
             1
         ],
         [
-            "Q2_DERSCLARITY",
+            "rBLA",
             1
         ],
         [
-            "Q9StateAnxiety",
+            "Q8personal_distress",
             1
         ],
         [
-            "Q4Depression",
+            "Avg_Sleep",
             1
         ]
     ],
-    "common_removed_subjects": [
-        11050
-    ],
+    "common_removed_subjects": [],
     "removed_subjects_counts_sorted": [
         [
-            11050,
-            2
+            11024,
+            1
         ],
         [
-            11024,
+            11073,
+            1
+        ],
+        [
+            11074,
             1
         ],
         [
@@ -42,11 +44,7 @@
             1
         ],
         [
-            11197,
-            1
-        ],
-        [
-            "Young_run1_cluster_behavioural_results",
+            11050,
             1
         ]
     ]

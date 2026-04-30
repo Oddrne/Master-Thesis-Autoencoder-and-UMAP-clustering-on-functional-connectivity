@@ -573,7 +573,8 @@ def plot_cca_mlr_across_clusters(
     ylabel="Score",
     save_path=None,
     annotate=False,
-    figsize=(10, 6)
+    figsize=(10, 6),
+    ylim=1.0
 ):
     """
     Plot two line graphs across clusters:
@@ -600,6 +601,8 @@ def plot_cca_mlr_across_clusters(
         If True, annotate each point with its value.
     figsize : tuple
         Figure size.
+    ylim : float
+        Y-axis limit.
     """
     json_path = Path(json_path)
 
@@ -647,6 +650,7 @@ def plot_cca_mlr_across_clusters(
     plt.xticks(cluster_numbers, [f"Cluster {n}" for n in cluster_numbers], rotation=45)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
+    plt.ylim(bottom=0, top=ylim)  # Assuming scores are non-negative
     plt.title(title)
     plt.grid(True)
     plt.legend()
@@ -713,7 +717,8 @@ def plot_single_cluster_cca_mlr_variants(
     title=None,
     save_path=None,
     annotate=True,
-    figsize=(10, 7)
+    figsize=(10, 7),
+    ylim=1.0
 ):
     """
     Plot one chosen cluster across:
@@ -780,6 +785,7 @@ def plot_single_cluster_cca_mlr_variants(
     ax.set_xticklabels(categories)
     ax.set_ylabel("Score")
     ax.set_title(title or f"Cluster {cluster_number}: CCA and MLR across result types")
+    ax.set_ylim(0, ylim)
     ax.grid(True)
     ax.legend()
 
@@ -1297,6 +1303,169 @@ def plot_cca_mlr_two_jsons_across_clusters(
         "old_cca": cca_values_old,
         "old_mlr": mlr_values_old,
     }
+
+
+# Plot three 
+def plot_compare_ages_across_clusters(
+    metric_to_use="cca_removed_subjects_results:cv_mean_cc", # "mlr_removed_subjects_results:mean_accuracy"
+    dead_value=0.0,
+    include_all_clusters=True,
+    annotate=False,
+    title= "Comparison of scores between Young and Old across clusters ",
+    xlabel="Cluster",
+    ylabel="Score",
+    save_path=None,
+    figsize=(11, 6)
+):
+    """
+    Plot 4 lines across clusters:
+      - CCA from JSON 1
+      - MLR from JSON 1
+      - CCA from JSON 2
+      - MLR from JSON 2
+
+    Parameters
+    ----------
+    json_path_1 : str or Path
+    json_path_2 : str or Path
+    cca_metric : str
+        Colon-separated path to the CCA metric inside each cluster.
+    mlr_metric : str
+        Colon-separated path to the MLR metric inside each cluster.
+    label_1 : str
+        Label prefix for first JSON file.
+    label_2 : str
+        Label prefix for second JSON file.
+    dead_value : float
+        Value used when metric is missing/null.
+    include_all_clusters : bool
+        If True, includes all cluster numbers found in either JSON.
+        Missing clusters are plotted as dead_value.
+        If False, only clusters present in both JSONs are included.
+    annotate : bool
+        If True, annotate each point with its numeric value.
+    title : str
+    xlabel : str
+    ylabel : str
+    save_path : str or Path or None
+    figsize : tuple
+
+    Returns
+    -------
+    dict
+        Extracted plotting values.
+    """
+    O400r1_path = "Results\\400x400_Old_run1_cluster_behavioural_results.json"
+    O400r2_path = "Results\\400x400_Old_run2_cluster_behavioural_results.json"
+    O1000r1_path = "Results\\1000x1000_Old_run1_cluster_behavioural_results.json"
+    Y400r1_path = "Results\\400x400_Young_run1_cluster_behavioural_results.json"
+    Y400r2_path = "Results\\400x400_Young_run2_cluster_behavioural_results.json"
+    Y1000r1_path = "Results\\1000x1000_Young_run1_cluster_behavioural_results.json"
+
+    results_O400r1 = load_json_results(O400r1_path)
+    results_O400r2 = load_json_results(O400r2_path)
+    results_O1000r1 = load_json_results(O1000r1_path)
+    results_Y400r1 = load_json_results(Y400r1_path)
+    results_Y400r2 = load_json_results(Y400r2_path)
+    results_Y1000r1 = load_json_results(Y1000r1_path)
+
+    clusters_young = {int(name.split("_")[1]) for name in results_Y400r1.keys() | results_Y400r2.keys() | results_Y1000r1.keys()}
+    clusters_old = {int(name.split("_")[1]) for name in results_O400r1.keys() | results_O400r2.keys() | results_O1000r1.keys()}
+
+    if include_all_clusters:
+        cluster_numbers = sorted(clusters_young | clusters_old)
+    else:
+        cluster_numbers = sorted(clusters_young & clusters_old)
+
+    metric_values_O400r1 = []
+    metric_values_O400r2 = []
+    metric_values_O1000r1 = []
+    metric_values_Y400r1 = []
+    metric_values_Y400r2 = []
+    metric_values_Y1000r1 = []
+
+    for cluster_num in cluster_numbers:
+        cluster_key = f"Cluster_{cluster_num}_results"
+
+        cluster_data_O400r1 = results_O400r1.get(cluster_key, {})
+        cluster_data_O400r2 = results_O400r2.get(cluster_key, {})
+        cluster_data_O1000r1 = results_O1000r1.get(cluster_key, {})
+        cluster_data_Y400r1 = results_Y400r1.get(cluster_key, {}) 
+        cluster_data_Y400r2 = results_Y400r2.get(cluster_key, {})
+        cluster_data_Y1000r1 = results_Y1000r1.get(cluster_key, {}) 
+
+        metric_400r1_O = get_nested_value(cluster_data_O400r1, metric_to_use)
+        metric_400r2_O = get_nested_value(cluster_data_O400r2, metric_to_use)
+        metric_1000r1_O = get_nested_value(cluster_data_O1000r1 , metric_to_use)
+        metric_400r1_Y = get_nested_value(cluster_data_Y400r1, metric_to_use)
+        metric_400r2_Y = get_nested_value(cluster_data_Y400r2, metric_to_use)
+        metric_1000r1_Y = get_nested_value(cluster_data_Y1000r1, metric_to_use)
+
+        metric_values_O400r1.append(dead_value if metric_400r1_O is None else metric_400r1_O)
+        metric_values_O400r2.append(dead_value if metric_400r2_O is None else metric_400r2_O)
+        metric_values_O1000r1.append(dead_value if metric_1000r1_O is None else metric_1000r1_O)
+        metric_values_Y400r1.append(dead_value if metric_400r1_Y is None else metric_400r1_Y)
+        metric_values_Y400r2.append(dead_value if metric_400r2_Y is None else metric_400r2_Y)
+        metric_values_Y1000r1.append(dead_value if metric_1000r1_Y is None else metric_1000r1_Y)
+
+    plt.figure(figsize=figsize)
+
+    if metric_to_use.startswith("cca"):
+        metric_name = "CCA"
+    elif metric_to_use.startswith("mlr"):
+        metric_name = "MLR"
+    else:
+        raise ValueError("metric_to_use should start with 'cca' or 'mlr' to determine metric name for legend.")
+
+    base_colors = {"Young": "green", "Old": "red"}
+
+    plt.plot(cluster_numbers, metric_values_Y400r1, marker="o", label=f"Young 400p movie 1 - {metric_name}", color=adjust_lightness(base_colors["Young"], 0.7))
+    plt.plot(cluster_numbers, metric_values_Y400r2, marker="o", label=f"Young 400p movie 2 - {metric_name}", color=adjust_lightness(base_colors["Young"], 1))
+    plt.plot(cluster_numbers, metric_values_Y1000r1, marker="o", label=f"Young 1000p movie 1 - {metric_name} (1000x1000)", color=adjust_lightness(base_colors["Young"], 1.3))
+    plt.plot(cluster_numbers, metric_values_O400r1, marker="o", label=f"Old 400p movie 1 - {metric_name}", color=adjust_lightness(base_colors["Old"], 0.7))
+    plt.plot(cluster_numbers, metric_values_O400r2, marker="o", label=f"Old 400p movie 2 - {metric_name}", color=adjust_lightness(base_colors["Old"], 1))
+    plt.plot(cluster_numbers, metric_values_O1000r1, marker="o", label=f"Old 1000p movie 1 - {metric_name} (1000x1000)", color=adjust_lightness(base_colors["Old"], 1.3))
+
+    if annotate:
+        for x, y in zip(cluster_numbers, metric_values_Y400r1):
+            plt.annotate(f"{y:.3f}", (x, y), xytext=(0, 7), textcoords="offset points", ha="center", fontsize=8)
+        for x, y in zip(cluster_numbers, metric_values_Y400r2):
+            plt.annotate(f"{y:.3f}", (x, y), xytext=(0, -12), textcoords="offset points", ha="center", fontsize=8)
+        for x, y in zip(cluster_numbers, metric_values_O1000r1):
+            plt.annotate(f"{y:.3f}", (x, y), xytext=(10, 7), textcoords="offset points", ha="center", fontsize=8)
+        for x, y in zip(cluster_numbers, metric_values_O400r1):
+            plt.annotate(f"{y:.3f}", (x, y), xytext=(10, -12), textcoords="offset points", ha="center", fontsize=8)
+        for x, y in zip(cluster_numbers, metric_values_O400r2):
+            plt.annotate(f"{y:.3f}", (x, y), xytext=(10, -12), textcoords="offset points", ha="center", fontsize=8)
+        for x, y in zip(cluster_numbers, metric_values_O400r2):
+            plt.annotate(f"{y:.3f}", (x, y), xytext=(10, -12), textcoords="offset points", ha="center", fontsize=8)
+        for x, y in zip(cluster_numbers, metric_values_O1000r1):
+            plt.annotate(f"{y:.3f}", (x, y), xytext=(10, -12), textcoords="offset points", ha="center", fontsize=8)
+
+    plt.xticks(cluster_numbers, [f"Cluster {n}" for n in cluster_numbers], rotation=45)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    title = title + f"{metric_name}"
+    plt.title(title)
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+
+    if save_path is not None:
+        plt.savefig(save_path, dpi=300, bbox_inches="tight")
+
+    plt.show()
+
+    return {
+        "cluster_numbers": cluster_numbers,
+        "O400r1": metric_values_O400r1,
+        "O400r2": metric_values_O400r2,
+        "O1000r1": metric_values_O1000r1,
+        "Y400r1": metric_values_Y400r1,
+        "Y400r2": metric_values_Y400r2,
+        "Y1000r1": metric_values_Y1000r1,   
+    }
+
 
 # Compare the common selected variables and removed subjects across the ages 
 import json

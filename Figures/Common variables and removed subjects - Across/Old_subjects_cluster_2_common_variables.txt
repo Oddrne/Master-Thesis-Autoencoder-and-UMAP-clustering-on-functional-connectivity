@@ -3,23 +3,23 @@
     "common_variables": [],
     "variable_counts_sorted": [
         [
+            "Q1_DASSAnxiety",
+            1
+        ],
+        [
+            "Q3_GHQ28SomaticSymptoms",
+            1
+        ],
+        [
             "Q2_DERSNONACCEPT",
             1
         ],
         [
-            "Q8personal_distress",
+            "Q2_DERSSTRATEGIES",
             1
         ],
         [
-            "hd_negative",
-            1
-        ],
-        [
-            "EnglishYearsSpeaking",
-            1
-        ],
-        [
-            "WM",
+            "Q6PSS",
             1
         ]
     ],
