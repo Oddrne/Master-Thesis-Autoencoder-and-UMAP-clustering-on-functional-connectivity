@@ -1582,3 +1582,91 @@ def count_occurrences_across_two_jsons(
         "counts": dict(counter),
         "counts_sorted": items,
     }
+    
+# Count occurrences across three JSON files
+def count_occurrences_across_three_jsons(
+    json_path_1,
+    json_path_2,
+    json_path_3,
+    keys=["cca_selected_variables", "mlr_selected_variables", "cca_removed_subjects", "mlr_removed_subjects"],
+    clusters_to_include=None,
+    remove_duplicates_within_cluster=False,
+    sort_descending=True
+):
+    """
+    Count how many times each variable/subject appears across all clusters
+    in three JSON files combined.
+
+    Example:
+        keys = ["cca_selected_variables", "mlr_selected_variables"]
+    or
+        keys = ["cca_removed_subjects", "mlr_removed_subjects"]
+
+    If there are 9 clusters in each file, the maximum count is 27 when
+    remove_duplicates_within_cluster=True.
+
+    Parameters
+    ----------
+    json_path_1 : str or Path
+    json_path_2 : str or Path
+    json_path_3 : str or Path
+    keys : str or list[str]
+        JSON key(s) to count across all clusters.
+    clusters_to_include : list[int] or None
+        Optional subset of cluster numbers to include.
+    remove_duplicates_within_cluster : bool
+        If True, an item is counted at most once per cluster per file,
+        even if it appears in both CCA and MLR lists for that cluster.
+        This is usually what you want if max count should be 27.
+    sort_descending : bool
+        If True, sort most common first.
+
+    Returns
+    -------
+    dict
+        Count summary.
+    """
+    results_1 = load_json_results(json_path_1)
+    results_2 = load_json_results(json_path_2)
+    results_3 = load_json_results(json_path_3)
+    keys = _normalize_keys(keys)
+
+    counter = Counter()
+    total_cluster_entries = 0
+
+    for results, file_label in [(results_1, "file1"), (results_2, "file2"), (results_3, "file3")]:
+        for cluster_name, cluster_data in results.items():
+            if not cluster_name.startswith("Cluster_"):
+                continue
+
+            cluster_num = int(cluster_name.split("_")[1])
+
+            if clusters_to_include is not None and cluster_num not in clusters_to_include:
+                continue
+
+            total_cluster_entries += 1
+
+            collected = []
+            for key in keys:
+                collected.extend(_safe_list(cluster_data.get(key, [])))
+            if remove_duplicates_within_cluster:
+                collected = set(collected)
+            counter.update(collected)
+            
+    items = list(counter.items())
+    if sort_descending:
+        items.sort(key=lambda x: (-x[1], str(x[0])))
+    else:
+        items.sort(key=lambda x: str(x[0]))
+        
+    return {
+        "json_path_1": str(json_path_1),
+        "json_path_2": str(json_path_2),
+        "json_path_3": str(json_path_3),
+        "keys": keys,
+        "clusters_to_include": clusters_to_include,
+        "remove_duplicates_within_cluster": remove_duplicates_within_cluster,
+        "max_possible_count": total_cluster_entries,
+        "counts": dict(counter),
+        "counts_sorted": items,
+    }
