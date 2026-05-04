@@ -374,14 +374,3 @@ This repository was developed as part of a master’s thesis on unsupervised dee
 
 The broader aim of the thesis is to investigate whether differences between healthy subjects can be captured from functional connectivity patterns, and whether such differences relate to behavioural variables.
 
-## License
-
-No license has currently been specified for this repository.
-
-If the repository is intended to be publicly reusable, an open-source license should be added, for example:
-
-- MIT License
-- Apache License 2.0
-- BSD 3-Clause License
-
-Without a license, others do not automatically have permission to reuse, modify or distribute the code.
