@@ -1127,6 +1127,30 @@ def plot_compare_ages_across_clusters(
     return {"cluster_numbers": cluster_numbers, "series": series, "fig": fig, "ax": ax}
 
 
+def parse_filename(path):
+    """Parse age group, parcellation, and run number from a JSON filename."""
+    pattern = re.compile(r"(?P<parcellation>\d+x\d+)_(?P<age_group>young|old)_(?P<run>run\d+)", re.IGNORECASE)   
+    match = pattern.search(Path(path).name)
+    # 400x400_Old_run{run}_cluster_behavioural_results.json
+    
+    if match.group("run") == "run1":
+        movie = "neutral"
+        run = 1
+    elif match.group("run") == "run2":
+        movie = "negative"
+        run = 2
+    if match:
+        return {
+            "age_group": match.group("age_group").lower(),
+            "parcellation": match.group("parcellation"),
+            "run": run,
+            "movie": movie,
+        }
+    else:
+        print(f"Warning: Filename does not match expected pattern: {Path(path).name}")
+        return None
+
+
 def plot_cca_mlr_multiple_runs(
     json_paths,
     labels=None,
@@ -1138,20 +1162,6 @@ def plot_cca_mlr_multiple_runs(
     figsize=(11, 6),
     annotate=False,
 ):
-    """
-    Plot CCA and MLR scores across cluster numbers for multiple runs/movies.
-
-    Each JSON file gets two lines:
-      - CCA
-      - MLR
-
-    Parameters
-    ----------
-    json_paths : list[str or Path]
-        Paths to behavioural result JSON files.
-    labels : list[str] or None
-        Labels for each JSON file. If None, filenames are used.
-    """
     json_paths = [Path(p) for p in json_paths]
 
     if labels is None:
@@ -1159,6 +1169,21 @@ def plot_cca_mlr_multiple_runs(
 
     if len(labels) != len(json_paths):
         raise ValueError("labels must have the same length as json_paths.")
+
+    age_colors = {
+        "Young": "green",
+        "Old": "red",
+    }
+
+    parcellation_styles = {
+        "400x400": "-",
+        "1000x1000": "--",
+    }
+
+    score_markers = {
+        "CCA": "o",
+        "MLR": "s",
+    }
 
     all_results = [load_json_results(p) for p in json_paths]
 
@@ -1171,7 +1196,19 @@ def plot_cca_mlr_multiple_runs(
 
     fig, ax = plt.subplots(figsize=figsize)
 
-    for results, label in zip(all_results, labels):
+    for path, results, label in zip(json_paths, all_results, labels):
+        metadata = parse_filename(path)
+
+        if metadata is None:
+            age_group = "Unknown"
+            parcellation = "Unknown"
+        else:
+            age_group = metadata["age_group"].capitalize()
+            parcellation = metadata["parcellation"]
+
+        color = age_colors.get(age_group, "black")
+        linestyle = parcellation_styles.get(parcellation, ":")
+
         cca_values = []
         mlr_values = []
 
@@ -1185,29 +1222,58 @@ def plot_cca_mlr_multiple_runs(
             cca_values.append(dead_value if cca_val is None else cca_val)
             mlr_values.append(dead_value if mlr_val is None else mlr_val)
 
-        ax.plot(cluster_numbers, cca_values, marker="o", linestyle="-", label=f"{label} - CCA")
-        ax.plot(cluster_numbers, mlr_values, marker="s", linestyle="--", label=f"{label} - MLR")
+        ax.plot(
+            cluster_numbers,
+            cca_values,
+            color=color,
+            linestyle=linestyle,
+            marker=score_markers["CCA"],
+            label=f"{label} - CCA",
+        )
+
+        ax.plot(
+            cluster_numbers,
+            mlr_values,
+            color=color,
+            linestyle=linestyle,
+            marker=score_markers["MLR"],
+            label=f"{label} - MLR",
+            alpha=0.75,
+        )
 
         if annotate:
             for x, y in zip(cluster_numbers, cca_values):
-                ax.annotate(f"{y:.2f}", (x, y), xytext=(0, 7),
-                            textcoords="offset points", ha="center", fontsize=8)
+                ax.annotate(
+                    f"{y:.2f}",
+                    (x, y),
+                    xytext=(0, 7),
+                    textcoords="offset points",
+                    ha="center",
+                    fontsize=8,
+                )
+
             for x, y in zip(cluster_numbers, mlr_values):
-                ax.annotate(f"{y:.2f}", (x, y), xytext=(0, -12),
-                            textcoords="offset points", ha="center", fontsize=8)
+                ax.annotate(
+                    f"{y:.2f}",
+                    (x, y),
+                    xytext=(0, -12),
+                    textcoords="offset points",
+                    ha="center",
+                    fontsize=8,
+                )
 
     ax.set_xlabel("Number of clusters")
     ax.set_ylabel("Score")
     ax.set_xticks(cluster_numbers)
-    ax.set_title(title)
     ax.set_ylim(0, 1.05)
+    ax.set_title(title)
     ax.grid(True, alpha=0.3)
     ax.legend()
 
     fig.text(
         0.5,
         -0.02,
-        "CCA: cross-validated canonical correlation. MLR: cross-validated mean accuracy.",
+        "Colour = age group | Line style = parcellation | Marker = score type",
         ha="center",
         fontsize=9,
     )
@@ -1222,7 +1288,7 @@ def plot_cca_mlr_multiple_runs(
     return {
         "cluster_numbers": cluster_numbers,
     }
-
+    
 
 def plot_silhouette_age_comparison(
     run_results: Sequence[Dict[str, Any]],
