@@ -507,6 +507,7 @@ def plot_clustering_scores_sorted(
     figsize: Tuple[int, int] = (12, 7),
     annotate_points: bool = True,
     ch_scale: float = 1000.0,
+    ylim: float = 1.0,
 ) -> Dict[int, Dict[str, Any]]:
     """
     Compute and plot Silhouette, Davies-Bouldin, and Calinski-Harabasz scores.
@@ -570,6 +571,7 @@ def plot_clustering_scores_sorted(
             if np.isfinite(y):
                 ax.annotate(f"Cluster {x}", (x, y), textcoords="offset points", xytext=(0, 8), ha="center", fontsize=8)
 
+    ax.set_ylim(top=ylim)
     ax.set_xlabel("Number of clusters")
     ax.set_ylabel(ylabel)
     ax.set_xticks(list(cluster_range))

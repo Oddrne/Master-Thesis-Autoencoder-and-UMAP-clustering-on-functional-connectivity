@@ -11,9 +11,9 @@
     },
     "Cluster_3_results": {
         "cca_all_variables_results": {
-            "cc": 0.9790910402643248,
-            "cv_mean_cc": -0.16714113057317245,
-            "cv_std_cc": 0.2969770267466671
+            "cc": 0.9790910402643446,
+            "cv_mean_cc": -0.16714113057317262,
+            "cv_std_cc": 0.2969770267466669
         },
         "cca_selected_variables_results": {
             "cc": 0.5504136823691358,
@@ -58,9 +58,9 @@
     },
     "Cluster_4_results": {
         "cca_all_variables_results": {
-            "cc": 0.9897523907546592,
-            "cv_mean_cc": -0.039236480565304335,
-            "cv_std_cc": 0.22381686086804925
+            "cc": 0.9897523907546706,
+            "cv_mean_cc": -0.03923648056530434,
+            "cv_std_cc": 0.22381686086804936
         },
         "cca_selected_variables_results": {
             "cc": 0.6299261805956083,
@@ -112,9 +112,9 @@
     },
     "Cluster_5_results": {
         "cca_all_variables_results": {
-            "cc": 0.9906580287103612,
-            "cv_mean_cc": 0.039868078320969946,
-            "cv_std_cc": 0.25505051565347797
+            "cc": 0.9906580287103407,
+            "cv_mean_cc": 0.039868078320969884,
+            "cv_std_cc": 0.255050515653478
         },
         "cca_selected_variables_results": {
             "cc": 0.6097753082589196,
@@ -160,9 +160,9 @@
     },
     "Cluster_6_results": {
         "cca_all_variables_results": {
-            "cc": 0.9999901688123874,
-            "cv_mean_cc": -0.0782634787839303,
-            "cv_std_cc": 0.21261727706098882
+            "cc": 0.9999901688123848,
+            "cv_mean_cc": -0.07826347878393032,
+            "cv_std_cc": 0.21261727706098885
         },
         "cca_selected_variables_results": {
             "cc": 0.6703683981879427,
@@ -215,7 +215,7 @@
     },
     "Cluster_8_results": {
         "cca_all_variables_results": {
-            "cc": 0.9999875187215834,
+            "cc": 0.9999875187215803,
             "cv_mean_cc": 0.15088877721681876,
             "cv_std_cc": 0.2889150499958733
         },
@@ -261,7 +261,7 @@
     },
     "Cluster_9_results": {
         "cca_all_variables_results": {
-            "cc": 0.9999889509862023,
+            "cc": 0.9999889509862095,
             "cv_mean_cc": -0.0554609473988311,
             "cv_std_cc": 0.16960416449057222
         },
@@ -308,7 +308,7 @@
     },
     "Cluster_10_results": {
         "cca_all_variables_results": {
-            "cc": 0.9999699249373685,
+            "cc": 0.9999699249373782,
             "cv_mean_cc": 0.157057243804275,
             "cv_std_cc": 0.06946729469917913
         },
