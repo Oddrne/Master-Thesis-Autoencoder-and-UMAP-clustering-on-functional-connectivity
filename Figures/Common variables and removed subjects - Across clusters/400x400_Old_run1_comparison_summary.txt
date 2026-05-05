@@ -7,15 +7,15 @@
             3
         ],
         [
-            "Q8IRI",
+            "Cognitive_PC",
             2
         ],
         [
-            "dER_neu",
+            "NeuroImpairment",
             2
         ],
         [
-            "mean_RT",
+            "Q2_DERSCLARITY",
             2
         ],
         [
@@ -32,7 +32,7 @@
     ],
     "removed_subjects_counts_sorted": [
         [
-            12288,
+            12152,
             2
         ],
         [
@@ -40,15 +40,15 @@
             2
         ],
         [
-            12152,
+            12255,
+            2
+        ],
+        [
+            12288,
             2
         ],
         [
             12334,
-            2
-        ],
-        [
-            12255,
             2
         ]
     ]

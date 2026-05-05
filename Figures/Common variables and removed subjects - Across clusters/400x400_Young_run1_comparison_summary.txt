@@ -7,11 +7,11 @@
             7
         ],
         [
-            "m2_tISC",
+            "Q2_DERSNONACCEPT",
             3
         ],
         [
-            "Q2_DERSNONACCEPT",
+            "m2_tISC",
             3
         ],
         [
@@ -19,18 +19,14 @@
             3
         ],
         [
-            "EV_neu",
+            "ER_base",
             2
         ]
     ],
     "common_removed_subjects": [],
     "removed_subjects_counts_sorted": [
         [
-            11073,
-            2
-        ],
-        [
-            11103,
+            11037,
             2
         ],
         [
@@ -38,11 +34,15 @@
             2
         ],
         [
-            11037,
+            11073,
             2
         ],
         [
             11078,
+            2
+        ],
+        [
+            11103,
             2
         ]
     ]

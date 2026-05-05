@@ -3,11 +3,11 @@
     "common_variables": [],
     "variable_counts_sorted": [
         [
-            "hd_negative",
+            "Order",
             6
         ],
         [
-            "Order",
+            "hd_negative",
             6
         ],
         [
@@ -19,7 +19,7 @@
             4
         ],
         [
-            "Q3SevereDepression",
+            "Q1_DASSStress",
             3
         ]
     ],

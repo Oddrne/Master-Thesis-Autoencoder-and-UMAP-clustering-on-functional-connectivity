@@ -1,0 +1,28 @@
+{
+    "json_file": "Results\\\\1000x1000_Old_run2_cluster_behavioural_results.json",
+    "common_variables": [],
+    "variable_counts_sorted": [
+        [
+            "ER_neg",
+            5
+        ],
+        [
+            "Q8personal_distress",
+            5
+        ],
+        [
+            "ER_base",
+            4
+        ],
+        [
+            "Q2_DERSCLARITY",
+            4
+        ],
+        [
+            "Q3_GHQ28SomaticSymptoms",
+            4
+        ]
+    ],
+    "common_removed_subjects": [],
+    "removed_subjects_counts_sorted": []
+}

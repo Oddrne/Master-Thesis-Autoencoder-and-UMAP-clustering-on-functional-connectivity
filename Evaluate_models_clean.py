@@ -1127,67 +1127,100 @@ def plot_compare_ages_across_clusters(
     return {"cluster_numbers": cluster_numbers, "series": series, "fig": fig, "ax": ax}
 
 
-def plot_cca_mlr_two_jsons_across_clusters(
-    young_json_path: PathLike,
-    old_json_path: PathLike,
-    cca_metric: str = "cca_removed_subjects_results:cv_mean_cc",
-    mlr_metric: str = "mlr_removed_subjects_results:mean_accuracy",
-    label_1: str = "Young",
-    label_2: str = "Old",
-    dead_value: float = 0.0,
-    include_all_clusters: bool = True,
-    annotate: bool = False,
-    title: str = "CCA and MLR across clusters for two JSON files",
-    xlabel: str = "Cluster",
-    ylabel: str = "Score",
-    save_path: Optional[PathLike] = None,
-    figsize: Tuple[int, int] = (11, 6),
-) -> Dict[str, Any]:
-    """Compare CCA and MLR for two JSON files, typically young vs old."""
-    results_young = load_json_results(young_json_path)
-    results_old = load_json_results(old_json_path)
+def plot_cca_mlr_multiple_runs(
+    json_paths,
+    labels=None,
+    cca_metric="cca_removed_subjects_results:cv_mean_cc",
+    mlr_metric="mlr_removed_subjects_results:mean_accuracy",
+    dead_value=0.0,
+    title="CCA and MLR comparison across runs",
+    save_path=None,
+    figsize=(11, 6),
+    annotate=False,
+):
+    """
+    Plot CCA and MLR scores across cluster numbers for multiple runs/movies.
 
-    clusters_young = {cluster_sort_key(name) for name in results_young if name.startswith("Cluster_")}
-    clusters_old = {cluster_sort_key(name) for name in results_old if name.startswith("Cluster_")}
-    cluster_numbers = sorted(clusters_young | clusters_old if include_all_clusters else clusters_young & clusters_old)
+    Each JSON file gets two lines:
+      - CCA
+      - MLR
 
-    young_cca = _cluster_values_from_json(results_young, cca_metric, cluster_numbers, dead_value)
-    young_mlr = _cluster_values_from_json(results_young, mlr_metric, cluster_numbers, dead_value)
-    old_cca = _cluster_values_from_json(results_old, cca_metric, cluster_numbers, dead_value)
-    old_mlr = _cluster_values_from_json(results_old, mlr_metric, cluster_numbers, dead_value)
+    Parameters
+    ----------
+    json_paths : list[str or Path]
+        Paths to behavioural result JSON files.
+    labels : list[str] or None
+        Labels for each JSON file. If None, filenames are used.
+    """
+    json_paths = [Path(p) for p in json_paths]
+
+    if labels is None:
+        labels = [p.stem.replace("_cluster_behavioural_results", "") for p in json_paths]
+
+    if len(labels) != len(json_paths):
+        raise ValueError("labels must have the same length as json_paths.")
+
+    all_results = [load_json_results(p) for p in json_paths]
+
+    cluster_numbers = sorted({
+        int(cluster_name.split("_")[1])
+        for results in all_results
+        for cluster_name in results.keys()
+        if cluster_name.startswith("Cluster_")
+    })
 
     fig, ax = plt.subplots(figsize=figsize)
-    ax.plot(cluster_numbers, young_cca, marker="o", label=f"{label_1} - CCA", color=adjust_lightness("green", 0.8))
-    ax.plot(cluster_numbers, young_mlr, marker="o", label=f"{label_1} - MLR", color=adjust_lightness("red", 0.8))
-    ax.plot(cluster_numbers, old_cca, marker="s", label=f"{label_2} - CCA", color=adjust_lightness("green", 1.3))
-    ax.plot(cluster_numbers, old_mlr, marker="s", label=f"{label_2} - MLR", color=adjust_lightness("red", 1.3))
 
-    if annotate:
-        for values in [young_cca, young_mlr, old_cca, old_mlr]:
-            for x, y in zip(cluster_numbers, values):
-                ax.annotate(f"{y:.3f}", (x, y), xytext=(0, 7), textcoords="offset points", ha="center", fontsize=8)
+    for results, label in zip(all_results, labels):
+        cca_values = []
+        mlr_values = []
 
+        for cluster_num in cluster_numbers:
+            cluster_key = f"Cluster_{cluster_num}_results"
+            cluster_data = results.get(cluster_key, {})
+
+            cca_val = get_nested_value(cluster_data, cca_metric)
+            mlr_val = get_nested_value(cluster_data, mlr_metric)
+
+            cca_values.append(dead_value if cca_val is None else cca_val)
+            mlr_values.append(dead_value if mlr_val is None else mlr_val)
+
+        ax.plot(cluster_numbers, cca_values, marker="o", linestyle="-", label=f"{label} - CCA")
+        ax.plot(cluster_numbers, mlr_values, marker="s", linestyle="--", label=f"{label} - MLR")
+
+        if annotate:
+            for x, y in zip(cluster_numbers, cca_values):
+                ax.annotate(f"{y:.2f}", (x, y), xytext=(0, 7),
+                            textcoords="offset points", ha="center", fontsize=8)
+            for x, y in zip(cluster_numbers, mlr_values):
+                ax.annotate(f"{y:.2f}", (x, y), xytext=(0, -12),
+                            textcoords="offset points", ha="center", fontsize=8)
+
+    ax.set_xlabel("Number of clusters")
+    ax.set_ylabel("Score")
     ax.set_xticks(cluster_numbers)
-    ax.set_xticklabels([f"Cluster {n}" for n in cluster_numbers], rotation=45)
-    ax.set_xlabel(xlabel)
-    ax.set_ylabel(ylabel)
     ax.set_title(title)
+    ax.set_ylim(0, 1.05)
     ax.grid(True, alpha=0.3)
     ax.legend()
+
+    fig.text(
+        0.5,
+        -0.02,
+        "CCA: cross-validated canonical correlation. MLR: cross-validated mean accuracy.",
+        ha="center",
+        fontsize=9,
+    )
+
     plt.tight_layout()
 
     if save_path is not None:
-        fig.savefig(save_path, dpi=300, bbox_inches="tight")
+        plt.savefig(save_path, dpi=300, bbox_inches="tight")
+
     plt.show()
 
     return {
         "cluster_numbers": cluster_numbers,
-        "young_cca": young_cca,
-        "young_mlr": young_mlr,
-        "old_cca": old_cca,
-        "old_mlr": old_mlr,
-        "fig": fig,
-        "ax": ax,
     }
 
 

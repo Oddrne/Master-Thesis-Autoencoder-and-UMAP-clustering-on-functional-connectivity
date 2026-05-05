@@ -3,6 +3,10 @@
     "common_variables": [],
     "variable_counts_sorted": [
         [
+            "Q2_DERSScore",
+            3
+        ],
+        [
             "Q3_GHQ28Anxiety_Insomnia",
             3
         ],
@@ -11,15 +15,11 @@
             3
         ],
         [
-            "Q2_DERSScore",
-            3
-        ],
-        [
-            "Q1_DASSAnxiety",
+            "ACC",
             2
         ],
         [
-            "Q3SevereDepression",
+            "EV_neg",
             2
         ]
     ],
@@ -34,15 +34,15 @@
             2
         ],
         [
-            12288,
-            2
-        ],
-        [
             12270,
             2
         ],
         [
-            12160,
+            12288,
+            2
+        ],
+        [
+            12008,
             1
         ]
     ]
