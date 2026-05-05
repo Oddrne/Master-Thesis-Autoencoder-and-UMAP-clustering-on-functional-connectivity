@@ -1670,3 +1670,180 @@ def count_occurrences_across_three_jsons(
         "counts": dict(counter),
         "counts_sorted": items,
     }
+    
+    
+import json
+import re
+from pathlib import Path
+from collections import Counter, defaultdict
+import pandas as pd
+
+# ---------------------------------------------------------------------
+# 2. Parse metadata from filename
+# ---------------------------------------------------------------------
+
+def parse_filename(path):
+    """
+    Parse filenames such as:
+    1000x1000_Young_run1_cluster_behavioural_results.json
+    400x400_Old_run2_cluster_behavioural_results.json
+    """
+    pattern = re.compile(
+        r"(?P<parcellation>\d+x\d+)_(?P<age_group>Young|Old)_run(?P<run>\d+)_cluster_behavioural_results\.json"
+    )
+
+    match = pattern.match(path.name)
+    if match is None:
+        return None
+
+    parcellation = match.group("parcellation")
+    age_group = match.group("age_group")
+    run = int(match.group("run"))
+
+    movie = "neutral" if run == 1 else "negative" if run == 2 else f"run{run}"
+
+    return {
+        "path": path,
+        "parcellation": parcellation,
+        "age_group": age_group.lower(),
+        "movie": movie,
+        "run": run,
+    }
+
+
+# ---------------------------------------------------------------------
+# 3. Extract selected variables from each cluster result
+# ---------------------------------------------------------------------
+
+def load_json(path):
+    with path.open("r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def get_cluster_number(cluster_key):
+    """
+    Extract K from keys like 'Cluster_2_results'.
+    """
+    match = re.search(r"Cluster_(\d+)_results", cluster_key)
+    if match is None:
+        raise ValueError(f"Could not extract cluster number from key: {cluster_key}")
+    return int(match.group(1))
+
+
+def is_valid_cluster(cluster_result):
+    """
+    A cluster solution is treated as valid if it contains selected variables
+    from either CCA or MLR.
+    """
+    return (
+        isinstance(cluster_result.get("cca_selected_variables"), list)
+        or isinstance(cluster_result.get("mlr_selected_variables"), list)
+    )
+
+
+def selected_variable_union(cluster_result):
+    """
+    Combine CCA and MLR selected variables into a union.
+    Each variable therefore counts at most once per cluster solution.
+    """
+    cca_vars = cluster_result.get("cca_selected_variables") or []
+    mlr_vars = cluster_result.get("mlr_selected_variables") or []
+
+    return set(cca_vars).union(mlr_vars)
+
+
+def collect_cluster_rows(json_paths):
+    """
+    Convert all JSON files into rows.
+    Each row corresponds to one valid cluster solution.
+    """
+    rows = []
+
+    for path in json_paths:
+        metadata = parse_filename(path)
+        data = load_json(path)
+        
+        if metadata is None:
+            continue
+
+        for cluster_key, cluster_result in data.items():
+            if not cluster_key.startswith("Cluster_"):
+                continue
+
+            if not is_valid_cluster(cluster_result):
+                continue
+
+            cluster_number = get_cluster_number(cluster_key)
+            variables = selected_variable_union(cluster_result)
+
+            rows.append({
+                **metadata,
+                "cluster": cluster_number,
+                "variables": variables,
+            })
+
+    return rows
+
+
+# ---------------------------------------------------------------------
+# 4. Summarise most frequent variables
+# ---------------------------------------------------------------------
+
+def most_common_with_ties(counter):
+    if not counter:
+        return [], 0
+
+    max_count = max(counter.values())
+    variables = sorted(var for var, count in counter.items() if count == max_count)
+
+    return variables, max_count
+
+
+def second_most_common_with_ties(counter):
+    if not counter:
+        return [], 0
+
+    counts = sorted(set(counter.values()), reverse=True)
+
+    if len(counts) < 2:
+        return [], 0
+
+    second_count = counts[1]
+    variables = sorted(var for var, count in counter.items() if count == second_count)
+
+    return variables, second_count
+
+
+def summarize_grouped(rows, group_keys, include_second=True):
+    grouped_counters = defaultdict(Counter)
+    grouped_valid_counts = Counter()
+
+    for row in rows:
+        group = tuple(row[key] for key in group_keys)
+        grouped_valid_counts[group] += 1
+
+        for variable in row["variables"]:
+            grouped_counters[group][variable] += 1
+
+    output_rows = []
+
+    for group, counter in sorted(grouped_counters.items()):
+        top_vars, top_count = most_common_with_ties(counter)
+
+        result = {
+            **{key: value for key, value in zip(group_keys, group)},
+            "valid_cluster_solutions": grouped_valid_counts[group],
+            "most_frequent_variable": "; ".join(top_vars),
+            "occurrences": top_count,
+        }
+
+        if include_second:
+            second_vars, second_count = second_most_common_with_ties(counter)
+            result["second_most_frequent_variable"] = "; ".join(second_vars)
+            result["second_occurrences"] = second_count
+
+        output_rows.append(result)
+
+    return pd.DataFrame(output_rows)
+
+
