@@ -316,7 +316,7 @@ def initialize_cluster_centers(
     
     model.clustering.set_weight(centers.to(device))
 
-    return y_pred
+    return y_pred, z_all
 
 def make_upper_triangle_mask(n=1000, include_diagonal=False, device='cpu'):
     if include_diagonal:
