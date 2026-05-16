@@ -478,10 +478,10 @@ def plot_scores(
                         f"{score:.3f}",
                         ha="center",
                         va="bottom",
-                        fontsize=8,
+                        fontsize=12,
                     )
 
-        fig.text(0.5, -0.02, footnote, ha="center", fontsize=9)
+        fig.text(0.5, -0.02, footnote, ha="center", fontsize=12)
         plt.tight_layout()
 
         if save_path is not None:
@@ -569,7 +569,7 @@ def plot_clustering_scores_sorted(
     if annotate_points:
         for x, y in zip(clusters, y_sil):
             if np.isfinite(y):
-                ax.annotate(f"Cluster {x}", (x, y), textcoords="offset points", xytext=(0, 8), ha="center", fontsize=8)
+                ax.annotate(f"Cluster {x}", (x, y), textcoords="offset points", xytext=(0, 8), ha="center", fontsize=12)
 
     ax.set_ylim(top=ylim)
     ax.set_xlabel("Number of clusters")
@@ -587,7 +587,7 @@ def plot_clustering_scores_sorted(
         -0.02,
         "Silhouette [-1, 1] ↑ | Davies-Bouldin [0, ∞) ↓ | Calinski-Harabasz [0, ∞) ↑ (scaled)",
         ha="center",
-        fontsize=9,
+        fontsize=12,
     )
     plt.tight_layout()
 
@@ -614,7 +614,8 @@ def plot_tsne(
     labels: Sequence[int],
     title: str = "t-SNE visualisation of clusters",
     save_path: Optional[PathLike] = None,
-    figsize: Tuple[int, int] = (8, 6),
+    figsize: Tuple[int, int] = (6, 4),
+    figtext: str = None,
     perplexity: Optional[float] = None,
     random_state: int = 42,
     annotate: bool = False,
@@ -645,10 +646,19 @@ def plot_tsne(
     ax.grid(True, alpha=0.3)
     legend = ax.legend(*scatter.legend_elements(), title="Cluster", loc="best")
     ax.add_artist(legend)
+    if figtext is not None:
+        fig.text(
+            0.5,
+            -0.02,
+            figtext,
+            ha="center",
+            va="bottom",
+            fontsize=12
+        )
 
     if annotate:
         for idx, (x, y) in enumerate(coords):
-            ax.annotate(str(idx), (x, y), fontsize=7, alpha=0.7)
+            ax.annotate(str(idx), (x, y), fontsize=12, alpha=0.7)
 
     plt.tight_layout()
     if save_path is not None:
@@ -664,6 +674,7 @@ def plot_clustering(
     labels: Optional[Sequence[int]] = None,
     embedding: Optional[np.ndarray] = None,
     title: str = "t-SNE visualisation of clusters",
+    figtext: str = None,
     save_path: Optional[PathLike] = None,
     **tsne_kwargs: Any,
 ) -> Dict[str, Any]:
@@ -682,7 +693,7 @@ def plot_clustering(
             raise ValueError("Provide either embedding or middle_layer_path.")
         embedding = np.loadtxt(middle_layer_path)
 
-    return plot_tsne(embedding=embedding, labels=labels, title=title, save_path=save_path, **tsne_kwargs)
+    return plot_tsne(embedding=embedding, labels=labels, title=title, save_path=save_path, figtext=figtext, **tsne_kwargs)
 
 
 # =============================================================================
@@ -730,9 +741,9 @@ def plot_cca_mlr_across_clusters(
 
     if annotate:
         for x, y in zip(cluster_numbers, cca_values):
-            ax.annotate(f"{y:.3f}", (x, y), xytext=(0, 6), textcoords="offset points", ha="center", fontsize=8)
+            ax.annotate(f"{y:.3f}", (x, y), xytext=(0, 6), textcoords="offset points", ha="center", fontsize=12)
         for x, y in zip(cluster_numbers, mlr_values):
-            ax.annotate(f"{y:.3f}", (x, y), xytext=(0, -12), textcoords="offset points", ha="center", fontsize=8)
+            ax.annotate(f"{y:.3f}", (x, y), xytext=(0, -12), textcoords="offset points", ha="center", fontsize=12)
 
     ax.set_xticks(cluster_numbers)
     ax.set_xticklabels([f"Cluster {n}" for n in cluster_numbers], rotation=45)
@@ -746,9 +757,9 @@ def plot_cca_mlr_across_clusters(
     fig.text(
         0.5,
         -0.02,
-        "Canonical Correlation Analysis (CCA) [0, 1] and Multinomial Logistic Regression (MLR) [0, 1]. Both cross-validated.",
+        "CCA [0, 1] and MLR [0, 1]. Both cross validated.",
         ha="center",
-        fontsize=9,
+        fontsize=12,
     )
     plt.tight_layout()
 
@@ -819,12 +830,12 @@ def plot_single_cluster_cca_mlr_variants(
     ax.legend()
 
     fig_text = (
-        f"CCA selected variables: {format_list(cluster_data.get('cca_selected_variables', []))}\n"
-        f"MLR selected variables: {format_list(cluster_data.get('mlr_selected_variables', []))}\n"
-        f"CCA removed subjects: {format_list(cluster_data.get('cca_removed_subjects', []))}\n"
-        f"MLR removed subjects: {format_list(cluster_data.get('mlr_removed_subjects', []))}"
+        f"CCA selected variables: {format_list(cluster_data.get('cca_selected_variables', []), 3)}\n"
+        f"MLR selected variables: {format_list(cluster_data.get('mlr_selected_variables', []), 3)}\n"
+        f"CCA removed subjects: {format_list(cluster_data.get('cca_removed_subjects', []), 3)}\n"
+        f"MLR removed subjects: {format_list(cluster_data.get('mlr_removed_subjects', []), 3)}"
     )
-    fig.text(0.02, 0.01, fig_text, ha="left", va="bottom", fontsize=9)
+    fig.text(0.02, -0.03, fig_text, ha="left", va="bottom", fontsize=12)
     plt.tight_layout(rect=[0, 0.15, 1, 1])
 
     if save_path is not None:
@@ -1106,7 +1117,7 @@ def plot_compare_ages_across_clusters(
 
         if annotate:
             for x, y in zip(cluster_numbers, item["values"]):
-                ax.annotate(f"{y:.3f}", (x, y), xytext=(0, 7), textcoords="offset points", ha="center", fontsize=8)
+                ax.annotate(f"{y:.3f}", (x, y), xytext=(0, 7), textcoords="offset points", ha="center", fontsize=12)
 
     ax.set_xticks(cluster_numbers)
     ax.set_xticklabels([f"Cluster {n}" for n in cluster_numbers], rotation=45)
@@ -1249,7 +1260,7 @@ def plot_cca_mlr_multiple_runs(
                     xytext=(0, 7),
                     textcoords="offset points",
                     ha="center",
-                    fontsize=8,
+                    fontsize=12,
                 )
 
             for x, y in zip(cluster_numbers, mlr_values):
@@ -1259,7 +1270,7 @@ def plot_cca_mlr_multiple_runs(
                     xytext=(0, -12),
                     textcoords="offset points",
                     ha="center",
-                    fontsize=8,
+                    fontsize=12,
                 )
 
     ax.set_xlabel("Number of clusters")
@@ -1275,7 +1286,7 @@ def plot_cca_mlr_multiple_runs(
         -0.02,
         "Colour = age group | Line style = parcellation | Marker = score type",
         ha="center",
-        fontsize=9,
+        fontsize=12,
     )
 
     plt.tight_layout()
@@ -1293,7 +1304,7 @@ def plot_cca_mlr_multiple_runs(
 def plot_silhouette_age_comparison(
     run_results: Sequence[Dict[str, Any]],
     save_path: Optional[PathLike] = None,
-    figsize: Tuple[int, int] = (12, 7),
+    figsize: Tuple[int, int] = (6, 4),
     cluster_range: Iterable[int] = range(2, 11),
     title: str = "Silhouette score comparison between age groups",
     annotate: bool = False,
@@ -1329,7 +1340,7 @@ def plot_silhouette_age_comparison(
         if annotate:
             for x, y in zip(cluster_numbers, values):
                 if np.isfinite(y):
-                    ax.annotate(f"{y:.2f}", (x, y), xytext=(0, 7), textcoords="offset points", ha="center", fontsize=8)
+                    ax.annotate(f"{y:.2f}", (x, y), xytext=(0, 7), textcoords="offset points", ha="center", fontsize=12)
 
     ax.set_xlabel("Number of clusters")
     ax.set_ylabel("Silhouette score")
@@ -1338,7 +1349,7 @@ def plot_silhouette_age_comparison(
     ax.grid(True, alpha=0.3)
     ax.legend()
 
-    fig.text(0.5, -0.02, "Silhouette score ∈ [-1, 1]. Higher values indicate better-defined clusters.", ha="center", fontsize=9)
+    fig.text(0.5, -0.02, "Silhouette score ∈ [-1, 1]. Higher values indicate better-defined clusters.", ha="center", fontsize=12)
     plt.tight_layout()
 
     if save_path is not None:
@@ -1357,7 +1368,7 @@ def plot_silhouette_age_comparison_all_runs(
     middle_layer_tag: str = "middle_layer_predicted_labels_",
     cluster_range: Iterable[int] = range(2, 11),
     save_path: Optional[PathLike] = None,
-    figsize: Tuple[int, int] = (12, 7),
+    figsize: Tuple[int, int] = (6, 4),
     title: str = "Silhouette score comparison across runs",
     annotate: bool = False,
     include_invalid: bool = True,
@@ -1583,7 +1594,7 @@ def plot_silhouette_age_comparison_all_runs(
                         xytext=(0, 7),
                         textcoords="offset points",
                         ha="center",
-                        fontsize=8,
+                        fontsize=12,
                     )
 
     ax.set_xlabel("Number of clusters")
@@ -1596,9 +1607,9 @@ def plot_silhouette_age_comparison_all_runs(
     fig.text(
         0.5,
         -0.02,
-        "Silhouette score ∈ [-1, 1]. Higher values indicate better-defined clusters. " + style_note,
+        "Silhouette score ∈ [-1, 1] ↑ | " + style_note,
         ha="center",
-        fontsize=9,
+        fontsize=12,
     )
 
     plt.tight_layout()
@@ -1672,6 +1683,10 @@ def selected_variable_union(cluster_result: Dict[str, Any]) -> set:
     """Union CCA and MLR selected variables. Each variable counts once per cluster."""
     return _combine_keys_as_set(cluster_result, ("cca_selected_variables", "mlr_selected_variables"))
 
+def removed_subjects_union(cluster_result: Dict[str, Any]) -> set:
+    """Union CCA and MLR removed subjects. Each subject counts once per cluster."""
+    return _combine_keys_as_set(cluster_result, ("cca_removed_subjects", "mlr_removed_subjects"))
+
 
 def collect_cluster_rows(json_paths: Sequence[PathLike]) -> List[Dict[str, Any]]:
     """
@@ -1701,6 +1716,7 @@ def collect_cluster_rows(json_paths: Sequence[PathLike]) -> List[Dict[str, Any]]
                     **metadata,
                     "cluster": cluster_sort_key(cluster_key),
                     "variables": selected_variable_union(cluster_result),
+                    "removed_subjects": removed_subjects_union(cluster_result),
                 }
             )
 
@@ -1726,10 +1742,22 @@ def second_most_common_with_ties(counter: Counter) -> Tuple[List[Any], int]:
     return sorted(item for item, count in counter.items() if count == second_count), second_count
 
 
+def third_most_common_with_ties(counter: Counter) -> Tuple[List[Any], int]:
+    """Return third most frequent item(s), allowing ties."""
+    if not counter:
+        return [], 0
+    counts = sorted(set(counter.values()), reverse=True)
+    if len(counts) < 3:
+        return [], 0
+    third_count = counts[2]
+    return sorted(item for item, count in counter.items() if count == third_count), third_count
+
+
 def summarize_grouped(
     rows: Sequence[Dict[str, Any]],
     group_keys: Sequence[str],
     include_second: bool = True,
+    include_third: bool = False,
 ) -> pd.DataFrame:
     """
     Summarise most frequent selected variables grouped by metadata.
@@ -1765,6 +1793,65 @@ def summarize_grouped(
             result["second_most_frequent_variable"] = "; ".join(map(str, second_vars))
             result["second_occurrences"] = second_count
 
+        if include_third:
+            third_vars, third_count = third_most_common_with_ties(Counter({var: cnt for var, cnt in counter.items() if cnt < top_count and cnt < second_count}))
+            result["third_most_frequent_variable"] = "; ".join(map(str, third_vars))
+            result["third_occurrences"] = third_count
+        output_rows.append(result)
+
+    return pd.DataFrame(output_rows)
+
+
+def summarize_grouped_subjects(
+    rows: Sequence[Dict[str, Any]],
+    group_keys: Sequence[str],
+    include_second: bool = True,
+    include_third: bool = False,
+) -> pd.DataFrame:
+    """
+    Summarise most frequent selected variables grouped by metadata.
+
+    Examples
+    --------
+    summarize_grouped(rows, ["age_group"])
+    summarize_grouped(rows, ["movie"])
+    summarize_grouped(rows, ["cluster"])
+    summarize_grouped(rows, ["parcellation", "age_group", "movie"])
+    """
+    grouped_counters: Dict[Tuple[Any, ...], Counter] = defaultdict(Counter)
+    grouped_valid_counts: Counter = Counter()
+    clusters_with_removed: Counter = Counter()
+
+    for row in rows:
+        group = tuple(row[key] for key in group_keys)
+        grouped_valid_counts[group] += 1
+        if not row["removed_subjects"]:
+            continue
+        else:
+            clusters_with_removed[group] += 1
+            for subject in row["removed_subjects"]:
+                grouped_counters[group][subject] += 1
+
+    output_rows = []
+    for group, counter in sorted(grouped_counters.items()):
+        top_vars, top_count = most_common_with_ties(counter)
+        result = {
+            **{key: value for key, value in zip(group_keys, group)},
+            "valid_cluster_solutions": grouped_valid_counts[group],
+            "clusters_with_removed": clusters_with_removed[group],
+            "most_frequent_subject": "; ".join(map(str, top_vars)),
+            "occurrences": top_count,
+        }
+
+        if include_second:
+            second_vars, second_count = second_most_common_with_ties(counter)
+            result["second_most_frequent_subject"] = "; ".join(map(str, second_vars))
+            result["second_occurrences"] = second_count
+
+        if include_third:
+            third_vars, third_count = third_most_common_with_ties(Counter({var: cnt for var, cnt in counter.items() if cnt < top_count and cnt < second_count}))
+            result["third_most_frequent_subject"] = "; ".join(map(str, third_vars))
+            result["third_occurrences"] = third_count
         output_rows.append(result)
 
     return pd.DataFrame(output_rows)
