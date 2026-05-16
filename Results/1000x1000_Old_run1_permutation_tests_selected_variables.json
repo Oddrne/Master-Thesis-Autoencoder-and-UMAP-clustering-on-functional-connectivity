@@ -1,0 +1,906 @@
+{
+    "source_json": "Results\\1000x1000_Old_run1_cluster_behavioural_results.json",
+    "analysis": "Permutation tests for saved selected-variable sets",
+    "cluster_col_template": "Cluster_{k}",
+    "selected_variable_keys": [
+        "cca_selected_variables",
+        "mlr_selected_variables"
+    ],
+    "tests": [
+        "cca",
+        "mlr"
+    ],
+    "cv_splits_requested": 5,
+    "random_state": 42,
+    "n_permutations": 1000,
+    "cca_score_key": "cv_mean_cc",
+    "mlr_score_key": "mean_accuracy",
+    "alternative": "greater",
+    "store_null_scores": false,
+    "results": {
+        "Cluster_2_results": {
+            "cluster_number": 2,
+            "cluster_col": "Cluster_2",
+            "selected_variable_tests": {
+                "cca_selected_variables": {
+                    "selected_variables": [
+                        "dEV_neu",
+                        "ACC",
+                        "EnglishYearsSpeaking",
+                        "Q3SevereDepression",
+                        "Q1_DASSAnxiety",
+                        "Q2_DERSSTRATEGIES"
+                    ],
+                    "missing_variables": [],
+                    "non_numeric_variables": [],
+                    "variables_tested": [
+                        "dEV_neu",
+                        "ACC",
+                        "EnglishYearsSpeaking",
+                        "Q3SevereDepression",
+                        "Q1_DASSAnxiety",
+                        "Q2_DERSSTRATEGIES"
+                    ],
+                    "cv_splits_used": 5,
+                    "permutation_tests": {
+                        "cca": {
+                            "observed_result": {
+                                "cc": 0.6083506322217712,
+                                "cv_mean_cc": 0.5743221329438121,
+                                "cv_std_cc": 0.0933754550606668,
+                                "n_samples": 67,
+                                "variables_used": [
+                                    "dEV_neu",
+                                    "ACC",
+                                    "EnglishYearsSpeaking",
+                                    "Q3SevereDepression",
+                                    "Q1_DASSAnxiety",
+                                    "Q2_DERSSTRATEGIES"
+                                ]
+                            },
+                            "tested_score": "cv_mean_cc",
+                            "observed_score": 0.5743221329438121,
+                            "p_value": 0.000999000999000999,
+                            "n_permutations": 1000,
+                            "n_valid_permutations": 1000,
+                            "null_mean": -0.00693077376829088,
+                            "null_std": 0.16389849327706169,
+                            "alternative": "greater"
+                        },
+                        "mlr": {
+                            "observed_result": {
+                                "mean_accuracy": 0.6989010989010989,
+                                "std_accuracy": 0.11219559576351841,
+                                "chance_accuracy_majority_class": 0.5970149253731343,
+                                "n_samples": 67,
+                                "variables_used": [
+                                    "dEV_neu",
+                                    "ACC",
+                                    "EnglishYearsSpeaking",
+                                    "Q3SevereDepression",
+                                    "Q1_DASSAnxiety",
+                                    "Q2_DERSSTRATEGIES"
+                                ],
+                                "fold_accuracies": [
+                                    0.7142857142857143,
+                                    0.8571428571428571,
+                                    0.7692307692307693,
+                                    0.5384615384615384,
+                                    0.6153846153846154
+                                ],
+                                "n_splits": 5
+                            },
+                            "tested_score": "mean_accuracy",
+                            "observed_score": 0.6989010989010989,
+                            "p_value": 0.006993006993006993,
+                            "n_permutations": 1000,
+                            "n_valid_permutations": 1000,
+                            "null_mean": 0.5523142857142856,
+                            "null_std": 0.05470612626733311,
+                            "alternative": "greater"
+                        }
+                    }
+                },
+                "mlr_selected_variables": {
+                    "selected_variables": [
+                        "Q2_DERSNONACCEPT",
+                        "Q8personal_distress",
+                        "dEV_neu"
+                    ],
+                    "missing_variables": [],
+                    "non_numeric_variables": [],
+                    "variables_tested": [
+                        "Q2_DERSNONACCEPT",
+                        "Q8personal_distress",
+                        "dEV_neu"
+                    ],
+                    "cv_splits_used": 5,
+                    "permutation_tests": {
+                        "cca": {
+                            "observed_result": {
+                                "cc": 0.47524076098464635,
+                                "cv_mean_cc": 0.39816135803498776,
+                                "cv_std_cc": 0.25517922491040773,
+                                "n_samples": 67,
+                                "variables_used": [
+                                    "Q2_DERSNONACCEPT",
+                                    "Q8personal_distress",
+                                    "dEV_neu"
+                                ]
+                            },
+                            "tested_score": "cv_mean_cc",
+                            "observed_score": 0.39816135803498776,
+                            "p_value": 0.000999000999000999,
+                            "n_permutations": 1000,
+                            "n_valid_permutations": 1000,
+                            "null_mean": 0.003116989693436805,
+                            "null_std": 0.17706022169542607,
+                            "alternative": "greater"
+                        },
+                        "mlr": {
+                            "observed_result": {
+                                "mean_accuracy": 0.7472527472527473,
+                                "std_accuracy": 0.055600486332630844,
+                                "chance_accuracy_majority_class": 0.5970149253731343,
+                                "n_samples": 67,
+                                "variables_used": [
+                                    "Q2_DERSNONACCEPT",
+                                    "Q8personal_distress",
+                                    "dEV_neu"
+                                ],
+                                "fold_accuracies": [
+                                    0.7142857142857143,
+                                    0.7142857142857143,
+                                    0.8461538461538461,
+                                    0.7692307692307693,
+                                    0.6923076923076923
+                                ],
+                                "n_splits": 5
+                            },
+                            "tested_score": "mean_accuracy",
+                            "observed_score": 0.7472527472527473,
+                            "p_value": 0.000999000999000999,
+                            "n_permutations": 1000,
+                            "n_valid_permutations": 1000,
+                            "null_mean": 0.5578560439560439,
+                            "null_std": 0.047378108676279326,
+                            "alternative": "greater"
+                        }
+                    }
+                }
+            }
+        },
+        "Cluster_3_results": {
+            "cluster_number": 3,
+            "cluster_col": "Cluster_3",
+            "selected_variable_tests": {
+                "cca_selected_variables": {
+                    "selected_variables": [
+                        "Q3_GHQ28Anxiety_Insomnia",
+                        "Q7F2"
+                    ],
+                    "missing_variables": [],
+                    "non_numeric_variables": [],
+                    "variables_tested": [
+                        "Q3_GHQ28Anxiety_Insomnia",
+                        "Q7F2"
+                    ],
+                    "cv_splits_used": 5,
+                    "permutation_tests": {
+                        "cca": {
+                            "observed_result": {
+                                "cc": 0.4369754135597265,
+                                "cv_mean_cc": 0.4815296926089867,
+                                "cv_std_cc": 0.3298604751987578,
+                                "n_samples": 67,
+                                "variables_used": [
+                                    "Q3_GHQ28Anxiety_Insomnia",
+                                    "Q7F2"
+                                ]
+                            },
+                            "tested_score": "cv_mean_cc",
+                            "observed_score": 0.4815296926089867,
+                            "p_value": 0.001998001998001998,
+                            "n_permutations": 1000,
+                            "n_valid_permutations": 1000,
+                            "null_mean": 0.0006868476226279312,
+                            "null_std": 0.17483898131432235,
+                            "alternative": "greater"
+                        },
+                        "mlr": {
+                            "observed_result": {
+                                "mean_accuracy": 0.4472527472527473,
+                                "std_accuracy": 0.07466060550093637,
+                                "chance_accuracy_majority_class": 0.417910447761194,
+                                "n_samples": 67,
+                                "variables_used": [
+                                    "Q3_GHQ28Anxiety_Insomnia",
+                                    "Q7F2"
+                                ],
+                                "fold_accuracies": [
+                                    0.35714285714285715,
+                                    0.5714285714285714,
+                                    0.46153846153846156,
+                                    0.38461538461538464,
+                                    0.46153846153846156
+                                ],
+                                "n_splits": 5
+                            },
+                            "tested_score": "mean_accuracy",
+                            "observed_score": 0.4472527472527473,
+                            "p_value": 0.10789210789210789,
+                            "n_permutations": 1000,
+                            "n_valid_permutations": 1000,
+                            "null_mean": 0.38265714285714286,
+                            "null_std": 0.04595071042883214,
+                            "alternative": "greater"
+                        }
+                    }
+                },
+                "mlr_selected_variables": {
+                    "selected_variables": [
+                        "Q3_GHQ28Score",
+                        "rmet",
+                        "Q2_DERSScore"
+                    ],
+                    "missing_variables": [],
+                    "non_numeric_variables": [],
+                    "variables_tested": [
+                        "Q3_GHQ28Score",
+                        "rmet",
+                        "Q2_DERSScore"
+                    ],
+                    "cv_splits_used": 5,
+                    "permutation_tests": {
+                        "cca": {
+                            "observed_result": {
+                                "cc": 0.5112682388843532,
+                                "cv_mean_cc": 0.42208301009359017,
+                                "cv_std_cc": 0.2441816587270351,
+                                "n_samples": 67,
+                                "variables_used": [
+                                    "Q3_GHQ28Score",
+                                    "rmet",
+                                    "Q2_DERSScore"
+                                ]
+                            },
+                            "tested_score": "cv_mean_cc",
+                            "observed_score": 0.42208301009359017,
+                            "p_value": 0.001998001998001998,
+                            "n_permutations": 1000,
+                            "n_valid_permutations": 1000,
+                            "null_mean": -0.007133383309350077,
+                            "null_std": 0.17501318842523111,
+                            "alternative": "greater"
+                        },
+                        "mlr": {
+                            "observed_result": {
+                                "mean_accuracy": 0.5516483516483516,
+                                "std_accuracy": 0.047975560336138645,
+                                "chance_accuracy_majority_class": 0.417910447761194,
+                                "n_samples": 67,
+                                "variables_used": [
+                                    "Q3_GHQ28Score",
+                                    "rmet",
+                                    "Q2_DERSScore"
+                                ],
+                                "fold_accuracies": [
+                                    0.5,
+                                    0.6428571428571429,
+                                    0.5384615384615384,
+                                    0.5384615384615384,
+                                    0.5384615384615384
+                                ],
+                                "n_splits": 5
+                            },
+                            "tested_score": "mean_accuracy",
+                            "observed_score": 0.5516483516483516,
+                            "p_value": 0.001998001998001998,
+                            "n_permutations": 1000,
+                            "n_valid_permutations": 1000,
+                            "null_mean": 0.373089010989011,
+                            "null_std": 0.05563793757692923,
+                            "alternative": "greater"
+                        }
+                    }
+                }
+            }
+        },
+        "Cluster_4_results": {
+            "cluster_number": 4,
+            "cluster_col": "Cluster_4",
+            "selected_variable_tests": {
+                "cca_selected_variables": {
+                    "selected_variables": [
+                        "Q8Cog_em",
+                        "Q7F2",
+                        "spanForward",
+                        "Q2_DERSAWARENESS"
+                    ],
+                    "missing_variables": [],
+                    "non_numeric_variables": [],
+                    "variables_tested": [
+                        "Q8Cog_em",
+                        "Q7F2",
+                        "spanForward",
+                        "Q2_DERSAWARENESS"
+                    ],
+                    "cv_splits_used": 5,
+                    "permutation_tests": {
+                        "cca": {
+                            "observed_result": {
+                                "cc": 0.519830477534424,
+                                "cv_mean_cc": 0.5371070648057069,
+                                "cv_std_cc": 0.2595765082474349,
+                                "n_samples": 67,
+                                "variables_used": [
+                                    "Q8Cog_em",
+                                    "Q7F2",
+                                    "spanForward",
+                                    "Q2_DERSAWARENESS"
+                                ]
+                            },
+                            "tested_score": "cv_mean_cc",
+                            "observed_score": 0.5371070648057069,
+                            "p_value": 0.000999000999000999,
+                            "n_permutations": 1000,
+                            "n_valid_permutations": 1000,
+                            "null_mean": -0.005370761607755068,
+                            "null_std": 0.17841840275288257,
+                            "alternative": "greater"
+                        },
+                        "mlr": {
+                            "observed_result": {
+                                "mean_accuracy": 0.2846153846153846,
+                                "std_accuracy": 0.036180390402537,
+                                "chance_accuracy_majority_class": 0.31343283582089554,
+                                "n_samples": 67,
+                                "variables_used": [
+                                    "Q8Cog_em",
+                                    "Q7F2",
+                                    "spanForward",
+                                    "Q2_DERSAWARENESS"
+                                ],
+                                "fold_accuracies": [
+                                    0.2857142857142857,
+                                    0.21428571428571427,
+                                    0.3076923076923077,
+                                    0.3076923076923077,
+                                    0.3076923076923077
+                                ],
+                                "n_splits": 5
+                            },
+                            "tested_score": "mean_accuracy",
+                            "observed_score": 0.2846153846153846,
+                            "p_value": 0.43156843156843155,
+                            "n_permutations": 1000,
+                            "n_valid_permutations": 1000,
+                            "null_mean": 0.27514065934065934,
+                            "null_std": 0.06159860793048455,
+                            "alternative": "greater"
+                        }
+                    }
+                },
+                "mlr_selected_variables": {
+                    "selected_variables": [
+                        "Order",
+                        "Relationshipstatus",
+                        "Q7F1"
+                    ],
+                    "missing_variables": [],
+                    "non_numeric_variables": [],
+                    "variables_tested": [
+                        "Order",
+                        "Relationshipstatus",
+                        "Q7F1"
+                    ],
+                    "cv_splits_used": 5,
+                    "permutation_tests": {
+                        "cca": {
+                            "observed_result": {
+                                "cc": 0.4039499730249088,
+                                "cv_mean_cc": 0.11712450600718041,
+                                "cv_std_cc": 0.1041168361339541,
+                                "n_samples": 67,
+                                "variables_used": [
+                                    "Order",
+                                    "Relationshipstatus",
+                                    "Q7F1"
+                                ]
+                            },
+                            "tested_score": "cv_mean_cc",
+                            "observed_score": 0.11712450600718041,
+                            "p_value": 0.2867132867132867,
+                            "n_permutations": 1000,
+                            "n_valid_permutations": 1000,
+                            "null_mean": 0.0011655314226937477,
+                            "null_std": 0.18195151985302932,
+                            "alternative": "greater"
+                        },
+                        "mlr": {
+                            "observed_result": {
+                                "mean_accuracy": 0.49230769230769234,
+                                "std_accuracy": 0.07457969011409737,
+                                "chance_accuracy_majority_class": 0.31343283582089554,
+                                "n_samples": 67,
+                                "variables_used": [
+                                    "Order",
+                                    "Relationshipstatus",
+                                    "Q7F1"
+                                ],
+                                "fold_accuracies": [
+                                    0.5,
+                                    0.5,
+                                    0.46153846153846156,
+                                    0.38461538461538464,
+                                    0.6153846153846154
+                                ],
+                                "n_splits": 5
+                            },
+                            "tested_score": "mean_accuracy",
+                            "observed_score": 0.49230769230769234,
+                            "p_value": 0.000999000999000999,
+                            "n_permutations": 1000,
+                            "n_valid_permutations": 1000,
+                            "null_mean": 0.2871230769230769,
+                            "null_std": 0.058808341716359326,
+                            "alternative": "greater"
+                        }
+                    }
+                }
+            }
+        },
+        "Cluster_5_results": {
+            "cluster_number": 5,
+            "cluster_col": "Cluster_5",
+            "selected_variable_tests": {
+                "cca_selected_variables": {
+                    "selected_variables": [
+                        "NeuroImpairment",
+                        "Age",
+                        "Q2_DERSAWARENESS",
+                        "EV_neg",
+                        "YearsEducation"
+                    ],
+                    "missing_variables": [],
+                    "non_numeric_variables": [],
+                    "variables_tested": [
+                        "NeuroImpairment",
+                        "Age",
+                        "Q2_DERSAWARENESS",
+                        "EV_neg",
+                        "YearsEducation"
+                    ],
+                    "cv_splits_used": 4,
+                    "permutation_tests": {
+                        "cca": {
+                            "observed_result": {
+                                "cc": 0.582656611912026,
+                                "cv_mean_cc": 0.5679871368418915,
+                                "cv_std_cc": 0.0925985756800432,
+                                "n_samples": 67,
+                                "variables_used": [
+                                    "NeuroImpairment",
+                                    "Age",
+                                    "Q2_DERSAWARENESS",
+                                    "EV_neg",
+                                    "YearsEducation"
+                                ]
+                            },
+                            "tested_score": "cv_mean_cc",
+                            "observed_score": 0.5679871368418915,
+                            "p_value": 0.000999000999000999,
+                            "n_permutations": 1000,
+                            "n_valid_permutations": 1000,
+                            "null_mean": 0.00012747224818228454,
+                            "null_std": 0.1645666404382793,
+                            "alternative": "greater"
+                        },
+                        "mlr": {
+                            "observed_result": {
+                                "mean_accuracy": 0.28308823529411764,
+                                "std_accuracy": 0.045771689698488,
+                                "chance_accuracy_majority_class": 0.3283582089552239,
+                                "n_samples": 67,
+                                "variables_used": [
+                                    "NeuroImpairment",
+                                    "Age",
+                                    "Q2_DERSAWARENESS",
+                                    "EV_neg",
+                                    "YearsEducation"
+                                ],
+                                "fold_accuracies": [
+                                    0.29411764705882354,
+                                    0.23529411764705882,
+                                    0.35294117647058826,
+                                    0.25
+                                ],
+                                "n_splits": 4
+                            },
+                            "tested_score": "mean_accuracy",
+                            "observed_score": 0.28308823529411764,
+                            "p_value": 0.42657342657342656,
+                            "n_permutations": 1000,
+                            "n_valid_permutations": 1000,
+                            "null_mean": 0.26974448529411765,
+                            "null_std": 0.05774709953990252,
+                            "alternative": "greater"
+                        }
+                    }
+                },
+                "mlr_selected_variables": {
+                    "selected_variables": [
+                        "dER_neu",
+                        "NeuroImpairment"
+                    ],
+                    "missing_variables": [],
+                    "non_numeric_variables": [],
+                    "variables_tested": [
+                        "dER_neu",
+                        "NeuroImpairment"
+                    ],
+                    "cv_splits_used": 4,
+                    "permutation_tests": {
+                        "cca": {
+                            "observed_result": {
+                                "cc": 0.453245624966058,
+                                "cv_mean_cc": 0.17238399507971036,
+                                "cv_std_cc": 0.32018297874441637,
+                                "n_samples": 67,
+                                "variables_used": [
+                                    "dER_neu",
+                                    "NeuroImpairment"
+                                ]
+                            },
+                            "tested_score": "cv_mean_cc",
+                            "observed_score": 0.17238399507971036,
+                            "p_value": 0.16383616383616384,
+                            "n_permutations": 1000,
+                            "n_valid_permutations": 1000,
+                            "null_mean": -0.0012831792001544151,
+                            "null_std": 0.16826111075696976,
+                            "alternative": "greater"
+                        },
+                        "mlr": {
+                            "observed_result": {
+                                "mean_accuracy": 0.4788602941176471,
+                                "std_accuracy": 0.07980460939838233,
+                                "chance_accuracy_majority_class": 0.3283582089552239,
+                                "n_samples": 67,
+                                "variables_used": [
+                                    "dER_neu",
+                                    "NeuroImpairment"
+                                ],
+                                "fold_accuracies": [
+                                    0.35294117647058826,
+                                    0.47058823529411764,
+                                    0.5294117647058824,
+                                    0.5625
+                                ],
+                                "n_splits": 4
+                            },
+                            "tested_score": "mean_accuracy",
+                            "observed_score": 0.4788602941176471,
+                            "p_value": 0.000999000999000999,
+                            "n_permutations": 1000,
+                            "n_valid_permutations": 1000,
+                            "null_mean": 0.29954595588235294,
+                            "null_std": 0.044037123626843616,
+                            "alternative": "greater"
+                        }
+                    }
+                }
+            }
+        },
+        "Cluster_6_results": {
+            "cluster_number": 6,
+            "cluster_col": "Cluster_6",
+            "selected_variable_tests": {
+                "cca_selected_variables": {
+                    "selected_variables": [
+                        "Q8emo_em",
+                        "Q4Anxiety",
+                        "Q1_DASSAnxiety",
+                        "mean_RT",
+                        "Q1_DASSStress",
+                        "rmet"
+                    ],
+                    "missing_variables": [],
+                    "non_numeric_variables": [],
+                    "variables_tested": [
+                        "Q8emo_em",
+                        "Q4Anxiety",
+                        "Q1_DASSAnxiety",
+                        "mean_RT",
+                        "Q1_DASSStress",
+                        "rmet"
+                    ],
+                    "cv_splits_used": 5,
+                    "permutation_tests": {
+                        "cca": {
+                            "observed_result": {
+                                "cc": 0.6822782286816804,
+                                "cv_mean_cc": 0.6504456465408996,
+                                "cv_std_cc": 0.1335817995009133,
+                                "n_samples": 67,
+                                "variables_used": [
+                                    "Q8emo_em",
+                                    "Q4Anxiety",
+                                    "Q1_DASSAnxiety",
+                                    "mean_RT",
+                                    "Q1_DASSStress",
+                                    "rmet"
+                                ]
+                            },
+                            "tested_score": "cv_mean_cc",
+                            "observed_score": 0.6504456465408996,
+                            "p_value": 0.000999000999000999,
+                            "n_permutations": 1000,
+                            "n_valid_permutations": 1000,
+                            "null_mean": -0.006575889847767982,
+                            "null_std": 0.17872291473833574,
+                            "alternative": "greater"
+                        },
+                        "mlr": {
+                            "observed_result": {
+                                "mean_accuracy": 0.25274725274725274,
+                                "std_accuracy": 0.10608807372437072,
+                                "chance_accuracy_majority_class": 0.26865671641791045,
+                                "n_samples": 67,
+                                "variables_used": [
+                                    "Q8emo_em",
+                                    "Q4Anxiety",
+                                    "Q1_DASSAnxiety",
+                                    "mean_RT",
+                                    "Q1_DASSStress",
+                                    "rmet"
+                                ],
+                                "fold_accuracies": [
+                                    0.42857142857142855,
+                                    0.14285714285714285,
+                                    0.15384615384615385,
+                                    0.3076923076923077,
+                                    0.23076923076923078
+                                ],
+                                "n_splits": 5
+                            },
+                            "tested_score": "mean_accuracy",
+                            "observed_score": 0.25274725274725274,
+                            "p_value": 0.15384615384615385,
+                            "n_permutations": 1000,
+                            "n_valid_permutations": 1000,
+                            "null_mean": 0.1976945054945055,
+                            "null_std": 0.05153366265528075,
+                            "alternative": "greater"
+                        }
+                    }
+                },
+                "mlr_selected_variables": {
+                    "selected_variables": [
+                        "rCMA",
+                        "PsychDiagnosis"
+                    ],
+                    "missing_variables": [],
+                    "non_numeric_variables": [],
+                    "variables_tested": [
+                        "rCMA",
+                        "PsychDiagnosis"
+                    ],
+                    "cv_splits_used": 5,
+                    "permutation_tests": {
+                        "cca": {
+                            "observed_result": {
+                                "cc": 0.3934746421014996,
+                                "cv_mean_cc": 0.0734705806391699,
+                                "cv_std_cc": 0.2703699640573926,
+                                "n_samples": 67,
+                                "variables_used": [
+                                    "rCMA",
+                                    "PsychDiagnosis"
+                                ]
+                            },
+                            "tested_score": "cv_mean_cc",
+                            "observed_score": 0.0734705806391699,
+                            "p_value": 0.35364635364635366,
+                            "n_permutations": 1000,
+                            "n_valid_permutations": 1000,
+                            "null_mean": -0.001620802579128795,
+                            "null_std": 0.17736681650671088,
+                            "alternative": "greater"
+                        },
+                        "mlr": {
+                            "observed_result": {
+                                "mean_accuracy": 0.37252747252747254,
+                                "std_accuracy": 0.03968235183575337,
+                                "chance_accuracy_majority_class": 0.26865671641791045,
+                                "n_samples": 67,
+                                "variables_used": [
+                                    "rCMA",
+                                    "PsychDiagnosis"
+                                ],
+                                "fold_accuracies": [
+                                    0.35714285714285715,
+                                    0.42857142857142855,
+                                    0.38461538461538464,
+                                    0.38461538461538464,
+                                    0.3076923076923077
+                                ],
+                                "n_splits": 5
+                            },
+                            "tested_score": "mean_accuracy",
+                            "observed_score": 0.37252747252747254,
+                            "p_value": 0.001998001998001998,
+                            "n_permutations": 1000,
+                            "n_valid_permutations": 1000,
+                            "null_mean": 0.24131538461538463,
+                            "null_std": 0.038306163256856395,
+                            "alternative": "greater"
+                        }
+                    }
+                }
+            }
+        },
+        "Cluster_7_results": {
+            "cluster_number": 7,
+            "cluster_col": "Cluster_7",
+            "selected_variable_tests": {},
+            "error": "Smallest cluster has fewer than 2 subjects (min_cluster_size=1)."
+        },
+        "Cluster_8_results": {
+            "cluster_number": 8,
+            "cluster_col": "Cluster_8",
+            "selected_variable_tests": {
+                "cca_selected_variables": {
+                    "selected_variables": [
+                        "Q8IRI",
+                        "Q3SevereDepression",
+                        "lSFA",
+                        "CSF",
+                        "lBLA"
+                    ],
+                    "missing_variables": [],
+                    "non_numeric_variables": [],
+                    "variables_tested": [
+                        "Q8IRI",
+                        "Q3SevereDepression",
+                        "lSFA",
+                        "CSF",
+                        "lBLA"
+                    ],
+                    "cv_splits_used": 3,
+                    "permutation_tests": {
+                        "cca": {
+                            "observed_result": {
+                                "cc": 0.6520820150588257,
+                                "cv_mean_cc": 0.5700880387467463,
+                                "cv_std_cc": 0.14365158163129715,
+                                "n_samples": 67,
+                                "variables_used": [
+                                    "Q8IRI",
+                                    "Q3SevereDepression",
+                                    "lSFA",
+                                    "CSF",
+                                    "lBLA"
+                                ]
+                            },
+                            "tested_score": "cv_mean_cc",
+                            "observed_score": 0.5700880387467463,
+                            "p_value": 0.000999000999000999,
+                            "n_permutations": 1000,
+                            "n_valid_permutations": 1000,
+                            "null_mean": -0.0056099237085990095,
+                            "null_std": 0.15208957859954986,
+                            "alternative": "greater"
+                        },
+                        "mlr": {
+                            "observed_result": {
+                                "mean_accuracy": 0.2246376811594203,
+                                "std_accuracy": 0.040383747362303296,
+                                "chance_accuracy_majority_class": 0.23880597014925373,
+                                "n_samples": 67,
+                                "variables_used": [
+                                    "Q8IRI",
+                                    "Q3SevereDepression",
+                                    "lSFA",
+                                    "CSF",
+                                    "lBLA"
+                                ],
+                                "fold_accuracies": [
+                                    0.17391304347826086,
+                                    0.2727272727272727,
+                                    0.22727272727272727
+                                ],
+                                "n_splits": 3
+                            },
+                            "tested_score": "mean_accuracy",
+                            "observed_score": 0.2246376811594203,
+                            "p_value": 0.14585414585414586,
+                            "n_permutations": 1000,
+                            "n_valid_permutations": 1000,
+                            "null_mean": 0.17546903820816864,
+                            "null_std": 0.04773649384321968,
+                            "alternative": "greater"
+                        }
+                    }
+                },
+                "mlr_selected_variables": {
+                    "selected_variables": [
+                        "rCMA",
+                        "Q8Cog_em",
+                        "Q3_GHQ28Anxiety_Insomnia"
+                    ],
+                    "missing_variables": [],
+                    "non_numeric_variables": [],
+                    "variables_tested": [
+                        "rCMA",
+                        "Q8Cog_em",
+                        "Q3_GHQ28Anxiety_Insomnia"
+                    ],
+                    "cv_splits_used": 3,
+                    "permutation_tests": {
+                        "cca": {
+                            "observed_result": {
+                                "cc": 0.5103483793482476,
+                                "cv_mean_cc": 0.18215875984537502,
+                                "cv_std_cc": 0.05875571599840662,
+                                "n_samples": 67,
+                                "variables_used": [
+                                    "rCMA",
+                                    "Q8Cog_em",
+                                    "Q3_GHQ28Anxiety_Insomnia"
+                                ]
+                            },
+                            "tested_score": "cv_mean_cc",
+                            "observed_score": 0.18215875984537502,
+                            "p_value": 0.13786213786213786,
+                            "n_permutations": 1000,
+                            "n_valid_permutations": 1000,
+                            "null_mean": -0.005423021122485056,
+                            "null_std": 0.16398023856200586,
+                            "alternative": "greater"
+                        },
+                        "mlr": {
+                            "observed_result": {
+                                "mean_accuracy": 0.4044795783926219,
+                                "std_accuracy": 0.07994119324992038,
+                                "chance_accuracy_majority_class": 0.23880597014925373,
+                                "n_samples": 67,
+                                "variables_used": [
+                                    "rCMA",
+                                    "Q8Cog_em",
+                                    "Q3_GHQ28Anxiety_Insomnia"
+                                ],
+                                "fold_accuracies": [
+                                    0.30434782608695654,
+                                    0.5,
+                                    0.4090909090909091
+                                ],
+                                "n_splits": 3
+                            },
+                            "tested_score": "mean_accuracy",
+                            "observed_score": 0.4044795783926219,
+                            "p_value": 0.000999000999000999,
+                            "n_permutations": 1000,
+                            "n_valid_permutations": 1000,
+                            "null_mean": 0.18589262187088276,
+                            "null_std": 0.0458039348085728,
+                            "alternative": "greater"
+                        }
+                    }
+                }
+            }
+        },
+        "Cluster_9_results": {
+            "cluster_number": 9,
+            "cluster_col": "Cluster_9",
+            "selected_variable_tests": {},
+            "error": "Smallest cluster has fewer than 2 subjects (min_cluster_size=1)."
+        },
+        "Cluster_10_results": {
+            "cluster_number": 10,
+            "cluster_col": "Cluster_10",
+            "selected_variable_tests": {},
+            "error": "Smallest cluster has fewer than 2 subjects (min_cluster_size=1)."
+        }
+    }
+}
