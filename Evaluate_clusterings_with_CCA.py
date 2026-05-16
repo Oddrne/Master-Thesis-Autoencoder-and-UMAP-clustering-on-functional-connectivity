@@ -5,6 +5,9 @@ from sklearn.cross_decomposition import CCA
 from sklearn.impute import SimpleImputer
 from sklearn.model_selection import KFold
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
+import json
+import re
+from pathlib import Path
 
 
 # ============================================================
@@ -769,3 +772,404 @@ def full_cca_selection_subject_pipeline(
         "cca_selected_variables": selected_variables,
         "cca_removed_subjects": removed_subjects,
     }
+    
+    
+
+# ============================================================
+# 10. CCA using MLR-selected variables from an existing JSON
+# ============================================================
+
+def create_cca_from_mlr_selected_variables_json(
+    data: pd.DataFrame,
+    input_json_path: str | Path,
+    output_json_path: str | Path,
+    cluster_col_template: str = "Cluster_{k}",
+    cv_splits: int = 5,
+    random_state: int = 42,
+    selected_variables_key: str = "mlr_selected_variables",
+    print_results: bool = True,
+):
+    """
+    Read MLR-selected variables from an existing results JSON file and run CCA
+    using only those variables.
+
+    This function creates a new JSON file. It does not modify, append to, or
+    overwrite the input JSON file.
+
+    Parameters
+    ----------
+    data : pd.DataFrame
+        DataFrame containing the cluster label columns and behavioural variables.
+
+    input_json_path : str | Path
+        Existing JSON file containing mlr_selected_variables for each cluster.
+
+    output_json_path : str | Path
+        New JSON file to save the CCA results to.
+
+    cluster_col_template : str
+        Template for cluster columns in `data`.
+
+        Default assumes columns named:
+            Cluster_2, Cluster_3, ..., Cluster_10
+
+        Example alternatives:
+            "cluster_{k}"
+            "DCEC_{k}_labels"
+
+    cv_splits : int
+        Number of folds for cross-validated CCA.
+
+    random_state : int
+        Random seed for cross-validation.
+
+    selected_variables_key : str
+        JSON key containing the MLR-selected variables.
+
+    print_results : bool
+        Whether to print progress.
+
+    Returns
+    -------
+    new_results : dict
+        New JSON-compatible results dictionary.
+
+    summary_df : pd.DataFrame
+        Summary table with one row per cluster.
+    """
+
+    input_json_path = Path(input_json_path)
+    output_json_path = Path(output_json_path)
+
+    if input_json_path.resolve() == output_json_path.resolve():
+        raise ValueError(
+            "input_json_path and output_json_path are the same. "
+            "Choose a different output path to avoid overwriting the original JSON."
+        )
+
+    with input_json_path.open("r", encoding="utf-8") as f:
+        old_results = json.load(f)
+
+    def _cluster_number_from_key(key: str) -> int | None:
+        match = re.search(r"Cluster_(\d+)_results", key)
+        if match is None:
+            return None
+        return int(match.group(1))
+
+    def _json_safe(obj):
+        """
+        Convert NumPy/Pandas values to JSON-safe Python types.
+        """
+        if isinstance(obj, dict):
+            return {str(k): _json_safe(v) for k, v in obj.items()}
+        if isinstance(obj, list):
+            return [_json_safe(v) for v in obj]
+        if isinstance(obj, tuple):
+            return [_json_safe(v) for v in obj]
+        if isinstance(obj, np.ndarray):
+            return _json_safe(obj.tolist())
+        if isinstance(obj, np.integer):
+            return int(obj)
+        if isinstance(obj, np.floating):
+            if np.isnan(obj):
+                return None
+            return float(obj)
+        if isinstance(obj, float) and np.isnan(obj):
+            return None
+        return obj
+
+    new_results = {
+        "source_json": str(input_json_path),
+        "analysis": "CCA performed using MLR-selected variables",
+        "cv_splits": cv_splits,
+        "random_state": random_state,
+        "cluster_col_template": cluster_col_template,
+        "results": {}
+    }
+
+    
+    
+    summary_rows = []
+
+    cluster_items = []
+    for cluster_key, cluster_result in old_results.items():
+        k = _cluster_number_from_key(cluster_key)
+        if k is not None:
+            cluster_items.append((k, cluster_key, cluster_result))
+
+    cluster_items = sorted(cluster_items, key=lambda x: x[0])
+
+    for k, old_cluster_key, old_cluster_result in cluster_items:
+        new_cluster_key = f"Cluster_{k}_results"
+        cluster_col = cluster_col_template.format(k=k)
+
+        mlr_selected_variables = old_cluster_result.get(selected_variables_key, [])
+        mlr_selected_variables = list(dict.fromkeys(mlr_selected_variables))
+
+        missing_variables = [
+            var for var in mlr_selected_variables
+            if var not in data.columns
+        ]
+
+        available_variables = [
+            var for var in mlr_selected_variables
+            if var in data.columns
+        ]
+
+        non_numeric_variables = [
+            var for var in available_variables
+            if not pd.api.types.is_numeric_dtype(data[var])
+        ]
+
+        if print_results:
+            print(f"\n=== Cluster {k}: CCA using MLR-selected variables ===")
+            print(f"Cluster column: {cluster_col}")
+            print(f"MLR-selected variables: {mlr_selected_variables}")
+
+            if missing_variables:
+                print(f"Missing variables skipped: {missing_variables}")
+
+            if non_numeric_variables:
+                print(f"Non-numeric variables ignored by CCA: {non_numeric_variables}")
+
+        cluster_output = {
+            "cluster_number": k,
+            "cluster_col": cluster_col,
+            "mlr_selected_variables": mlr_selected_variables,
+            "missing_variables": missing_variables,
+            "non_numeric_variables": non_numeric_variables,
+        }
+
+        if cluster_col not in data.columns:
+            error_msg = f"Cluster column '{cluster_col}' not found in data."
+
+            cluster_output["cca_mlr_selected_variables_results"] = {
+                "error": error_msg,
+                "cc": None,
+                "cv_mean_cc": None,
+                "cv_std_cc": None,
+                "n_samples": None,
+                "variables_used": [],
+            }
+
+            if print_results:
+                print(f"Skipping: {error_msg}")
+
+        elif not available_variables:
+            error_msg = "None of the MLR-selected variables were found in data."
+
+            cluster_output["cca_mlr_selected_variables_results"] = {
+                "error": error_msg,
+                "cc": None,
+                "cv_mean_cc": None,
+                "cv_std_cc": None,
+                "n_samples": None,
+                "variables_used": [],
+            }
+
+            if print_results:
+                print(f"Skipping: {error_msg}")
+
+        else:
+            try:
+                cca_result = evaluate_cca_cv(
+                    data=data,
+                    cluster_col=cluster_col,
+                    variable_cols=available_variables,
+                    cv_splits=cv_splits,
+                    random_state=random_state,
+                )
+
+                cluster_output["cca_mlr_selected_variables_results"] = {
+                    "cc": cca_result["cc"],
+                    "cv_mean_cc": cca_result["cv_mean_cc"],
+                    "cv_std_cc": cca_result["cv_std_cc"],
+                    "n_samples": cca_result["n_samples"],
+                    "variables_used": cca_result["variables_used"],
+                    "error": None,
+                }
+
+                if print_results:
+                    print(f"Variables used: {cca_result['variables_used']}")
+                    print(f"n_samples:     {cca_result['n_samples']}")
+                    print(f"CC1:           {cca_result['cc']:.4f}")
+                    print(f"Mean CV CC1:   {cca_result['cv_mean_cc']:.4f}")
+                    print(f"Std CV CC1:    {cca_result['cv_std_cc']:.4f}")
+
+            except Exception as e:
+                error_msg = str(e)
+
+                cluster_output["cca_mlr_selected_variables_results"] = {
+                    "error": error_msg,
+                    "cc": None,
+                    "cv_mean_cc": None,
+                    "cv_std_cc": None,
+                    "n_samples": None,
+                    "variables_used": [],
+                }
+
+                if print_results:
+                    print(f"CCA failed: {error_msg}")
+
+        new_results["results"][new_cluster_key] = cluster_output
+
+        cca_output = cluster_output["cca_mlr_selected_variables_results"]
+
+        summary_rows.append({
+            "cluster_number": k,
+            "cluster_col": cluster_col,
+            "cc": cca_output["cc"],
+            "cv_mean_cc": cca_output["cv_mean_cc"],
+            "cv_std_cc": cca_output["cv_std_cc"],
+            "n_samples": cca_output["n_samples"],
+            "mlr_selected_variables": mlr_selected_variables,
+            "variables_used": cca_output["variables_used"],
+            "missing_variables": missing_variables,
+            "non_numeric_variables": non_numeric_variables,
+            "error": cca_output["error"],
+        })
+
+    summary_df = pd.DataFrame(summary_rows)
+
+    with output_json_path.open("w", encoding="utf-8") as f:
+        json.dump(_json_safe(new_results), f, indent=4)
+
+    if print_results:
+        print(f"\nSaved new CCA results JSON to: {output_json_path}")
+
+    return new_results, summary_df
+
+
+def permutation_test_cca_cv(
+    data: pd.DataFrame,
+    cluster_col: str,
+    variable_cols: list[str],
+    cv_splits: int = 5,
+    random_state: int = 42,
+    n_permutations: int = 1000,
+    score_key: str = "cv_mean_cc",
+    alternative: str = "greater",
+    print_results: bool = True,
+):
+    """
+    Permutation test for CCA.
+
+    Tests whether the observed CCA score is higher than expected when the
+    cluster labels are randomly shuffled.
+
+    Parameters
+    ----------
+    score_key : str
+        Which CCA score to test.
+        Recommended:
+            "cv_mean_cc"
+
+        Alternative:
+            "cc"
+
+    alternative : str
+        Usually "greater", because stronger CCA association means higher score.
+
+    Returns
+    -------
+    dict with observed score, null distribution and p-value.
+    """
+
+    def permutation_p_value(
+        observed_score: float,
+        null_scores: list[float] | np.ndarray,
+        alternative: str = "greater",
+    ):
+        """
+        Compute permutation p-value.
+
+        alternative:
+            "greater"  -> p = P(null >= observed)
+            "less"     -> p = P(null <= observed)
+            "two-sided" -> p = P(abs(null) >= abs(observed))
+        """
+        null_scores = np.asarray(null_scores, dtype=float)
+        null_scores = null_scores[~np.isnan(null_scores)]
+
+        if len(null_scores) == 0:
+            return np.nan
+
+        if alternative == "greater":
+            count = np.sum(null_scores >= observed_score)
+        elif alternative == "less":
+            count = np.sum(null_scores <= observed_score)
+        elif alternative == "two-sided":
+            count = np.sum(np.abs(null_scores) >= abs(observed_score))
+        else:
+            raise ValueError("alternative must be 'greater', 'less', or 'two-sided'.")
+
+        return float((count + 1) / (len(null_scores) + 1))
+        
+    observed_result = evaluate_cca_cv(
+        data=data,
+        cluster_col=cluster_col,
+        variable_cols=variable_cols,
+        cv_splits=cv_splits,
+        random_state=random_state,
+    )
+
+    observed_score = observed_result[score_key]
+
+    rng = np.random.default_rng(random_state)
+    null_scores = []
+
+    valid_mask = data[cluster_col].notna()
+
+    for perm_idx in range(n_permutations):
+        permuted_data = data.copy()
+
+        original_labels = permuted_data.loc[valid_mask, cluster_col].to_numpy()
+        permuted_labels = rng.permutation(original_labels)
+
+        permuted_data.loc[valid_mask, cluster_col] = permuted_labels
+
+        try:
+            perm_result = evaluate_cca_cv(
+                data=permuted_data,
+                cluster_col=cluster_col,
+                variable_cols=variable_cols,
+                cv_splits=cv_splits,
+                random_state=random_state,
+            )
+
+            null_scores.append(perm_result[score_key])
+
+        except Exception:
+            null_scores.append(np.nan)
+
+    null_scores = np.asarray(null_scores, dtype=float)
+
+    p_value = permutation_p_value(
+        observed_score=observed_score,
+        null_scores=null_scores,
+        alternative=alternative,
+    )
+
+    result = {
+        "observed_result": observed_result,
+        "tested_score": score_key,
+        "observed_score": float(observed_score),
+        "p_value": float(p_value) if not np.isnan(p_value) else None,
+        "n_permutations": int(n_permutations),
+        "n_valid_permutations": int(np.sum(~np.isnan(null_scores))),
+        "null_mean": float(np.nanmean(null_scores)),
+        "null_std": float(np.nanstd(null_scores)),
+        "null_scores": null_scores.tolist(),
+        "alternative": alternative,
+    }
+
+    if print_results:
+        print(f"\n=== Permutation test CCA: {cluster_col} ===")
+        print(f"Variables: {variable_cols}")
+        print(f"Tested score: {score_key}")
+        print(f"Observed score: {observed_score:.4f}")
+        print(f"Null mean: {result['null_mean']:.4f}")
+        print(f"Null std: {result['null_std']:.4f}")
+        print(f"p-value: {p_value:.4f}")
+
+    return result
