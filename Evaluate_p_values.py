@@ -220,7 +220,7 @@ def create_permutation_tests_for_selected_variables_json(
                 "selected_variables_key": None,
                 "test": None,
                 "observed_score": np.nan,
-                "p_value": np.nan,
+                "p_value_fdr_bh": np.nan,
                 "null_mean": np.nan,
                 "null_std": np.nan,
                 "n_valid_permutations": 0,
@@ -247,7 +247,7 @@ def create_permutation_tests_for_selected_variables_json(
                 "selected_variables_key": None,
                 "test": None,
                 "observed_score": np.nan,
-                "p_value": np.nan,
+                "p_value_fdr_bh": np.nan,
                 "null_mean": np.nan,
                 "null_std": np.nan,
                 "n_valid_permutations": 0,
@@ -278,7 +278,7 @@ def create_permutation_tests_for_selected_variables_json(
                 "selected_variables_key": None,
                 "test": None,
                 "observed_score": np.nan,
-                "p_value": np.nan,
+                "p_value_fdr_bh": np.nan,
                 "null_mean": np.nan,
                 "null_std": np.nan,
                 "n_valid_permutations": 0,
@@ -347,7 +347,7 @@ def create_permutation_tests_for_selected_variables_json(
                     "selected_variables_key": selected_key,
                     "test": None,
                     "observed_score": np.nan,
-                    "p_value": np.nan,
+                    "p_value_fdr_bh": np.nan,
                     "null_mean": np.nan,
                     "null_std": np.nan,
                     "n_valid_permutations": 0,
@@ -383,7 +383,7 @@ def create_permutation_tests_for_selected_variables_json(
                         "test": "cca",
                         "tested_score": cca_score_key,
                         "observed_score": cca_perm["observed_score"],
-                        "p_value": cca_perm["p_value"],
+                        "p_value_fdr_bh": cca_perm["p_value_fdr_bh"],
                         "null_mean": cca_perm["null_mean"],
                         "null_std": cca_perm["null_std"],
                         "n_valid_permutations": cca_perm["n_valid_permutations"],
@@ -394,7 +394,7 @@ def create_permutation_tests_for_selected_variables_json(
                     if print_results:
                         print(
                             f"CCA: observed={cca_perm['observed_score']:.4f}, "
-                            f"p={cca_perm['p_value']:.4f}"
+                            f"p={cca_perm['p_value_fdr_bh']:.4f}"
                         )
 
                 except Exception as e:
@@ -402,7 +402,7 @@ def create_permutation_tests_for_selected_variables_json(
 
                     selection_output["permutation_tests"]["cca"] = {
                         "error": error_msg,
-                        "p_value": None,
+                        "p_value_fdr_bh": None,
                     }
 
                     summary_rows.append({
@@ -412,7 +412,7 @@ def create_permutation_tests_for_selected_variables_json(
                         "test": "cca",
                         "tested_score": cca_score_key,
                         "observed_score": np.nan,
-                        "p_value": np.nan,
+                        "p_value_fdr_bh": np.nan,
                         "null_mean": np.nan,
                         "null_std": np.nan,
                         "n_valid_permutations": 0,
@@ -448,7 +448,7 @@ def create_permutation_tests_for_selected_variables_json(
                         "test": "mlr",
                         "tested_score": mlr_score_key,
                         "observed_score": mlr_perm["observed_score"],
-                        "p_value": mlr_perm["p_value"],
+                        "p_value_fdr_bh": mlr_perm["p_value_fdr_bh"],
                         "null_mean": mlr_perm["null_mean"],
                         "null_std": mlr_perm["null_std"],
                         "n_valid_permutations": mlr_perm["n_valid_permutations"],
@@ -459,7 +459,7 @@ def create_permutation_tests_for_selected_variables_json(
                     if print_results:
                         print(
                             f"MLR: observed={mlr_perm['observed_score']:.4f}, "
-                            f"p={mlr_perm['p_value']:.4f}"
+                            f"p={mlr_perm['p_value_fdr_bh']:.4f}"
                         )
 
                 except Exception as e:
@@ -467,7 +467,7 @@ def create_permutation_tests_for_selected_variables_json(
 
                     selection_output["permutation_tests"]["mlr"] = {
                         "error": error_msg,
-                        "p_value": None,
+                        "p_value_fdr_bh": None,
                     }
 
                     summary_rows.append({
@@ -477,7 +477,7 @@ def create_permutation_tests_for_selected_variables_json(
                         "test": "mlr",
                         "tested_score": mlr_score_key,
                         "observed_score": np.nan,
-                        "p_value": np.nan,
+                        "p_value_fdr_bh": np.nan,
                         "null_mean": np.nan,
                         "null_std": np.nan,
                         "n_valid_permutations": 0,
@@ -576,7 +576,7 @@ def extract_cca_pvalue_results_from_json(
             selected_variable_key
             result_source
             cca_value
-            p_value
+            p_value_fdr_bh
     """
 
     json_path = Path(json_path)
@@ -622,7 +622,7 @@ def extract_cca_pvalue_results_from_json(
                     continue
 
                 cca_value = cca_result.get("observed_score", None)
-                p_value = cca_result.get("p_value", None)
+                p_value_fdr_bh = cca_result.get("p_value_fdr_bh", None)
 
                 rows.append({
                     "file_label": file_label,
@@ -630,7 +630,7 @@ def extract_cca_pvalue_results_from_json(
                     "selected_variable_key": sel_key,
                     "result_source": "permutation_tests.cca",
                     "cca_value": cca_value,
-                    "p_value": p_value,
+                    "p_value_fdr_bh": p_value_fdr_bh,
                 })
 
         # ----------------------------------------------------
@@ -653,7 +653,7 @@ def extract_cca_pvalue_results_from_json(
                 else cca_result.get("cv_mean_cc", cca_result.get("cc", None))
             )
 
-            p_value = cca_result.get("p_value", None)
+            p_value_fdr_bh = cca_result.get("p_value_fdr_bh", None)
 
             rows.append({
                 "file_label": file_label,
@@ -661,292 +661,18 @@ def extract_cca_pvalue_results_from_json(
                 "selected_variable_key": None,
                 "result_source": result_key,
                 "cca_value": cca_value,
-                "p_value": p_value,
+                "p_value_fdr_bh": p_value_fdr_bh,
             })
 
     df = pd.DataFrame(rows)
 
     if not df.empty:
         df["cca_value"] = pd.to_numeric(df["cca_value"], errors="coerce")
-        df["p_value"] = pd.to_numeric(df["p_value"], errors="coerce")
+        df["p_value_fdr_bh"] = pd.to_numeric(df["p_value_fdr_bh"], errors="coerce")
         df = df.sort_values(["file_label", "selected_variable_key", "result_source", "cluster_number"])
 
     return df
 
-
-def plot_cca_with_pvalue_markers_from_jsons(
-    json_paths,
-    labels=None,
-    selected_variable_key=None,
-    direct_result_keys=None,
-    p_threshold=0.05,
-    min_marker_size=40,
-    max_marker_size=350,
-    annotate_pvalues=True,
-    title=None,
-    figsize=(12, 6),
-    save_path=None,
-    show=True,
-):
-    """
-    Plot CCA values across cluster numbers, with permutation p-values encoded
-    directly in the marker size.
-
-    This avoids using two y-axes. Instead:
-        x-axis = cluster number
-        y-axis = observed CCA value
-        marker size = -log10(p-value)
-        marker text = p-value, optionally
-
-    Larger markers mean stronger evidence against the permutation null.
-    """
-
-    json_paths = [Path(p) for p in json_paths]
-
-    if labels is None:
-        labels = [p.stem for p in json_paths]
-
-    if len(labels) != len(json_paths):
-        raise ValueError("labels must have the same length as json_paths.")
-
-    dfs = []
-
-    for json_path, label in zip(json_paths, labels):
-        df = extract_cca_pvalue_results_from_json(
-            json_path=json_path,
-            file_label=label,
-            selected_variable_key=selected_variable_key,
-            direct_result_keys=direct_result_keys,
-        )
-
-        if not df.empty:
-            dfs.append(df)
-
-    if not dfs:
-        raise ValueError("No CCA/p-value results found in the provided JSON files.")
-
-    all_results_df = pd.concat(dfs, ignore_index=True)
-
-    all_results_df["cca_value"] = pd.to_numeric(
-        all_results_df["cca_value"],
-        errors="coerce"
-    )
-
-    all_results_df["p_value"] = pd.to_numeric(
-        all_results_df["p_value"],
-        errors="coerce"
-    )
-
-    all_results_df = all_results_df.dropna(
-        subset=["cluster_number", "cca_value"]
-    ).copy()
-
-    if all_results_df.empty:
-        raise ValueError("No valid CCA values found after cleaning.")
-
-    # p-values may be missing for non-permutation JSONs.
-    # These get the smallest marker size.
-    safe_p = all_results_df["p_value"].copy()
-    safe_p = safe_p.fillna(1.0)
-    safe_p = safe_p.clip(lower=1e-300, upper=1.0)
-
-    all_results_df["neg_log10_p"] = -np.log10(safe_p)
-
-    max_sig = all_results_df["neg_log10_p"].max()
-
-    if max_sig > 0:
-        all_results_df["marker_size"] = (
-            min_marker_size
-            + (all_results_df["neg_log10_p"] / max_sig)
-            * (max_marker_size - min_marker_size)
-        )
-    else:
-        all_results_df["marker_size"] = min_marker_size
-
-    fig, ax = plt.subplots(figsize=figsize)
-
-    group_cols = ["file_label", "selected_variable_key", "result_source"]
-
-    grouped = list(all_results_df.groupby(group_cols, dropna=False))
-
-    # Small horizontal offsets avoid complete overlap when several files have
-    # results for the same cluster number.
-    n_groups = len(grouped)
-
-    if n_groups == 1:
-        offsets = [0.0]
-    else:
-        offsets = np.linspace(-0.18, 0.18, n_groups)
-
-    for offset, (group_values, group_df) in zip(offsets, grouped):
-        file_label, sel_key, result_source = group_values
-
-        group_df = group_df.sort_values("cluster_number").copy()
-        x = group_df["cluster_number"].to_numpy(dtype=float) + offset
-        y = group_df["cca_value"].to_numpy(dtype=float)
-        sizes = group_df["marker_size"].to_numpy(dtype=float)
-
-        label_parts = [str(file_label)]
-
-        if pd.notna(sel_key):
-            label_parts.append(str(sel_key))
-
-        if result_source not in ["permutation_tests.cca", None]:
-            label_parts.append(str(result_source))
-
-        group_label = " | ".join(label_parts)
-
-        line = ax.plot(
-            x,
-            y,
-            linestyle="-",
-            linewidth=1.5,
-            alpha=0.75,
-            label=group_label,
-        )
-
-        line_color = line[0].get_color()
-
-        ax.scatter(
-            x,
-            y,
-            s=sizes,
-            color=line_color,
-            alpha=0.65,
-            edgecolors="black",
-            linewidths=0.6,
-        )
-
-        # Clearly mark non-significant results
-        # These are not "wrong", but they are above the chosen p-value threshold.
-        p_values = group_df["p_value"].to_numpy(dtype=float)
-        non_significant_mask = np.isnan(p_values) | (p_values > p_threshold)
-
-        ax.scatter(
-            x[non_significant_mask],
-            y[non_significant_mask],
-            s=sizes[non_significant_mask] * 1.25,
-            marker="X",
-            color="red",
-            edgecolors="black",
-            linewidths=0.8,
-            alpha=0.9,
-            label="p > 0.05 / not significant",
-        )
-        
-        if annotate_pvalues:
-            for _, row in group_df.iterrows():
-                p = row["p_value"]
-
-                if pd.isna(p):
-                    continue
-
-                if p < 0.001:
-                    p_text = "p<.001"
-                else:
-                    p_text = f"p={p:.3f}"
-
-                x_pos = float(row["cluster_number"]) + offset
-                y_pos = float(row["cca_value"])
-
-                ax.annotate(
-                    p_text,
-                    xy=(x_pos, y_pos),
-                    xytext=(0, 8),
-                    textcoords="offset points",
-                    ha="center",
-                    va="bottom",
-                    fontsize=8,
-                    alpha=0.85,
-                )
-
-    ax.set_xlabel("Cluster number")
-    ax.set_ylabel("Observed CCA value")
-
-    ax.set_ylim(0, 1)
-    
-    cluster_ticks = sorted(all_results_df["cluster_number"].dropna().unique())
-    ax.set_xticks(cluster_ticks)
-
-    if title is None:
-        title = "CCA values with permutation p-values encoded by marker size"
-
-    ax.set_title(title)
-
-    ax.grid(True, alpha=0.3)
-
-    # Marker-size legend for p-values
-    legend_p_values = [0.05, 0.01, 0.001]
-    legend_handles = []
-
-    for p in legend_p_values:
-        neg_log = -np.log10(p)
-
-        if max_sig > 0:
-            size = (
-                min_marker_size
-                + (neg_log / max_sig)
-                * (max_marker_size - min_marker_size)
-            )
-        else:
-            size = min_marker_size
-
-        size = min(size, max_marker_size)
-
-        legend_handles.append(
-            ax.scatter(
-                [],
-                [],
-                s=size,
-                color="gray",
-                alpha=0.65,
-                edgecolors="black",
-                linewidths=0.6,
-                label=f"p = {p}"
-            )
-        )
-
-    handles, labels = ax.get_legend_handles_labels()
-
-    unique = dict(zip(labels, handles))
-
-    main_legend = ax.legend(
-        unique.values(),
-        unique.keys(),
-        loc="lower left",
-        fontsize=8,
-        title="JSON file / result set"
-    )
-
-    ax.add_artist(main_legend)
-
-    ax.legend(
-        handles=legend_handles,
-        loc="upper right",
-        fontsize=8,
-        title="Marker size"
-    )
-
-    fig.text(
-        0.5,
-        -0.02,
-        "Marker size is proportional to -log10(p). Larger markers indicate lower permutation p-values.",
-        ha="center",
-        fontsize=9,
-    )
-
-    fig.tight_layout()
-
-    if save_path is not None:
-        save_path = Path(save_path)
-        fig.savefig(save_path, dpi=300, bbox_inches="tight")
-
-    if show:
-        plt.show()
-    else:
-        plt.close(fig)
-
-    return all_results_df
 
 
 import json
@@ -1050,7 +776,7 @@ def extract_selected_variable_permutation_scores(
                 continue
 
             observed_score = test_result.get("observed_score", None)
-            p_value = test_result.get("p_value", None)
+            p_value_fdr_bh = test_result.get("p_value_fdr_bh", None)
 
             observed_result = test_result.get("observed_result", {})
             variables_used = observed_result.get("variables_used", [])
@@ -1061,7 +787,7 @@ def extract_selected_variable_permutation_scores(
                 "selected_variable_key": selected_key,
                 "score_type": score_type,
                 "observed_score": observed_score,
-                "p_value": p_value,
+                "p_value_fdr_bh": p_value_fdr_bh,
                 "variables_used": variables_used,
                 "source_file": str(json_path),
             })
@@ -1070,7 +796,7 @@ def extract_selected_variable_permutation_scores(
 
     if not df.empty:
         df["observed_score"] = pd.to_numeric(df["observed_score"], errors="coerce")
-        df["p_value"] = pd.to_numeric(df["p_value"], errors="coerce")
+        df["p_value_fdr_bh"] = pd.to_numeric(df["p_value_fdr_bh"], errors="coerce")
         df["cluster_number"] = pd.to_numeric(df["cluster_number"], errors="coerce")
 
         df = df.sort_values(
@@ -1080,322 +806,6 @@ def extract_selected_variable_permutation_scores(
     return df
 
 
-def plot_selected_variable_scores_all_conditions(
-    json_paths,
-    condition_labels=None,
-    score_type="cca",
-    selected_variable_keys=("cca_selected_variables", "mlr_selected_variables"),
-    selected_variable_titles=None,
-    p_threshold=0.05,
-    figsize=(7, 4),
-    y_lim=(0, 1),
-    marker_min_size=25,
-    marker_max_size=160,
-    mark_non_significant=True,
-    annotate_non_significant=False,
-    title=None,
-    save_path=None,
-    show=True,
-):
-    """
-    Plot observed CCA or MLR value with associated p-values for both
-    CCA-selected and MLR-selected variable sets, across all conditions.
-
-    Design:
-        - One figure with two panels:
-            left:  cca_selected_variables
-            right: mlr_selected_variables
-
-        - x-axis:
-            cluster number
-
-        - y-axis:
-            observed CCA value if score_type="cca"
-            observed MLR accuracy if score_type="mlr"
-
-        - line color:
-            condition / JSON file
-
-        - marker size:
-            -log10(p-value)
-
-        - red X:
-            p-value > p_threshold
-
-    Parameters
-    ----------
-    json_paths : list[str | Path]
-        Usually 8 permutation-test JSON files, one per condition.
-
-    condition_labels : list[str] | None
-        Labels for each condition. If None, filenames are used.
-
-    score_type : {"cca", "mlr"}
-        Which observed score and p-value to plot.
-
-        "cca":
-            plots observed CCA value and CCA p-value.
-
-        "mlr":
-            plots observed MLR accuracy and MLR p-value.
-
-    selected_variable_keys : tuple[str, ...]
-        Usually:
-            ("cca_selected_variables", "mlr_selected_variables")
-
-    selected_variable_titles : dict | None
-        Optional prettier subplot titles.
-
-    p_threshold : float
-        Threshold used to mark non-significant points.
-
-    figsize : tuple
-        Default is (7, 4), as requested.
-
-    y_lim : tuple | None
-        Default fixed y-axis from 0 to 1.
-
-    marker_min_size, marker_max_size : int
-        Marker-size range for p-value encoding.
-
-    mark_non_significant : bool
-        Whether to overlay red X markers where p > p_threshold.
-
-    annotate_non_significant : bool
-        Whether to write "ns" above non-significant points.
-
-    save_path : str | Path | None
-        If given, saves the figure.
-
-    Returns
-    -------
-    all_results_df : pd.DataFrame
-        Extracted results used for plotting.
-    """
-
-    if score_type not in {"cca", "mlr"}:
-        raise ValueError("score_type must be either 'cca' or 'mlr'.")
-
-    json_paths = [Path(p) for p in json_paths]
-
-    if condition_labels is None:
-        condition_labels = [p.stem for p in json_paths]
-
-    if len(condition_labels) != len(json_paths):
-        raise ValueError("condition_labels must have the same length as json_paths.")
-
-    if selected_variable_titles is None:
-        selected_variable_titles = {
-            "cca_selected_variables": "CCA-selected variables",
-            "mlr_selected_variables": "MLR-selected variables",
-        }
-
-    dfs = []
-
-    for json_path, condition_label in zip(json_paths, condition_labels):
-        df = extract_selected_variable_permutation_scores(
-            json_path=json_path,
-            condition_label=condition_label,
-            score_type=score_type,
-            selected_variable_keys=selected_variable_keys,
-        )
-
-        if not df.empty:
-            dfs.append(df)
-
-    if not dfs:
-        raise ValueError("No valid selected-variable permutation results found.")
-
-    all_results_df = pd.concat(dfs, ignore_index=True)
-
-    all_results_df = all_results_df.dropna(
-        subset=["cluster_number", "observed_score"]
-    ).copy()
-
-    if all_results_df.empty:
-        raise ValueError("No valid observed scores found after cleaning.")
-
-    # Prepare p-values for marker-size encoding
-    safe_p = all_results_df["p_value"].copy()
-    safe_p = safe_p.fillna(1.0)
-    safe_p = safe_p.clip(lower=1e-300, upper=1.0)
-
-    all_results_df["neg_log10_p"] = -np.log10(safe_p)
-
-    max_neg_log_p = all_results_df["neg_log10_p"].max()
-
-    if max_neg_log_p > 0:
-        all_results_df["marker_size"] = (
-            marker_min_size
-            + (all_results_df["neg_log10_p"] / max_neg_log_p)
-            * (marker_max_size - marker_min_size)
-        )
-    else:
-        all_results_df["marker_size"] = marker_min_size
-
-    n_panels = len(selected_variable_keys)
-
-    fig, axes = plt.subplots(
-        1,
-        n_panels,
-        figsize=figsize,
-        sharey=True,
-    )
-
-    if n_panels == 1:
-        axes = [axes]
-
-    condition_order = list(condition_labels)
-
-    # Slight x-offsets so 8 conditions do not fully overlap at each cluster number
-    if len(condition_order) == 1:
-        condition_offsets = {condition_order[0]: 0.0}
-    else:
-        offsets = np.linspace(-0.22, 0.22, len(condition_order))
-        condition_offsets = dict(zip(condition_order, offsets))
-
-    for ax, selected_key in zip(axes, selected_variable_keys):
-        panel_df = all_results_df[
-            all_results_df["selected_variable_key"] == selected_key
-        ].copy()
-
-        for condition in condition_order:
-            condition_df = panel_df[
-                panel_df["condition"] == condition
-            ].copy()
-
-            if condition_df.empty:
-                continue
-
-            condition_df = condition_df.sort_values("cluster_number")
-
-            x = (
-                condition_df["cluster_number"].to_numpy(dtype=float)
-                + condition_offsets[condition]
-            )
-
-            y = condition_df["observed_score"].to_numpy(dtype=float)
-            sizes = condition_df["marker_size"].to_numpy(dtype=float)
-            p_values = condition_df["p_value"].to_numpy(dtype=float)
-
-            line = ax.plot(
-                x,
-                y,
-                marker=None,
-                linestyle="-",
-                linewidth=1.2,
-                alpha=0.75,
-                label=condition,
-            )
-
-            line_color = line[0].get_color()
-
-            ax.scatter(
-                x,
-                y,
-                s=sizes,
-                color=line_color,
-                alpha=0.75,
-                edgecolors="black",
-                linewidths=0.4,
-                zorder=3,
-            )
-
-            if mark_non_significant:
-                non_sig_mask = np.isnan(p_values) | (p_values > p_threshold)
-
-                if np.any(non_sig_mask):
-                    ax.scatter(
-                        x[non_sig_mask],
-                        y[non_sig_mask],
-                        s=np.maximum(sizes[non_sig_mask] * 1.15, 80),
-                        marker="X",
-                        color="red",
-                        edgecolors="black",
-                        linewidths=0.5,
-                        alpha=0.95,
-                        zorder=4,
-                    )
-
-                    if annotate_non_significant:
-                        for x_i, y_i in zip(x[non_sig_mask], y[non_sig_mask]):
-                            ax.annotate(
-                                "ns",
-                                xy=(x_i, y_i),
-                                xytext=(0, 7),
-                                textcoords="offset points",
-                                ha="center",
-                                va="bottom",
-                                fontsize=7,
-                                color="red",
-                            )
-
-        ax.set_title(
-            selected_variable_titles.get(selected_key, selected_key),
-            fontsize=10,
-        )
-
-        ax.set_xlabel("Cluster number")
-        ax.grid(True, alpha=0.25)
-
-        cluster_ticks = sorted(
-            all_results_df["cluster_number"].dropna().unique()
-        )
-
-        ax.set_xticks(cluster_ticks)
-
-        if y_lim is not None:
-            ax.set_ylim(y_lim)
-
-    if score_type == "cca":
-        y_label = "Observed CCA value"
-        default_title = "CCA score and permutation p-values across conditions"
-    else:
-        y_label = "Observed MLR accuracy"
-        default_title = "MLR score and permutation p-values across conditions"
-
-    axes[0].set_ylabel(y_label)
-
-    if title is None:
-        title = default_title
-
-    fig.suptitle(title, fontsize=11)
-
-    # One shared legend for all condition lines
-    handles, labels = axes[-1].get_legend_handles_labels()
-
-    unique = dict(zip(labels, handles))
-
-    fig.legend(
-        unique.values(),
-        unique.keys(),
-        loc="center left",
-        bbox_to_anchor=(1.01, 0.5),
-        fontsize=8,
-        title="Condition",
-    )
-
-    # Small p-value marker explanation
-    fig.text(
-        0.5,
-        -0.03,
-        f"Marker size ∝ -log10(p). Red X indicates p > {p_threshold}.",
-        ha="center",
-        fontsize=8,
-    )
-
-    fig.tight_layout(rect=[0, 0.03, 0.86, 0.92])
-
-    if save_path is not None:
-        save_path = Path(save_path)
-        fig.savefig(save_path, dpi=300, bbox_inches="tight")
-
-    if show:
-        plt.show()
-    else:
-        plt.close(fig)
-
-    return all_results_df
 
 
 
@@ -1474,7 +884,7 @@ def plot_cca_mlr_side_by_side_same_selected_variables(
         raise ValueError("No valid observed scores found after cleaning.")
 
     # Marker size encodes p-value strength across both panels
-    safe_p = all_results_df["p_value"].copy()
+    safe_p = all_results_df["p_value_fdr_bh"].copy()
     safe_p = safe_p.fillna(1.0)
     safe_p = safe_p.clip(lower=1e-300, upper=1.0)
 
@@ -1534,7 +944,7 @@ def plot_cca_mlr_side_by_side_same_selected_variables(
 
             y = condition_df["observed_score"].to_numpy(dtype=float)
             sizes = condition_df["marker_size"].to_numpy(dtype=float)
-            p_values = condition_df["p_value"].to_numpy(dtype=float)
+            p_values = condition_df["p_value_fdr_bh"].to_numpy(dtype=float)
 
             line = ax.plot(
                 x,
@@ -1782,13 +1192,13 @@ def plot_selected_score_two_file_sets(
         errors="coerce"
     )
 
-    all_results_df["p_value"] = pd.to_numeric(
-        all_results_df["p_value"],
+    all_results_df["p_value_fdr_bh"] = pd.to_numeric(
+        all_results_df["p_value_fdr_bh"],
         errors="coerce"
     )
 
     # Marker size encodes p-value strength globally across both panels
-    safe_p = all_results_df["p_value"].copy()
+    safe_p = all_results_df["p_value_fdr_bh"].copy()
     safe_p = safe_p.fillna(1.0)
     safe_p = safe_p.clip(lower=1e-300, upper=1.0)
 
@@ -1853,7 +1263,7 @@ def plot_selected_score_two_file_sets(
 
             y = condition_df["observed_score"].to_numpy(dtype=float)
             sizes = condition_df["marker_size"].to_numpy(dtype=float)
-            p_values = condition_df["p_value"].to_numpy(dtype=float)
+            p_values = condition_df["p_value_fdr_bh"].to_numpy(dtype=float)
 
             line_color = color_map[condition]
 

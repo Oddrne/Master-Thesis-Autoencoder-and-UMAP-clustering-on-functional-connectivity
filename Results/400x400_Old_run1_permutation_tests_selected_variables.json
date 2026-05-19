@@ -71,7 +71,12 @@
                             "n_valid_permutations": 1000,
                             "null_mean": -0.0003448643827882005,
                             "null_std": 0.1825278230488381,
-                            "alternative": "greater"
+                            "alternative": "greater",
+                            "p_value_fdr_bh": 0.001261895998738104,
+                            "significant_fdr_bh": true,
+                            "fdr_alpha": 0.05,
+                            "fdr_correction": "Benjamini-Hochberg",
+                            "fdr_correction_scope": "by_test_and_selected_variable_key"
                         },
                         "mlr": {
                             "observed_result": {
@@ -103,7 +108,12 @@
                             "n_valid_permutations": 1000,
                             "null_mean": 0.4204241758241759,
                             "null_std": 0.054548996774905524,
-                            "alternative": "greater"
+                            "alternative": "greater",
+                            "p_value_fdr_bh": 0.1327902866364405,
+                            "significant_fdr_bh": false,
+                            "fdr_alpha": 0.05,
+                            "fdr_correction": "Benjamini-Hochberg",
+                            "fdr_correction_scope": "by_test_and_selected_variable_key"
                         }
                     }
                 },
@@ -141,7 +151,12 @@
                             "n_valid_permutations": 1000,
                             "null_mean": 0.001154968464327157,
                             "null_std": 0.1758540864904127,
-                            "alternative": "greater"
+                            "alternative": "greater",
+                            "p_value_fdr_bh": 0.12541304848997156,
+                            "significant_fdr_bh": false,
+                            "fdr_alpha": 0.05,
+                            "fdr_correction": "Benjamini-Hochberg",
+                            "fdr_correction_scope": "by_test_and_selected_variable_key"
                         },
                         "mlr": {
                             "observed_result": {
@@ -170,7 +185,12 @@
                             "n_valid_permutations": 1000,
                             "null_mean": 0.45147802197802206,
                             "null_std": 0.03986892809399125,
-                            "alternative": "greater"
+                            "alternative": "greater",
+                            "p_value_fdr_bh": 0.001332001332001332,
+                            "significant_fdr_bh": true,
+                            "fdr_alpha": 0.05,
+                            "fdr_correction": "Benjamini-Hochberg",
+                            "fdr_correction_scope": "by_test_and_selected_variable_key"
                         }
                     }
                 }
@@ -223,7 +243,12 @@
                             "n_valid_permutations": 1000,
                             "null_mean": -0.003996244706877738,
                             "null_std": 0.17666480336941687,
-                            "alternative": "greater"
+                            "alternative": "greater",
+                            "p_value_fdr_bh": 0.001261895998738104,
+                            "significant_fdr_bh": true,
+                            "fdr_alpha": 0.05,
+                            "fdr_correction": "Benjamini-Hochberg",
+                            "fdr_correction_scope": "by_test_and_selected_variable_key"
                         },
                         "mlr": {
                             "observed_result": {
@@ -255,7 +280,12 @@
                             "n_valid_permutations": 1000,
                             "null_mean": 0.2579681318681319,
                             "null_std": 0.05985419831684857,
-                            "alternative": "greater"
+                            "alternative": "greater",
+                            "p_value_fdr_bh": 0.016924252218369868,
+                            "significant_fdr_bh": true,
+                            "fdr_alpha": 0.05,
+                            "fdr_correction": "Benjamini-Hochberg",
+                            "fdr_correction_scope": "by_test_and_selected_variable_key"
                         }
                     }
                 },
@@ -290,7 +320,12 @@
                             "n_valid_permutations": 1000,
                             "null_mean": 0.0015661527750514938,
                             "null_std": 0.18641799179428267,
-                            "alternative": "greater"
+                            "alternative": "greater",
+                            "p_value_fdr_bh": 0.31799779168200226,
+                            "significant_fdr_bh": false,
+                            "fdr_alpha": 0.05,
+                            "fdr_correction": "Benjamini-Hochberg",
+                            "fdr_correction_scope": "by_test_and_selected_variable_key"
                         },
                         "mlr": {
                             "observed_result": {
@@ -318,7 +353,12 @@
                             "n_valid_permutations": 1000,
                             "null_mean": 0.27833296703296706,
                             "null_std": 0.053014352477901004,
-                            "alternative": "greater"
+                            "alternative": "greater",
+                            "p_value_fdr_bh": 0.0022834308548594262,
+                            "significant_fdr_bh": true,
+                            "fdr_alpha": 0.05,
+                            "fdr_correction": "Benjamini-Hochberg",
+                            "fdr_correction_scope": "by_test_and_selected_variable_key"
                         }
                     }
                 }
@@ -371,7 +411,12 @@
                             "n_valid_permutations": 1000,
                             "null_mean": -0.0075057203507946785,
                             "null_std": 0.1794262057051268,
-                            "alternative": "greater"
+                            "alternative": "greater",
+                            "p_value_fdr_bh": 0.0022303278117231607,
+                            "significant_fdr_bh": true,
+                            "fdr_alpha": 0.05,
+                            "fdr_correction": "Benjamini-Hochberg",
+                            "fdr_correction_scope": "by_test_and_selected_variable_key"
                         },
                         "mlr": {
                             "observed_result": {
@@ -403,7 +448,12 @@
                             "n_valid_permutations": 1000,
                             "null_mean": 0.2014835164835165,
                             "null_std": 0.05567898289819695,
-                            "alternative": "greater"
+                            "alternative": "greater",
+                            "p_value_fdr_bh": 0.2713384176798811,
+                            "significant_fdr_bh": false,
+                            "fdr_alpha": 0.05,
+                            "fdr_correction": "Benjamini-Hochberg",
+                            "fdr_correction_scope": "by_test_and_selected_variable_key"
                         }
                     }
                 },
@@ -444,7 +494,12 @@
                             "n_valid_permutations": 1000,
                             "null_mean": 0.0015796360458014554,
                             "null_std": 0.17348661673324706,
-                            "alternative": "greater"
+                            "alternative": "greater",
+                            "p_value_fdr_bh": 0.9180819180819181,
+                            "significant_fdr_bh": false,
+                            "fdr_alpha": 0.05,
+                            "fdr_correction": "Benjamini-Hochberg",
+                            "fdr_correction_scope": "by_test_and_selected_variable_key"
                         },
                         "mlr": {
                             "observed_result": {
@@ -474,7 +529,12 @@
                             "n_valid_permutations": 1000,
                             "null_mean": 0.20709670329670332,
                             "null_std": 0.054699762754559955,
-                            "alternative": "greater"
+                            "alternative": "greater",
+                            "p_value_fdr_bh": 0.001332001332001332,
+                            "significant_fdr_bh": true,
+                            "fdr_alpha": 0.05,
+                            "fdr_correction": "Benjamini-Hochberg",
+                            "fdr_correction_scope": "by_test_and_selected_variable_key"
                         }
                     }
                 }
@@ -527,7 +587,12 @@
                             "n_valid_permutations": 1000,
                             "null_mean": 0.001974821360106357,
                             "null_std": 0.16932209757003952,
-                            "alternative": "greater"
+                            "alternative": "greater",
+                            "p_value_fdr_bh": 0.001261895998738104,
+                            "significant_fdr_bh": true,
+                            "fdr_alpha": 0.05,
+                            "fdr_correction": "Benjamini-Hochberg",
+                            "fdr_correction_scope": "by_test_and_selected_variable_key"
                         },
                         "mlr": {
                             "observed_result": {
@@ -559,7 +624,12 @@
                             "n_valid_permutations": 1000,
                             "null_mean": 0.18961978021978024,
                             "null_std": 0.054999106205206406,
-                            "alternative": "greater"
+                            "alternative": "greater",
+                            "p_value_fdr_bh": 0.10741258741258741,
+                            "significant_fdr_bh": false,
+                            "fdr_alpha": 0.05,
+                            "fdr_correction": "Benjamini-Hochberg",
+                            "fdr_correction_scope": "by_test_and_selected_variable_key"
                         }
                     }
                 },
@@ -591,7 +661,12 @@
                             "n_valid_permutations": 1000,
                             "null_mean": -0.0016046885180310913,
                             "null_std": 0.17515113476599387,
-                            "alternative": "greater"
+                            "alternative": "greater",
+                            "p_value_fdr_bh": 0.02055087769373484,
+                            "significant_fdr_bh": true,
+                            "fdr_alpha": 0.05,
+                            "fdr_correction": "Benjamini-Hochberg",
+                            "fdr_correction_scope": "by_test_and_selected_variable_key"
                         },
                         "mlr": {
                             "observed_result": {
@@ -618,7 +693,12 @@
                             "n_valid_permutations": 1000,
                             "null_mean": 0.20734285714285716,
                             "null_std": 0.0495250095818795,
-                            "alternative": "greater"
+                            "alternative": "greater",
+                            "p_value_fdr_bh": 0.005449096358187267,
+                            "significant_fdr_bh": true,
+                            "fdr_alpha": 0.05,
+                            "fdr_correction": "Benjamini-Hochberg",
+                            "fdr_correction_scope": "by_test_and_selected_variable_key"
                         }
                     }
                 }
