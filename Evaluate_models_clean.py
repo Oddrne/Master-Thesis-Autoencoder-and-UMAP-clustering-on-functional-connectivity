@@ -794,7 +794,7 @@ def plot_single_cluster_cca_mlr_variants(
         raise ValueError(f"{cluster_key} not found in {json_path}.")
 
     cluster_data = results[cluster_key]
-    categories = ["All variables", "Selected variables", "Removed subjects"]
+    categories = ["All variables", "Selected variables", "Filtered subjects"]
 
     cca_paths = [
         f"cca_all_variables_results:{cca_value_key}",
@@ -843,6 +843,311 @@ def plot_single_cluster_cca_mlr_variants(
     plt.show()
 
     return {"categories": categories, "cca_values": cca_values, "mlr_values": mlr_values, "figure_text": fig_text, "fig": fig, "ax": ax}
+
+
+
+def plot_single_cluster_score_variants_multiple_runs(
+    json_paths: Sequence[PathLike],
+    cluster_number: int,
+    score_type: str = "cca",
+    condition_labels: Optional[Sequence[str]] = None,
+    value_key: Optional[str] = None,
+    dead_value: float = np.nan,
+    title: Optional[str] = None,
+    save_path: Optional[PathLike] = None,
+    annotate: bool = True,
+    figsize: Tuple[int, int] = (7, 4),
+    y_lim: Optional[Tuple[float, float]] = (0, 1),
+    marker_size: float = 60,
+    show: bool = True,
+) -> pd.DataFrame:
+    """
+    Plot CCA or MLR values for one chosen cluster number across multiple JSON files.
+
+    For each JSON path, the function plots the selected score type for:
+        - all variables
+        - selected variables
+        - filtered subjects
+
+    Parameters
+    ----------
+    json_paths:
+        List of behavioural result JSON files. Each file represents one run condition.
+
+    cluster_number:
+        Cluster number to plot, for example 2, 3, ..., 10.
+
+    score_type:
+        Which score type to plot:
+            - "cca"
+            - "mlr"
+
+    condition_labels:
+        Labels used in the legend. If None, filename stems are used.
+
+    value_key:
+        Which value to extract from the result dictionaries.
+        If None:
+            - CCA uses "cv_mean_cc"
+            - MLR uses "mean_accuracy"
+
+    dead_value:
+        Value used when a score is missing.
+        Default np.nan shows missing values as gaps.
+
+    Returns
+    -------
+    plot_df:
+        DataFrame containing all extracted values used in the plot.
+    """
+
+    score_type = score_type.lower().strip()
+
+    if score_type not in {"cca", "mlr"}:
+        raise ValueError("score_type must be either 'cca' or 'mlr'.")
+
+    if value_key is None:
+        value_key = "cv_mean_cc" if score_type == "cca" else "mean_accuracy"
+
+    json_paths = [Path(p) for p in json_paths]
+
+    if condition_labels is None:
+        condition_labels = [p.stem for p in json_paths]
+    else:
+        condition_labels = list(condition_labels)
+
+    if len(condition_labels) != len(json_paths):
+        raise ValueError("condition_labels must have the same length as json_paths.")
+
+    def _get_results_container(loaded_json):
+        """
+        Supports both:
+            {"Cluster_2_results": {...}}
+        and:
+            {"results": {"Cluster_2_results": {...}}}
+        """
+        if isinstance(loaded_json, dict) and "results" in loaded_json:
+            return loaded_json["results"]
+        return loaded_json
+
+    def _safe_float(value):
+        if value is None:
+            return dead_value
+
+        try:
+            value = float(value)
+        except (TypeError, ValueError):
+            return dead_value
+
+        if not np.isfinite(value):
+            return dead_value
+
+        return value
+
+    cluster_key = f"Cluster_{cluster_number}_results"
+
+    result_specs = [
+        {
+            "category": "All variables",
+            "result_path": f"{score_type}_all_variables_results:{value_key}",
+            "variables_key": None,
+            "subjects_key": None,
+        },
+        {
+            "category": "Selected variables",
+            "result_path": f"{score_type}_selected_variables_results:{value_key}",
+            "variables_key": f"{score_type}_selected_variables",
+            "subjects_key": None,
+        },
+        {
+            "category": "Filtered subjects",
+            "result_path": f"{score_type}_removed_subjects_results:{value_key}",
+            "variables_key": f"{score_type}_selected_variables",
+            "subjects_key": f"{score_type}_removed_subjects",
+        },
+    ]
+
+    rows = []
+
+    for json_path, condition_label in zip(json_paths, condition_labels):
+        loaded_json = load_json_results(json_path)
+        results = _get_results_container(loaded_json)
+
+        if cluster_key not in results:
+            raise ValueError(f"{cluster_key} not found in {json_path}.")
+
+        cluster_data = results[cluster_key]
+
+        for spec in result_specs:
+            value = get_nested_value(cluster_data, spec["result_path"])
+
+            variables = (
+                cluster_data.get(spec["variables_key"], [])
+                if spec["variables_key"] is not None
+                else []
+            )
+
+            removed_subjects = (
+                cluster_data.get(spec["subjects_key"], [])
+                if spec["subjects_key"] is not None
+                else []
+            )
+
+            rows.append(
+                {
+                    "condition": condition_label,
+                    "json_path": str(json_path),
+                    "cluster_number": cluster_number,
+                    "score_type": score_type,
+                    "category": spec["category"],
+                    "result_path": spec["result_path"],
+                    "value_key": value_key,
+                    "score_value": _safe_float(value),
+                    "variables": variables,
+                    "removed_subjects": removed_subjects,
+                }
+            )
+
+    plot_df = pd.DataFrame(rows)
+
+    if plot_df.empty:
+        raise ValueError("No values were extracted.")
+
+    categories = [spec["category"] for spec in result_specs]
+
+    category_to_x = {
+        category: idx
+        for idx, category in enumerate(categories)
+    }
+
+    condition_order = list(condition_labels)
+
+    if len(condition_order) == 1:
+        condition_offsets = {condition_order[0]: 0.0}
+    else:
+        offsets = np.linspace(-0.18, 0.18, len(condition_order))
+        condition_offsets = dict(zip(condition_order, offsets))
+
+    fig, ax = plt.subplots(figsize=figsize)
+
+    for condition in condition_order:
+        condition_df = plot_df[
+            plot_df["condition"] == condition
+        ].copy()
+
+        if condition_df.empty:
+            continue
+
+        condition_df["x_base"] = condition_df["category"].map(category_to_x)
+        condition_df = condition_df.sort_values("x_base")
+
+        x = (
+            condition_df["x_base"].to_numpy(dtype=float)
+            + condition_offsets[condition]
+        )
+
+        y = condition_df["score_value"].to_numpy(dtype=float)
+
+        # Same colour logic as plot_cca_mlr_side_by_side_same_selected_variables:
+        # let Matplotlib choose the line colour, then reuse it for scatter.
+        line = ax.plot(
+            x,
+            y,
+            linestyle="-",
+            linewidth=1.2,
+            alpha=0.75,
+            label=condition,
+        )
+
+        line_color = line[0].get_color()
+
+        ax.scatter(
+            x,
+            y,
+            s=marker_size,
+            color=line_color,
+            alpha=0.75,
+            edgecolors="black",
+            linewidths=0.4,
+            zorder=3,
+        )
+
+        if annotate:
+            for x_i, y_i in zip(x, y):
+                if np.isfinite(y_i):
+                    ax.annotate(
+                        f"{y_i:.3f}",
+                        xy=(x_i, y_i),
+                        xytext=(0, 7),
+                        textcoords="offset points",
+                        ha="center",
+                        va="bottom",
+                        fontsize=8,
+                    )
+
+    ax.set_xticks(range(len(categories)))
+    ax.set_xticklabels(categories)
+    # ax.set_xlabel("Evaluation variant")
+
+    if score_type == "cca":
+        ylabel = "CCA value"
+        default_title = (
+            f"Cluster {cluster_number}: CCA values across runs "
+            f"({value_key})"
+        )
+    else:
+        ylabel = "MLR accuracy"
+        default_title = (
+            f"Cluster {cluster_number}: MLR values across runs "
+            f"({value_key})"
+        )
+
+    ax.set_ylabel(ylabel)
+    ax.set_title(title or default_title, fontsize=10)
+    ax.grid(True, alpha=0.25)
+
+    if y_lim is not None:
+        ax.set_ylim(y_lim)
+
+    handles, labels = ax.get_legend_handles_labels()
+    unique = dict(zip(labels, handles))
+
+    fig.legend(
+        unique.values(),
+        unique.keys(),
+        loc="center left",
+        bbox_to_anchor=(0.86, 0.5),
+        fontsize=8,
+        title="Condition",
+    )
+
+    fig.text(
+        0.5,
+        -0.03,
+        (
+            f"{score_type.upper()} value key: {value_key}. "
+            "All variables, selected variables, and filtered subjects are compared "
+            "for the same cluster number."
+        ),
+        ha="center",
+        fontsize=8,
+    )
+
+    fig.tight_layout(rect=[0, 0.04, 0.86, 0.92])
+
+    if save_path is not None:
+        save_path = Path(save_path)
+        save_path.parent.mkdir(parents=True, exist_ok=True)
+        fig.savefig(save_path, dpi=300, bbox_inches="tight")
+        print(f"Plot saved to: {save_path}")
+
+    if show:
+        plt.show()
+    else:
+        plt.close(fig)
+
+    return plot_df
+
 
 
 # =============================================================================
@@ -1626,6 +1931,490 @@ def plot_silhouette_age_comparison_all_runs(
         "highlight_by": highlight_by,
         "fig": fig,
         "ax": ax,
+    }
+
+
+def save_internal_clustering_metrics_json(
+    models_dir: PathLike = "Clusters",
+    output_json_path: PathLike = "internal_clustering_scores.json",
+    labels_tag: str = "labels_predicted_labels_",
+    middle_layer_tag: str = "middle_layer_predicted_labels_",
+    cluster_range: Iterable[int] = range(2, 11),
+    invalid_value: float = np.nan,
+    overwrite: bool = True,
+    print_results: bool = False,
+) -> Dict[str, Any]:
+    """
+    Calculate and save all internal clustering metrics for every run condition.
+
+    This function uses the existing collect_clustering_scores_from_folder()
+    function. It does not recompute scores manually and it does not plot.
+
+    The output JSON contains one entry per run condition, where each run contains
+    scores for K = 2, ..., 10 by default.
+
+    Metrics saved:
+        - silhouette
+        - davies_bouldin
+        - calinski_harabasz
+    """
+
+    models_dir = Path(models_dir)
+    output_json_path = Path(output_json_path)
+
+    if output_json_path.exists() and not overwrite:
+        raise FileExistsError(f"Output file already exists: {output_json_path}")
+
+    def safe_float(value):
+        if value is None:
+            return None
+        try:
+            value = float(value)
+        except (TypeError, ValueError):
+            return None
+        if not np.isfinite(value):
+            return None
+        return value
+
+    def safe_int(value):
+        if value is None:
+            return None
+        try:
+            return int(value)
+        except (TypeError, ValueError):
+            return None
+
+    def discover_model_prefixes() -> Tuple[Dict[str, Dict[str, Any]], List[str]]:
+        """
+        Find one model prefix per run condition.
+
+        Example prefix:
+            DCEC_400x400_68_O_subjects_run1
+
+        This prefix is then passed to collect_clustering_scores_from_folder().
+        """
+        prefixes = {}
+        skipped_files = []
+
+        for labels_file in sorted(models_dir.glob("*.txt")):
+            filename = labels_file.name
+
+            if labels_tag not in filename:
+                continue
+
+            metadata = parse_model_filename(filename)
+
+            if metadata.get("age_group") == "unknown":
+                skipped_files.append(filename)
+                continue
+
+            model_prefix = (
+                f"DCEC_{metadata['parcellation']}_"
+                f"{metadata['n_subjects']}_"
+                f"{metadata['age_group']}_subjects_"
+                f"{metadata['run']}"
+            )
+
+            prefixes[model_prefix] = metadata
+
+        return prefixes, skipped_files
+
+    model_prefixes, skipped_parse_files = discover_model_prefixes()
+
+    if not model_prefixes:
+        raise ValueError(
+            "No model prefixes found. Check that the files follow the expected "
+            "DCEC_400x400_68_O_subjects_run1_... naming pattern."
+        )
+
+    runs = []
+    skipped_runs = []
+
+    for model_prefix, prefix_metadata in sorted(model_prefixes.items()):
+        scores_by_cluster = collect_clustering_scores_from_folder(
+            models_dir=models_dir,
+            model_prefix=model_prefix,
+            labels_tag=labels_tag,
+            middle_layer_tag=middle_layer_tag,
+            cluster_range=cluster_range,
+            invalid_value=invalid_value,
+            print_results=print_results,
+        )
+
+        if not scores_by_cluster:
+            skipped_runs.append(
+                {
+                    "model_prefix": model_prefix,
+                    "reason": "No valid clustering scores found for this prefix.",
+                }
+            )
+            continue
+
+        # Prefer metadata from the actual collected result if available.
+        first_result = next(iter(scores_by_cluster.values()))
+        metadata = first_result.get("metadata", prefix_metadata)
+
+        age_label = metadata.get("age_label", "unknown")
+        age_group = metadata.get("age_group", "unknown")
+        parcellation = metadata.get("parcellation", "unknown")
+        movie = metadata.get("movie", "unknown")
+        run = metadata.get("run", "unknown")
+        n_subjects = metadata.get("n_subjects", "unknown")
+
+        condition_id = f"{parcellation}_{age_label}_{movie}"
+
+        scores = {}
+
+        for cluster_number, result in sorted(scores_by_cluster.items()):
+            scores[str(cluster_number)] = {
+                "cluster": safe_int(cluster_number),
+                "silhouette": safe_float(result.get("silhouette")),
+                "davies_bouldin": safe_float(result.get("davies_bouldin")),
+                "calinski_harabasz": safe_float(result.get("calinski_harabasz")),
+                "valid": bool(result.get("valid", True)),
+                "file": result.get("file"),
+                "labels_file": result.get("labels_file"),
+                "middle_layer_file": result.get("middle_layer_file"),
+            }
+
+        runs.append(
+            {
+                "condition_id": condition_id,
+                "label": f"{age_label} {parcellation} {movie} (N={n_subjects})",
+                "model_prefix": model_prefix,
+                "age_label": age_label,
+                "age_group": age_group,
+                "parcellation": parcellation,
+                "movie": movie,
+                "run": run,
+                "n_subjects": safe_int(n_subjects),
+                "scores": scores,
+            }
+        )
+
+    runs = sorted(
+        runs,
+        key=lambda r: (
+            str(r["age_label"]),
+            str(r["parcellation"]),
+            str(r["run"]),
+            str(r["movie"]),
+        ),
+    )
+
+    cluster_numbers = sorted(
+        {
+            int(k)
+            for run in runs
+            for k in run["scores"].keys()
+        }
+    )
+
+    output = {
+        "metadata": {
+            "source_function": "collect_clustering_scores_from_folder",
+            "models_dir": str(models_dir),
+            "labels_tag": labels_tag,
+            "middle_layer_tag": middle_layer_tag,
+            "cluster_range": list(cluster_range),
+            "metrics": [
+                "silhouette",
+                "davies_bouldin",
+                "calinski_harabasz",
+            ],
+            "n_run_conditions": len(runs),
+            "n_cluster_solutions": sum(len(run["scores"]) for run in runs),
+            "cluster_numbers": cluster_numbers,
+        },
+        "runs": runs,
+        "skipped": {
+            "unparsed_label_files": skipped_parse_files,
+            "runs_without_scores": skipped_runs,
+        },
+    }
+
+    output_json_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with output_json_path.open("w", encoding="utf-8") as f:
+        json.dump(output, f, indent=4)
+
+    print(f"Saved internal clustering metrics to: {output_json_path}")
+    print(f"Run conditions saved: {len(runs)}")
+    print(f"Cluster solutions saved: {output['metadata']['n_cluster_solutions']}")
+
+    return output
+
+
+def plot_internal_clustering_metric_from_json(
+    json_path: PathLike,
+    metric: str = "silhouette",
+    save_path: Optional[PathLike] = None,
+    figsize: Tuple[int, int] = (7, 4),
+    title: Optional[str] = None,
+    ylim: Optional[Tuple[float, float]] = None,
+    annotate: bool = False,
+    offset_points: bool = True,
+    calinski_scale: Optional[float] = 1000.0,
+) -> Dict[str, Any]:
+    """
+    Plot one internal clustering metric for every run condition stored in the
+    JSON file created by save_internal_clustering_metrics_json().
+
+    Parameters
+    ----------
+    json_path:
+        Path to the saved internal clustering metrics JSON.
+
+    metric:
+        Which metric to plot. Accepted values:
+            - "silhouette"
+            - "silhouette_score"
+            - "davies_bouldin"
+            - "davies_bouldin_score"
+            - "calinski_harabasz"
+            - "calinski_harabasz_score"
+
+    calinski_scale:
+        Optional scaling for Calinski-Harabasz. For example, use 1000.0 to plot
+        Calinski-Harabasz / 1000. If None, the raw value is plotted.
+
+    Style
+    -----
+    Similar to the CCA/MLR comparison style:
+        - colour = age group
+        - line style = parcellation
+        - marker = movie condition
+    """
+
+    json_path = Path(json_path)
+    data = load_json_results(json_path)
+
+    metric_aliases = {
+        "silhouette": "silhouette",
+        "silhouette_score": "silhouette",
+        "davies_bouldin": "davies_bouldin",
+        "davies_bouldin_score": "davies_bouldin",
+        "davies-bouldin": "davies_bouldin",
+        "calinski_harabasz": "calinski_harabasz",
+        "calinski_harabasz_score": "calinski_harabasz",
+        "calinski-harabasz": "calinski_harabasz",
+    }
+
+    metric_key = metric_aliases.get(metric.lower())
+
+    if metric_key is None:
+        raise ValueError(
+            "Unknown metric. Use one of: "
+            "'silhouette', 'davies_bouldin', or 'calinski_harabasz'."
+        )
+
+    metric_labels = {
+        "silhouette": {
+            "ylabel": "Silhouette score",
+            "title": "Silhouette score across run conditions",
+            "footnote": "Silhouette score ∈ [-1, 1]. Higher is better.",
+        },
+        "davies_bouldin": {
+            "ylabel": "Davies-Bouldin score",
+            "title": "Davies-Bouldin score across run conditions",
+            "footnote": "Davies-Bouldin score ∈ [0, ∞). Lower is better.",
+        },
+        "calinski_harabasz": {
+            "ylabel": "Calinski-Harabasz score",
+            "title": "Calinski-Harabasz score across run conditions",
+            "footnote": "Calinski-Harabasz score ∈ [0, ∞). Higher is better.",
+        },
+    }
+
+    runs = data.get("runs", [])
+    # Sort the runs by parcellation(400x400 before 1000x1000), then by age group (Old before Young), then by run.
+    def run_sort_key(r):
+        parcellation_order = {
+            "400x400": 0,
+            "1000x1000": 1,
+        }
+
+        age_order = {
+            "Old": 0,
+            "old": 0,
+            "O": 0,
+            "Young": 1,
+            "young": 1,
+            "Y": 1,
+        }
+
+        parcellation = str(r.get("parcellation", "unknown"))
+        age = str(r.get("age_label", r.get("age_group", "unknown")))
+        run = str(r.get("run", "unknown"))
+
+        # Extract run number, so run10 does not sort before run2
+        run_match = re.search(r"\d+", run)
+        run_number = int(run_match.group()) if run_match else 999
+
+        return (
+            parcellation_order.get(parcellation, 999),
+            age_order.get(age, 999),
+            run_number,
+        )
+    runs = sorted(runs, key=run_sort_key)
+    
+    
+    if not runs:
+        raise ValueError(f"No runs found in {json_path}")
+
+    cluster_numbers = sorted(
+        {
+            int(cluster)
+            for run in runs
+            for cluster in run.get("scores", {}).keys()
+        }
+    )
+
+    if not cluster_numbers:
+        raise ValueError(f"No cluster scores found in {json_path}")
+
+    age_colors = {
+        "Young": "green",
+        "young": "green",
+        "Y": "green",
+        "Old": "red",
+        "old": "red",
+        "O": "red",
+    }
+
+    age_linestyles = {
+        "Young": "-",
+        "young": "-",
+        "Y": "-",
+        "Old": "--",
+        "old": "--",
+        "O": "--"
+    }
+
+    movie_markers = {
+        "neutral": "o",
+        "negative": "s",
+        "run1": "o",
+        "run2": "s",
+    }
+    
+    if offset_points and len(runs) > 1:
+        offsets = np.linspace(-0.22, 0.22, len(runs))
+    else:
+        offsets = np.zeros(len(runs))
+
+    fig, ax = plt.subplots(figsize=figsize)
+
+    for idx, run in enumerate(runs):
+        scores = run.get("scores", {})
+
+        y_values = []
+
+        for cluster_number in cluster_numbers:
+            cluster_scores = scores.get(str(cluster_number), {})
+            value = cluster_scores.get(metric_key)
+
+            if value is None:
+                y_values.append(np.nan)
+            else:
+                value = float(value)
+
+                if metric_key == "calinski_harabasz" and calinski_scale is not None:
+                    value = value / calinski_scale
+
+                y_values.append(value)
+
+        x_values = np.asarray(cluster_numbers, dtype=float) + offsets[idx]
+
+        age_label = run.get("age_label", run.get("age_group", "unknown"))
+        parcellation = run.get("parcellation", "unknown")
+        movie = run.get("movie", "unknown")
+
+        #color = age_colors.get(age_label, "black")
+
+        linestyle = age_linestyles.get(age_label, ":")
+        marker = movie_markers.get(movie, "^")
+
+        label = run.get(
+            "label",
+            f"{age_label} {parcellation} {movie}",
+        )
+
+        ax.plot(
+            x_values,
+            y_values,
+            # color=color,
+            linestyle=linestyle,
+            marker=marker,
+            linewidth=1.4,
+            markersize=5,
+            alpha=0.85,
+            label=label,
+        )
+
+        if annotate:
+            for x, y in zip(x_values, y_values):
+                if np.isfinite(y):
+                    ax.annotate(
+                        f"{y:.3f}",
+                        (x, y),
+                        xytext=(0, 6),
+                        textcoords="offset points",
+                        ha="center",
+                        fontsize=8,
+                    )
+
+    ylabel = metric_labels[metric_key]["ylabel"]
+    plot_title = title or metric_labels[metric_key]["title"]
+    footnote = metric_labels[metric_key]["footnote"]
+
+    if metric_key == "calinski_harabasz" and calinski_scale is not None:
+        ylabel = f"{ylabel} / {calinski_scale:g}"
+        footnote += f" Values are divided by {calinski_scale:g} in this plot."
+
+    ax.set_xlabel("Number of clusters $K$")
+    ax.set_ylabel(ylabel)
+    ax.set_title(plot_title)
+    ax.set_xticks(cluster_numbers)
+    ax.set_xticklabels([str(k) for k in cluster_numbers])
+    ax.grid(True, alpha=0.3)
+
+    if ylim is not None:
+        ax.set_ylim(*ylim)
+
+    ax.legend(
+        fontsize=7,
+        title="Run condition",
+        title_fontsize=8,
+        bbox_to_anchor=(1.02, 1),
+        loc="upper left",
+        borderaxespad=0,
+    )
+
+    fig.text(
+        0.5,
+        -0.03,
+        footnote + "Line style = age group | Marker = movie.",
+        ha="center",
+        fontsize=9,
+    )
+
+    plt.tight_layout()
+
+    if save_path is not None:
+        save_path = Path(save_path)
+        save_path.parent.mkdir(parents=True, exist_ok=True)
+        fig.savefig(save_path, dpi=300, bbox_inches="tight")
+        print(f"Plot saved to: {save_path}")
+
+    plt.show()
+
+    return {
+        "fig": fig,
+        "ax": ax,
+        "metric": metric_key,
+        "cluster_numbers": cluster_numbers,
+        "runs": runs,
     }
 
 
