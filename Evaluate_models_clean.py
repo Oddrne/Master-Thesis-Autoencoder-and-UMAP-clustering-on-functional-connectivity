@@ -575,20 +575,21 @@ def plot_clustering_scores_sorted(
     ax.set_xlabel("Number of clusters")
     ax.set_ylabel(ylabel)
     ax.set_xticks(list(cluster_range))
-    ax.set_title(title)
+    # ax.set_title(title) # Don't use title. Describe in figure text instead.
     ax.grid(True, alpha=0.3)
     ax.legend()
 
     if ytop is not None:
         ax.set_ylim(bottom=-0.1, top=ytop)
 
-    fig.text(
+    # Don't use figtext in python. Describe in latex caption instead.
+    """ fig.text(
         0.5,
         -0.02,
         "Silhouette [-1, 1] ↑ | Davies-Bouldin [0, ∞) ↓ | Calinski-Harabasz [0, ∞) ↑ (scaled)",
         ha="center",
         fontsize=12,
-    )
+    ) """
     plt.tight_layout()
 
     if save_path is not None:
@@ -612,7 +613,7 @@ def calculate_and_plot_scores_from_folder(**kwargs) -> Dict[int, Dict[str, Any]]
 def plot_tsne(
     embedding: np.ndarray,
     labels: Sequence[int],
-    title: str = "t-SNE visualisation of clusters",
+    title: str = None,
     save_path: Optional[PathLike] = None,
     figsize: Tuple[int, int] = (6, 4),
     figtext: str = None,
@@ -824,7 +825,7 @@ def plot_single_cluster_cca_mlr_variants(
     ax.set_xticks(x)
     ax.set_xticklabels(categories)
     ax.set_ylabel("Score")
-    ax.set_title(title or f"Cluster {cluster_number}: CCA and MLR across result types")
+    # ax.set_title(title or f"Cluster {cluster_number}: CCA and MLR across result types") # Don't use title. Describe in figure text instead.
     ax.set_ylim(0, ylim)
     ax.grid(True, alpha=0.3)
     ax.legend()
@@ -1103,7 +1104,7 @@ def plot_single_cluster_score_variants_multiple_runs(
         )
 
     ax.set_ylabel(ylabel)
-    ax.set_title(title or default_title, fontsize=10)
+    # ax.set_title(title or default_title, fontsize=10) # Don't use title. Describe in figure text instead.
     ax.grid(True, alpha=0.25)
 
     if y_lim is not None:
@@ -1121,7 +1122,8 @@ def plot_single_cluster_score_variants_multiple_runs(
         title="Condition",
     )
 
-    fig.text(
+    # Don't use figtext in python. Describe in latex caption instead.
+    """ fig.text(
         0.5,
         -0.03,
         (
@@ -1131,7 +1133,7 @@ def plot_single_cluster_score_variants_multiple_runs(
         ),
         ha="center",
         fontsize=8,
-    )
+    ) """
 
     fig.tight_layout(rect=[0, 0.04, 0.86, 0.92])
 
@@ -1905,17 +1907,18 @@ def plot_silhouette_age_comparison_all_runs(
     ax.set_xlabel("Number of clusters")
     ax.set_ylabel("Silhouette score")
     ax.set_xticks(cluster_numbers)
-    ax.set_title(title)
+    # ax.set_title(title) # Don't use title in python. Describe in latex caption instead.
     ax.grid(True, alpha=0.3)
     ax.legend()
 
-    fig.text(
+    # Don't use figtext in python. Describe in latex caption instead.
+    """ fig.text(
         0.5,
         -0.02,
         "Silhouette score ∈ [-1, 1] ↑ | " + style_note,
         ha="center",
         fontsize=12,
-    )
+    ) """
 
     plt.tight_layout()
 
@@ -2374,7 +2377,7 @@ def plot_internal_clustering_metric_from_json(
 
     ax.set_xlabel("Number of clusters $K$")
     ax.set_ylabel(ylabel)
-    ax.set_title(plot_title)
+    # ax.set_title(plot_title) # Don't use title in python. Describe in latex caption instead.
     ax.set_xticks(cluster_numbers)
     ax.set_xticklabels([str(k) for k in cluster_numbers])
     ax.grid(True, alpha=0.3)
@@ -2391,13 +2394,14 @@ def plot_internal_clustering_metric_from_json(
         borderaxespad=0,
     )
 
-    fig.text(
+    # Dont use python figtext, use latex caption.
+    """ fig.text(
         0.5,
         -0.03,
         footnote + "Line style = age group | Marker = movie.",
         ha="center",
         fontsize=9,
-    )
+    ) """
 
     plt.tight_layout()
 

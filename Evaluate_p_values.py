@@ -1012,8 +1012,9 @@ def plot_cca_mlr_side_by_side_same_selected_variables(
 
     axes[0].set_ylabel("Observed score")
 
-    if title is None:
-        title = f"CCA and MLR performance using {selected_variable_title}"
+    # Don't use title. Describe in figtext
+    """ if title is None:
+        title = f"CCA and MLR performance using {selected_variable_title}" """
 
     fig.suptitle(title, fontsize=11)
 
@@ -1030,13 +1031,14 @@ def plot_cca_mlr_side_by_side_same_selected_variables(
         title="Condition",
     )
 
-    fig.text(
+    # Don't use python figtext. Decribe in latex caption instead.
+    """ fig.text(
         0.5,
         -0.03,
         f"Marker size ∝ -log10(p). Red X indicates p > {p_threshold}.",
         ha="center",
         fontsize=8,
-    )
+    ) """
 
     fig.tight_layout(rect=[0, 0.03, 0.86, 0.92])
 
@@ -1339,8 +1341,9 @@ def plot_selected_score_two_file_sets(
 
     axes[0].set_ylabel(y_label)
 
-    if title is None:
-        title = default_title
+    # Don't use title. Describe in figtext instead.
+    """ if title is None:
+        title = default_title """
 
     fig.suptitle(title, fontsize=11)
 
@@ -1374,13 +1377,14 @@ def plot_selected_score_two_file_sets(
         )
         layout_rect = [0, 0.04, 1, 0.92]
 
-    fig.text(
+    # Don't use python figtext. Describe in latex caption instead.
+    """ fig.text(
         0.5,
         -0.03,
         f"Marker size ∝ -log10(p). Red X indicates p > {p_threshold}.",
         ha="center",
         fontsize=8,
-    )
+    ) """
 
     fig.tight_layout(rect=layout_rect)
 

@@ -41,12 +41,7 @@
             "chance_accuracy_majority_class": 0.4925373134328358
         },
         "cca_selected_variables": [
-            "Q8emo_em",
-            "mean_RT",
-            "WM",
-            "Q4Anxiety",
-            "Q4Depression",
-            "dER_neu"
+            "Q8emo_em", "mean_RT", "WM", "Q4Anxiety", "Q4Depression", "dER_neu"
         ],
         "mlr_selected_variables": [
             "Q8IRI",

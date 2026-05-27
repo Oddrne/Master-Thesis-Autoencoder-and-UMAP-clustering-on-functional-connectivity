@@ -1,0 +1,867 @@
+{
+    "metadata": {
+        "source_function": "collect_clustering_scores_from_folder",
+        "models_dir": "Clusters",
+        "labels_tag": "kmeans_labels_predicted_labels",
+        "middle_layer_tag": "kmeans_middle_layer_predicted_labels",
+        "cluster_range": [
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+        ],
+        "metrics": [
+            "silhouette",
+            "davies_bouldin",
+            "calinski_harabasz"
+        ],
+        "n_run_conditions": 8,
+        "n_cluster_solutions": 72,
+        "cluster_numbers": [
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+        ]
+    },
+    "runs": [
+        {
+            "condition_id": "1000x1000_Old_neutral",
+            "label": "Old 1000x1000 neutral (N=68)",
+            "model_prefix": "DCEC_1000x1000_68_O_subjects_run1",
+            "age_label": "Old",
+            "age_group": "O",
+            "parcellation": "1000x1000",
+            "movie": "neutral",
+            "run": "run1",
+            "n_subjects": 68,
+            "scores": {
+                "2": {
+                    "cluster": 2,
+                    "silhouette": 0.30279491691844235,
+                    "davies_bouldin": 1.2410966827328493,
+                    "calinski_harabasz": 35.79661106641353,
+                    "valid": true,
+                    "file": "DCEC_1000x1000_68_O_subjects_run1_cluster_2_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_1000x1000_68_O_subjects_run1_cluster_2_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_1000x1000_68_O_subjects_run1_cluster_2_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "3": {
+                    "cluster": 3,
+                    "silhouette": 0.3428117122270396,
+                    "davies_bouldin": 0.9916034332450119,
+                    "calinski_harabasz": 36.93394145285291,
+                    "valid": true,
+                    "file": "DCEC_1000x1000_68_O_subjects_run1_cluster_3_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_1000x1000_68_O_subjects_run1_cluster_3_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_1000x1000_68_O_subjects_run1_cluster_3_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "4": {
+                    "cluster": 4,
+                    "silhouette": 0.23326844711887268,
+                    "davies_bouldin": 1.2832967176472845,
+                    "calinski_harabasz": 30.23979577262495,
+                    "valid": true,
+                    "file": "DCEC_1000x1000_68_O_subjects_run1_cluster_4_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_1000x1000_68_O_subjects_run1_cluster_4_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_1000x1000_68_O_subjects_run1_cluster_4_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "5": {
+                    "cluster": 5,
+                    "silhouette": 0.34127668111979276,
+                    "davies_bouldin": 0.9579129331628465,
+                    "calinski_harabasz": 76.60632915914182,
+                    "valid": true,
+                    "file": "DCEC_1000x1000_68_O_subjects_run1_cluster_5_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_1000x1000_68_O_subjects_run1_cluster_5_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_1000x1000_68_O_subjects_run1_cluster_5_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "6": {
+                    "cluster": 6,
+                    "silhouette": 0.23277330758840012,
+                    "davies_bouldin": 1.3132838011115633,
+                    "calinski_harabasz": 30.119768818329394,
+                    "valid": true,
+                    "file": "DCEC_1000x1000_68_O_subjects_run1_cluster_6_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_1000x1000_68_O_subjects_run1_cluster_6_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_1000x1000_68_O_subjects_run1_cluster_6_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "7": {
+                    "cluster": 7,
+                    "silhouette": 0.26242260114162663,
+                    "davies_bouldin": 1.0183779219081892,
+                    "calinski_harabasz": 108.09667253452027,
+                    "valid": true,
+                    "file": "DCEC_1000x1000_68_O_subjects_run1_cluster_7_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_1000x1000_68_O_subjects_run1_cluster_7_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_1000x1000_68_O_subjects_run1_cluster_7_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "8": {
+                    "cluster": 8,
+                    "silhouette": 0.24037219320623393,
+                    "davies_bouldin": 1.1404667704653377,
+                    "calinski_harabasz": 24.385463701348172,
+                    "valid": true,
+                    "file": "DCEC_1000x1000_68_O_subjects_run1_cluster_8_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_1000x1000_68_O_subjects_run1_cluster_8_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_1000x1000_68_O_subjects_run1_cluster_8_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "9": {
+                    "cluster": 9,
+                    "silhouette": 0.2534553665261839,
+                    "davies_bouldin": 1.0689721355189967,
+                    "calinski_harabasz": 29.913173582221955,
+                    "valid": true,
+                    "file": "DCEC_1000x1000_68_O_subjects_run1_cluster_9_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_1000x1000_68_O_subjects_run1_cluster_9_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_1000x1000_68_O_subjects_run1_cluster_9_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "10": {
+                    "cluster": 10,
+                    "silhouette": 0.21054501660774208,
+                    "davies_bouldin": 1.1274941454410963,
+                    "calinski_harabasz": 15.956480483032774,
+                    "valid": true,
+                    "file": "DCEC_1000x1000_68_O_subjects_run1_cluster_10_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_1000x1000_68_O_subjects_run1_cluster_10_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_1000x1000_68_O_subjects_run1_cluster_10_kmeans_middle_layer_predicted_labels.txt"
+                }
+            }
+        },
+        {
+            "condition_id": "1000x1000_Old_negative",
+            "label": "Old 1000x1000 negative (N=68)",
+            "model_prefix": "DCEC_1000x1000_68_O_subjects_run2",
+            "age_label": "Old",
+            "age_group": "O",
+            "parcellation": "1000x1000",
+            "movie": "negative",
+            "run": "run2",
+            "n_subjects": 68,
+            "scores": {
+                "2": {
+                    "cluster": 2,
+                    "silhouette": 0.2942220073410658,
+                    "davies_bouldin": 1.3042190386663013,
+                    "calinski_harabasz": 31.93916715387839,
+                    "valid": true,
+                    "file": "DCEC_1000x1000_68_O_subjects_run2_cluster_2_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_1000x1000_68_O_subjects_run2_cluster_2_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_1000x1000_68_O_subjects_run2_cluster_2_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "3": {
+                    "cluster": 3,
+                    "silhouette": 0.23455269812676172,
+                    "davies_bouldin": 1.3771644637473799,
+                    "calinski_harabasz": 31.278113222813925,
+                    "valid": true,
+                    "file": "DCEC_1000x1000_68_O_subjects_run2_cluster_3_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_1000x1000_68_O_subjects_run2_cluster_3_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_1000x1000_68_O_subjects_run2_cluster_3_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "4": {
+                    "cluster": 4,
+                    "silhouette": 0.18878796360032624,
+                    "davies_bouldin": 1.2773532686300482,
+                    "calinski_harabasz": 23.524231511010814,
+                    "valid": true,
+                    "file": "DCEC_1000x1000_68_O_subjects_run2_cluster_4_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_1000x1000_68_O_subjects_run2_cluster_4_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_1000x1000_68_O_subjects_run2_cluster_4_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "5": {
+                    "cluster": 5,
+                    "silhouette": 0.2836929586085657,
+                    "davies_bouldin": 0.9043020150633507,
+                    "calinski_harabasz": 41.39171974270413,
+                    "valid": true,
+                    "file": "DCEC_1000x1000_68_O_subjects_run2_cluster_5_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_1000x1000_68_O_subjects_run2_cluster_5_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_1000x1000_68_O_subjects_run2_cluster_5_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "6": {
+                    "cluster": 6,
+                    "silhouette": 0.2266669645912569,
+                    "davies_bouldin": 1.052345393470692,
+                    "calinski_harabasz": 27.498034242006845,
+                    "valid": true,
+                    "file": "DCEC_1000x1000_68_O_subjects_run2_cluster_6_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_1000x1000_68_O_subjects_run2_cluster_6_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_1000x1000_68_O_subjects_run2_cluster_6_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "7": {
+                    "cluster": 7,
+                    "silhouette": 0.23030441050494269,
+                    "davies_bouldin": 1.0722692693456053,
+                    "calinski_harabasz": 33.60444707257611,
+                    "valid": true,
+                    "file": "DCEC_1000x1000_68_O_subjects_run2_cluster_7_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_1000x1000_68_O_subjects_run2_cluster_7_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_1000x1000_68_O_subjects_run2_cluster_7_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "8": {
+                    "cluster": 8,
+                    "silhouette": 0.28181750114031706,
+                    "davies_bouldin": 0.922877294483305,
+                    "calinski_harabasz": 34.24915268453223,
+                    "valid": true,
+                    "file": "DCEC_1000x1000_68_O_subjects_run2_cluster_8_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_1000x1000_68_O_subjects_run2_cluster_8_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_1000x1000_68_O_subjects_run2_cluster_8_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "9": {
+                    "cluster": 9,
+                    "silhouette": 0.15773563137912494,
+                    "davies_bouldin": 1.2661470726057233,
+                    "calinski_harabasz": 15.528203065295054,
+                    "valid": true,
+                    "file": "DCEC_1000x1000_68_O_subjects_run2_cluster_9_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_1000x1000_68_O_subjects_run2_cluster_9_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_1000x1000_68_O_subjects_run2_cluster_9_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "10": {
+                    "cluster": 10,
+                    "silhouette": 0.18919004049034735,
+                    "davies_bouldin": 1.1974481653174172,
+                    "calinski_harabasz": 14.980099998220128,
+                    "valid": true,
+                    "file": "DCEC_1000x1000_68_O_subjects_run2_cluster_10_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_1000x1000_68_O_subjects_run2_cluster_10_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_1000x1000_68_O_subjects_run2_cluster_10_kmeans_middle_layer_predicted_labels.txt"
+                }
+            }
+        },
+        {
+            "condition_id": "400x400_Old_neutral",
+            "label": "Old 400x400 neutral (N=68)",
+            "model_prefix": "DCEC_400x400_68_O_subjects_run1",
+            "age_label": "Old",
+            "age_group": "O",
+            "parcellation": "400x400",
+            "movie": "neutral",
+            "run": "run1",
+            "n_subjects": 68,
+            "scores": {
+                "2": {
+                    "cluster": 2,
+                    "silhouette": 0.41057405156630405,
+                    "davies_bouldin": 0.8830493192477129,
+                    "calinski_harabasz": 67.99198965973127,
+                    "valid": true,
+                    "file": "DCEC_400x400_68_O_subjects_run1_cluster_2_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_400x400_68_O_subjects_run1_cluster_2_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_400x400_68_O_subjects_run1_cluster_2_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "3": {
+                    "cluster": 3,
+                    "silhouette": 0.22316756301840376,
+                    "davies_bouldin": 1.4362004721089583,
+                    "calinski_harabasz": 21.951051800748584,
+                    "valid": true,
+                    "file": "DCEC_400x400_68_O_subjects_run1_cluster_3_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_400x400_68_O_subjects_run1_cluster_3_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_400x400_68_O_subjects_run1_cluster_3_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "4": {
+                    "cluster": 4,
+                    "silhouette": 0.24226599618800554,
+                    "davies_bouldin": 1.2446982515544753,
+                    "calinski_harabasz": 28.778194935193,
+                    "valid": true,
+                    "file": "DCEC_400x400_68_O_subjects_run1_cluster_4_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_400x400_68_O_subjects_run1_cluster_4_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_400x400_68_O_subjects_run1_cluster_4_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "5": {
+                    "cluster": 5,
+                    "silhouette": 0.2012552741051252,
+                    "davies_bouldin": 1.3588637574475655,
+                    "calinski_harabasz": 21.036720833301896,
+                    "valid": true,
+                    "file": "DCEC_400x400_68_O_subjects_run1_cluster_5_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_400x400_68_O_subjects_run1_cluster_5_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_400x400_68_O_subjects_run1_cluster_5_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "6": {
+                    "cluster": 6,
+                    "silhouette": 0.22408068874872544,
+                    "davies_bouldin": 1.194577027597605,
+                    "calinski_harabasz": 26.729290028622632,
+                    "valid": true,
+                    "file": "DCEC_400x400_68_O_subjects_run1_cluster_6_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_400x400_68_O_subjects_run1_cluster_6_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_400x400_68_O_subjects_run1_cluster_6_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "7": {
+                    "cluster": 7,
+                    "silhouette": 0.28496593918467933,
+                    "davies_bouldin": 0.9687417671425578,
+                    "calinski_harabasz": 48.15247793029084,
+                    "valid": true,
+                    "file": "DCEC_400x400_68_O_subjects_run1_cluster_7_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_400x400_68_O_subjects_run1_cluster_7_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_400x400_68_O_subjects_run1_cluster_7_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "8": {
+                    "cluster": 8,
+                    "silhouette": 0.262628365514526,
+                    "davies_bouldin": 0.9952399831445461,
+                    "calinski_harabasz": 30.177571724124785,
+                    "valid": true,
+                    "file": "DCEC_400x400_68_O_subjects_run1_cluster_8_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_400x400_68_O_subjects_run1_cluster_8_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_400x400_68_O_subjects_run1_cluster_8_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "9": {
+                    "cluster": 9,
+                    "silhouette": 0.23388724362391047,
+                    "davies_bouldin": 1.0090926854420756,
+                    "calinski_harabasz": 25.55383427567521,
+                    "valid": true,
+                    "file": "DCEC_400x400_68_O_subjects_run1_cluster_9_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_400x400_68_O_subjects_run1_cluster_9_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_400x400_68_O_subjects_run1_cluster_9_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "10": {
+                    "cluster": 10,
+                    "silhouette": 0.32331961140434706,
+                    "davies_bouldin": 0.845351874596153,
+                    "calinski_harabasz": 60.4730942821522,
+                    "valid": true,
+                    "file": "DCEC_400x400_68_O_subjects_run1_cluster_10_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_400x400_68_O_subjects_run1_cluster_10_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_400x400_68_O_subjects_run1_cluster_10_kmeans_middle_layer_predicted_labels.txt"
+                }
+            }
+        },
+        {
+            "condition_id": "400x400_Old_negative",
+            "label": "Old 400x400 negative (N=68)",
+            "model_prefix": "DCEC_400x400_68_O_subjects_run2",
+            "age_label": "Old",
+            "age_group": "O",
+            "parcellation": "400x400",
+            "movie": "negative",
+            "run": "run2",
+            "n_subjects": 68,
+            "scores": {
+                "2": {
+                    "cluster": 2,
+                    "silhouette": 0.3523313238025369,
+                    "davies_bouldin": 1.0609904108362647,
+                    "calinski_harabasz": 52.98741321852697,
+                    "valid": true,
+                    "file": "DCEC_400x400_68_O_subjects_run2_cluster_2_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_400x400_68_O_subjects_run2_cluster_2_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_400x400_68_O_subjects_run2_cluster_2_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "3": {
+                    "cluster": 3,
+                    "silhouette": 0.32916121365521855,
+                    "davies_bouldin": 1.1495924355420974,
+                    "calinski_harabasz": 49.29953176815669,
+                    "valid": true,
+                    "file": "DCEC_400x400_68_O_subjects_run2_cluster_3_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_400x400_68_O_subjects_run2_cluster_3_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_400x400_68_O_subjects_run2_cluster_3_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "4": {
+                    "cluster": 4,
+                    "silhouette": 0.2440886211822091,
+                    "davies_bouldin": 1.2342598584781024,
+                    "calinski_harabasz": 20.886891055697593,
+                    "valid": true,
+                    "file": "DCEC_400x400_68_O_subjects_run2_cluster_4_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_400x400_68_O_subjects_run2_cluster_4_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_400x400_68_O_subjects_run2_cluster_4_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "5": {
+                    "cluster": 5,
+                    "silhouette": 0.2661480086097115,
+                    "davies_bouldin": 0.9830180456566037,
+                    "calinski_harabasz": 33.96989497987006,
+                    "valid": true,
+                    "file": "DCEC_400x400_68_O_subjects_run2_cluster_5_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_400x400_68_O_subjects_run2_cluster_5_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_400x400_68_O_subjects_run2_cluster_5_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "6": {
+                    "cluster": 6,
+                    "silhouette": 0.2734034213505514,
+                    "davies_bouldin": 0.9324376593344219,
+                    "calinski_harabasz": 45.082918816856974,
+                    "valid": true,
+                    "file": "DCEC_400x400_68_O_subjects_run2_cluster_6_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_400x400_68_O_subjects_run2_cluster_6_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_400x400_68_O_subjects_run2_cluster_6_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "7": {
+                    "cluster": 7,
+                    "silhouette": 0.26605728870196016,
+                    "davies_bouldin": 0.9736126238651363,
+                    "calinski_harabasz": 35.94553830504236,
+                    "valid": true,
+                    "file": "DCEC_400x400_68_O_subjects_run2_cluster_7_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_400x400_68_O_subjects_run2_cluster_7_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_400x400_68_O_subjects_run2_cluster_7_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "8": {
+                    "cluster": 8,
+                    "silhouette": 0.23721368180687605,
+                    "davies_bouldin": 1.0401945891022886,
+                    "calinski_harabasz": 30.255990178430483,
+                    "valid": true,
+                    "file": "DCEC_400x400_68_O_subjects_run2_cluster_8_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_400x400_68_O_subjects_run2_cluster_8_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_400x400_68_O_subjects_run2_cluster_8_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "9": {
+                    "cluster": 9,
+                    "silhouette": 0.26938243945078477,
+                    "davies_bouldin": 0.9192218447527777,
+                    "calinski_harabasz": 48.709044780687066,
+                    "valid": true,
+                    "file": "DCEC_400x400_68_O_subjects_run2_cluster_9_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_400x400_68_O_subjects_run2_cluster_9_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_400x400_68_O_subjects_run2_cluster_9_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "10": {
+                    "cluster": 10,
+                    "silhouette": 0.23191849137851803,
+                    "davies_bouldin": 1.060576762521206,
+                    "calinski_harabasz": 23.059794631230137,
+                    "valid": true,
+                    "file": "DCEC_400x400_68_O_subjects_run2_cluster_10_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_400x400_68_O_subjects_run2_cluster_10_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_400x400_68_O_subjects_run2_cluster_10_kmeans_middle_layer_predicted_labels.txt"
+                }
+            }
+        },
+        {
+            "condition_id": "1000x1000_Young_neutral",
+            "label": "Young 1000x1000 neutral (N=71)",
+            "model_prefix": "DCEC_1000x1000_71_Y_subjects_run1",
+            "age_label": "Young",
+            "age_group": "Y",
+            "parcellation": "1000x1000",
+            "movie": "neutral",
+            "run": "run1",
+            "n_subjects": 71,
+            "scores": {
+                "2": {
+                    "cluster": 2,
+                    "silhouette": 0.5337943164429185,
+                    "davies_bouldin": 0.6601963271345891,
+                    "calinski_harabasz": 132.23135592731722,
+                    "valid": true,
+                    "file": "DCEC_1000x1000_71_Y_subjects_run1_cluster_2_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_1000x1000_71_Y_subjects_run1_cluster_2_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_1000x1000_71_Y_subjects_run1_cluster_2_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "3": {
+                    "cluster": 3,
+                    "silhouette": 0.47976071140818216,
+                    "davies_bouldin": 0.6633118301985276,
+                    "calinski_harabasz": 123.86066521023525,
+                    "valid": true,
+                    "file": "DCEC_1000x1000_71_Y_subjects_run1_cluster_3_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_1000x1000_71_Y_subjects_run1_cluster_3_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_1000x1000_71_Y_subjects_run1_cluster_3_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "4": {
+                    "cluster": 4,
+                    "silhouette": 0.36838600182467773,
+                    "davies_bouldin": 0.9331732216116109,
+                    "calinski_harabasz": 84.209638089156,
+                    "valid": true,
+                    "file": "DCEC_1000x1000_71_Y_subjects_run1_cluster_4_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_1000x1000_71_Y_subjects_run1_cluster_4_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_1000x1000_71_Y_subjects_run1_cluster_4_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "5": {
+                    "cluster": 5,
+                    "silhouette": 0.5453773899578647,
+                    "davies_bouldin": 0.5143876274489625,
+                    "calinski_harabasz": 296.06386630207095,
+                    "valid": true,
+                    "file": "DCEC_1000x1000_71_Y_subjects_run1_cluster_5_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_1000x1000_71_Y_subjects_run1_cluster_5_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_1000x1000_71_Y_subjects_run1_cluster_5_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "6": {
+                    "cluster": 6,
+                    "silhouette": 0.4462682017613285,
+                    "davies_bouldin": 0.6711169863938152,
+                    "calinski_harabasz": 287.3851662115515,
+                    "valid": true,
+                    "file": "DCEC_1000x1000_71_Y_subjects_run1_cluster_6_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_1000x1000_71_Y_subjects_run1_cluster_6_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_1000x1000_71_Y_subjects_run1_cluster_6_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "7": {
+                    "cluster": 7,
+                    "silhouette": 0.3524572299164932,
+                    "davies_bouldin": 0.8269369510889304,
+                    "calinski_harabasz": 73.09719299985332,
+                    "valid": true,
+                    "file": "DCEC_1000x1000_71_Y_subjects_run1_cluster_7_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_1000x1000_71_Y_subjects_run1_cluster_7_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_1000x1000_71_Y_subjects_run1_cluster_7_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "8": {
+                    "cluster": 8,
+                    "silhouette": 0.5873087428916247,
+                    "davies_bouldin": 0.4885750394196146,
+                    "calinski_harabasz": 602.2984674990759,
+                    "valid": true,
+                    "file": "DCEC_1000x1000_71_Y_subjects_run1_cluster_8_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_1000x1000_71_Y_subjects_run1_cluster_8_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_1000x1000_71_Y_subjects_run1_cluster_8_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "9": {
+                    "cluster": 9,
+                    "silhouette": 0.533526032127261,
+                    "davies_bouldin": 0.5156021794695094,
+                    "calinski_harabasz": 652.2177830171797,
+                    "valid": true,
+                    "file": "DCEC_1000x1000_71_Y_subjects_run1_cluster_9_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_1000x1000_71_Y_subjects_run1_cluster_9_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_1000x1000_71_Y_subjects_run1_cluster_9_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "10": {
+                    "cluster": 10,
+                    "silhouette": 0.4011675299253957,
+                    "davies_bouldin": 0.7967043117457137,
+                    "calinski_harabasz": 182.15349738507294,
+                    "valid": true,
+                    "file": "DCEC_1000x1000_71_Y_subjects_run1_cluster_10_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_1000x1000_71_Y_subjects_run1_cluster_10_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_1000x1000_71_Y_subjects_run1_cluster_10_kmeans_middle_layer_predicted_labels.txt"
+                }
+            }
+        },
+        {
+            "condition_id": "1000x1000_Young_negative",
+            "label": "Young 1000x1000 negative (N=71)",
+            "model_prefix": "DCEC_1000x1000_71_Y_subjects_run2",
+            "age_label": "Young",
+            "age_group": "Y",
+            "parcellation": "1000x1000",
+            "movie": "negative",
+            "run": "run2",
+            "n_subjects": 71,
+            "scores": {
+                "2": {
+                    "cluster": 2,
+                    "silhouette": 0.3687678852523117,
+                    "davies_bouldin": 1.0108040362328814,
+                    "calinski_harabasz": 55.83678533609038,
+                    "valid": true,
+                    "file": "DCEC_1000x1000_71_Y_subjects_run2_cluster_2_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_1000x1000_71_Y_subjects_run2_cluster_2_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_1000x1000_71_Y_subjects_run2_cluster_2_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "3": {
+                    "cluster": 3,
+                    "silhouette": 0.37775202548518333,
+                    "davies_bouldin": 0.9390220761150875,
+                    "calinski_harabasz": 63.16069401909397,
+                    "valid": true,
+                    "file": "DCEC_1000x1000_71_Y_subjects_run2_cluster_3_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_1000x1000_71_Y_subjects_run2_cluster_3_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_1000x1000_71_Y_subjects_run2_cluster_3_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "4": {
+                    "cluster": 4,
+                    "silhouette": 0.31253742018256897,
+                    "davies_bouldin": 1.0175674648998116,
+                    "calinski_harabasz": 64.66518637975007,
+                    "valid": true,
+                    "file": "DCEC_1000x1000_71_Y_subjects_run2_cluster_4_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_1000x1000_71_Y_subjects_run2_cluster_4_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_1000x1000_71_Y_subjects_run2_cluster_4_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "5": {
+                    "cluster": 5,
+                    "silhouette": 0.3153624881797871,
+                    "davies_bouldin": 1.0567753733929028,
+                    "calinski_harabasz": 54.352166099754776,
+                    "valid": true,
+                    "file": "DCEC_1000x1000_71_Y_subjects_run2_cluster_5_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_1000x1000_71_Y_subjects_run2_cluster_5_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_1000x1000_71_Y_subjects_run2_cluster_5_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "6": {
+                    "cluster": 6,
+                    "silhouette": 0.29010599543811755,
+                    "davies_bouldin": 1.0686683648001198,
+                    "calinski_harabasz": 47.72787585661933,
+                    "valid": true,
+                    "file": "DCEC_1000x1000_71_Y_subjects_run2_cluster_6_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_1000x1000_71_Y_subjects_run2_cluster_6_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_1000x1000_71_Y_subjects_run2_cluster_6_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "7": {
+                    "cluster": 7,
+                    "silhouette": 0.30213029084505794,
+                    "davies_bouldin": 0.9951385912267446,
+                    "calinski_harabasz": 51.49837715403163,
+                    "valid": true,
+                    "file": "DCEC_1000x1000_71_Y_subjects_run2_cluster_7_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_1000x1000_71_Y_subjects_run2_cluster_7_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_1000x1000_71_Y_subjects_run2_cluster_7_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "8": {
+                    "cluster": 8,
+                    "silhouette": 0.38200969596400636,
+                    "davies_bouldin": 0.8031681531184027,
+                    "calinski_harabasz": 114.26704340374042,
+                    "valid": true,
+                    "file": "DCEC_1000x1000_71_Y_subjects_run2_cluster_8_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_1000x1000_71_Y_subjects_run2_cluster_8_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_1000x1000_71_Y_subjects_run2_cluster_8_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "9": {
+                    "cluster": 9,
+                    "silhouette": 0.26793651388905615,
+                    "davies_bouldin": 1.140609221673539,
+                    "calinski_harabasz": 36.21483490353272,
+                    "valid": true,
+                    "file": "DCEC_1000x1000_71_Y_subjects_run2_cluster_9_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_1000x1000_71_Y_subjects_run2_cluster_9_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_1000x1000_71_Y_subjects_run2_cluster_9_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "10": {
+                    "cluster": 10,
+                    "silhouette": 0.2593614027591473,
+                    "davies_bouldin": 1.1161053621314287,
+                    "calinski_harabasz": 31.797393435339874,
+                    "valid": true,
+                    "file": "DCEC_1000x1000_71_Y_subjects_run2_cluster_10_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_1000x1000_71_Y_subjects_run2_cluster_10_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_1000x1000_71_Y_subjects_run2_cluster_10_kmeans_middle_layer_predicted_labels.txt"
+                }
+            }
+        },
+        {
+            "condition_id": "400x400_Young_neutral",
+            "label": "Young 400x400 neutral (N=71)",
+            "model_prefix": "DCEC_400x400_71_Y_subjects_run1",
+            "age_label": "Young",
+            "age_group": "Y",
+            "parcellation": "400x400",
+            "movie": "neutral",
+            "run": "run1",
+            "n_subjects": 71,
+            "scores": {
+                "2": {
+                    "cluster": 2,
+                    "silhouette": 0.45768496596653,
+                    "davies_bouldin": 0.8471315421153105,
+                    "calinski_harabasz": 82.9810927704355,
+                    "valid": true,
+                    "file": "DCEC_400x400_71_Y_subjects_run1_cluster_2_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_400x400_71_Y_subjects_run1_cluster_2_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_400x400_71_Y_subjects_run1_cluster_2_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "3": {
+                    "cluster": 3,
+                    "silhouette": 0.25942518925549507,
+                    "davies_bouldin": 1.2357900014811622,
+                    "calinski_harabasz": 40.18279970894747,
+                    "valid": true,
+                    "file": "DCEC_400x400_71_Y_subjects_run1_cluster_3_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_400x400_71_Y_subjects_run1_cluster_3_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_400x400_71_Y_subjects_run1_cluster_3_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "4": {
+                    "cluster": 4,
+                    "silhouette": 0.28454044142079066,
+                    "davies_bouldin": 1.0391587921893208,
+                    "calinski_harabasz": 37.931842184509144,
+                    "valid": true,
+                    "file": "DCEC_400x400_71_Y_subjects_run1_cluster_4_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_400x400_71_Y_subjects_run1_cluster_4_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_400x400_71_Y_subjects_run1_cluster_4_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "5": {
+                    "cluster": 5,
+                    "silhouette": 0.27572767522578606,
+                    "davies_bouldin": 1.1253982418566022,
+                    "calinski_harabasz": 41.66617939732054,
+                    "valid": true,
+                    "file": "DCEC_400x400_71_Y_subjects_run1_cluster_5_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_400x400_71_Y_subjects_run1_cluster_5_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_400x400_71_Y_subjects_run1_cluster_5_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "6": {
+                    "cluster": 6,
+                    "silhouette": 0.35620060894704264,
+                    "davies_bouldin": 0.9409164726767364,
+                    "calinski_harabasz": 85.52172552113939,
+                    "valid": true,
+                    "file": "DCEC_400x400_71_Y_subjects_run1_cluster_6_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_400x400_71_Y_subjects_run1_cluster_6_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_400x400_71_Y_subjects_run1_cluster_6_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "7": {
+                    "cluster": 7,
+                    "silhouette": 0.28999159249194617,
+                    "davies_bouldin": 1.1147924305187087,
+                    "calinski_harabasz": 50.031202333015365,
+                    "valid": true,
+                    "file": "DCEC_400x400_71_Y_subjects_run1_cluster_7_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_400x400_71_Y_subjects_run1_cluster_7_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_400x400_71_Y_subjects_run1_cluster_7_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "8": {
+                    "cluster": 8,
+                    "silhouette": 0.3811460416277,
+                    "davies_bouldin": 0.9813506516058091,
+                    "calinski_harabasz": 132.38207296398173,
+                    "valid": true,
+                    "file": "DCEC_400x400_71_Y_subjects_run1_cluster_8_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_400x400_71_Y_subjects_run1_cluster_8_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_400x400_71_Y_subjects_run1_cluster_8_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "9": {
+                    "cluster": 9,
+                    "silhouette": 0.3012681529597656,
+                    "davies_bouldin": 0.8774421024911984,
+                    "calinski_harabasz": 45.40210905770794,
+                    "valid": true,
+                    "file": "DCEC_400x400_71_Y_subjects_run1_cluster_9_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_400x400_71_Y_subjects_run1_cluster_9_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_400x400_71_Y_subjects_run1_cluster_9_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "10": {
+                    "cluster": 10,
+                    "silhouette": 0.3104157356178095,
+                    "davies_bouldin": 0.9209511486756707,
+                    "calinski_harabasz": 46.904238058333725,
+                    "valid": true,
+                    "file": "DCEC_400x400_71_Y_subjects_run1_cluster_10_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_400x400_71_Y_subjects_run1_cluster_10_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_400x400_71_Y_subjects_run1_cluster_10_kmeans_middle_layer_predicted_labels.txt"
+                }
+            }
+        },
+        {
+            "condition_id": "400x400_Young_negative",
+            "label": "Young 400x400 negative (N=71)",
+            "model_prefix": "DCEC_400x400_71_Y_subjects_run2",
+            "age_label": "Young",
+            "age_group": "Y",
+            "parcellation": "400x400",
+            "movie": "negative",
+            "run": "run2",
+            "n_subjects": 71,
+            "scores": {
+                "2": {
+                    "cluster": 2,
+                    "silhouette": 0.48125173325779746,
+                    "davies_bouldin": 0.7625738350487156,
+                    "calinski_harabasz": 98.65625428182392,
+                    "valid": true,
+                    "file": "DCEC_400x400_71_Y_subjects_run2_cluster_2_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_400x400_71_Y_subjects_run2_cluster_2_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_400x400_71_Y_subjects_run2_cluster_2_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "3": {
+                    "cluster": 3,
+                    "silhouette": 0.3081890331594482,
+                    "davies_bouldin": 1.1046658180158655,
+                    "calinski_harabasz": 44.720921813018116,
+                    "valid": true,
+                    "file": "DCEC_400x400_71_Y_subjects_run2_cluster_3_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_400x400_71_Y_subjects_run2_cluster_3_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_400x400_71_Y_subjects_run2_cluster_3_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "4": {
+                    "cluster": 4,
+                    "silhouette": 0.41703956176891627,
+                    "davies_bouldin": 0.8224443980433719,
+                    "calinski_harabasz": 123.10666334903132,
+                    "valid": true,
+                    "file": "DCEC_400x400_71_Y_subjects_run2_cluster_4_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_400x400_71_Y_subjects_run2_cluster_4_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_400x400_71_Y_subjects_run2_cluster_4_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "5": {
+                    "cluster": 5,
+                    "silhouette": 0.2732875954198545,
+                    "davies_bouldin": 1.080720631327258,
+                    "calinski_harabasz": 36.15817420889442,
+                    "valid": true,
+                    "file": "DCEC_400x400_71_Y_subjects_run2_cluster_5_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_400x400_71_Y_subjects_run2_cluster_5_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_400x400_71_Y_subjects_run2_cluster_5_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "6": {
+                    "cluster": 6,
+                    "silhouette": 0.2997432427852197,
+                    "davies_bouldin": 1.0362096599602726,
+                    "calinski_harabasz": 54.48743373547052,
+                    "valid": true,
+                    "file": "DCEC_400x400_71_Y_subjects_run2_cluster_6_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_400x400_71_Y_subjects_run2_cluster_6_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_400x400_71_Y_subjects_run2_cluster_6_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "7": {
+                    "cluster": 7,
+                    "silhouette": 0.2741007359448953,
+                    "davies_bouldin": 1.0024664350498653,
+                    "calinski_harabasz": 39.143597100273865,
+                    "valid": true,
+                    "file": "DCEC_400x400_71_Y_subjects_run2_cluster_7_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_400x400_71_Y_subjects_run2_cluster_7_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_400x400_71_Y_subjects_run2_cluster_7_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "8": {
+                    "cluster": 8,
+                    "silhouette": 0.29426348648991285,
+                    "davies_bouldin": 1.0334272364874606,
+                    "calinski_harabasz": 45.65658212408345,
+                    "valid": true,
+                    "file": "DCEC_400x400_71_Y_subjects_run2_cluster_8_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_400x400_71_Y_subjects_run2_cluster_8_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_400x400_71_Y_subjects_run2_cluster_8_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "9": {
+                    "cluster": 9,
+                    "silhouette": 0.341008362313502,
+                    "davies_bouldin": 0.9359768515745439,
+                    "calinski_harabasz": 52.54114905112835,
+                    "valid": true,
+                    "file": "DCEC_400x400_71_Y_subjects_run2_cluster_9_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_400x400_71_Y_subjects_run2_cluster_9_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_400x400_71_Y_subjects_run2_cluster_9_kmeans_middle_layer_predicted_labels.txt"
+                },
+                "10": {
+                    "cluster": 10,
+                    "silhouette": 0.2984300032794815,
+                    "davies_bouldin": 0.8842302894390659,
+                    "calinski_harabasz": 47.02518411748179,
+                    "valid": true,
+                    "file": "DCEC_400x400_71_Y_subjects_run2_cluster_10_kmeans_labels_predicted_labels.txt",
+                    "labels_file": "Clusters\\DCEC_400x400_71_Y_subjects_run2_cluster_10_kmeans_labels_predicted_labels.txt",
+                    "middle_layer_file": "Clusters\\DCEC_400x400_71_Y_subjects_run2_cluster_10_kmeans_middle_layer_predicted_labels.txt"
+                }
+            }
+        }
+    ],
+    "skipped": {
+        "unparsed_label_files": [],
+        "runs_without_scores": []
+    }
+}
