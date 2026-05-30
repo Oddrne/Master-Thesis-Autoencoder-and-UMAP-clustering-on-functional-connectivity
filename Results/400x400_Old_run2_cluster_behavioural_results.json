@@ -1,9 +1,9 @@
 {
     "Cluster_2_results": {
         "cca_all_variables_results": {
-            "cc": 0.9773104491468868,
-            "cv_mean_cc": 0.012111643987913406,
-            "cv_std_cc": 0.17243323252526158
+            "cc": 0.977310449146881,
+            "cv_mean_cc": 0.012111643987913385,
+            "cv_std_cc": 0.17243323252526163
         },
         "cca_selected_variables_results": {
             "cc": 0.6638117707669937,
@@ -38,10 +38,23 @@
             "Q2_DERSCLARITY",
             "mean_accuracy"
         ],
+        "cca_selected_variables_improvements": [
+            0.36182996725613786,
+            0.06931331718514844,
+            0.0710493408184632,
+            0.05456853947552487,
+            0.02732998828479616,
+            0.02471607122448627
+        ],
         "mlr_selected_variables": [
             "Q8personal_distress",
             "lBLA",
             "lSFA"
+        ],
+        "mlr_selected_variables_improvements": [
+            0.6582417582417582,
+            0.045054945054945006,
+            0.059340659340659574
         ],
         "cca_removed_subjects": [
             12202,
@@ -57,9 +70,9 @@
     },
     "Cluster_3_results": {
         "cca_all_variables_results": {
-            "cc": 0.9840227888290143,
+            "cc": 0.9840227888291294,
             "cv_mean_cc": -0.20149243469820527,
-            "cv_std_cc": 0.18583952050523173
+            "cv_std_cc": 0.18583952050523161
         },
         "cca_selected_variables_results": {
             "cc": 0.5731811525570081,
@@ -94,6 +107,14 @@
             "Q3SocialDysfunction",
             "Relationshipstatus"
         ],
+        "cca_selected_variables_improvements": [
+            0.33837703302353983,
+            0.041066671113783315,
+            0.08777523320773178,
+            0.027961264007895503,
+            0.0217907839755061,
+            0.014041677400764119
+        ],
         "mlr_selected_variables": [
             "ACC",
             "dEV_neg",
@@ -102,6 +123,15 @@
             "Q3_GHQ28Score",
             "EV_neg",
             "YearsEducation"
+        ],
+        "mlr_selected_variables_improvements": [
+            0.46483516483516485,
+            0.0736263736263737,
+            0.01538461538461533,
+            0.05934065934065924,
+            0.029670329670329787,
+            0.014285714285714235,
+            0.014285714285714346
         ],
         "cca_removed_subjects": [
             12127,
@@ -113,7 +143,7 @@
     },
     "Cluster_4_results": {
         "cca_all_variables_results": {
-            "cc": 0.9959556746191152,
+            "cc": 0.9959556746190669,
             "cv_mean_cc": 0.23143946270984941,
             "cv_std_cc": 0.11970190828460078
         },
@@ -150,17 +180,30 @@
             "Q1_DASSStress",
             "Q3_GHQ28Anxiety_Insomnia"
         ],
+        "cca_selected_variables_improvements": [
+            0.3107993200320492,
+            0.05204453837404588,
+            0.05770487299539939,
+            0.01664862780418963,
+            0.02722901330107852,
+            0.023647825938311662
+        ],
         "mlr_selected_variables": [
             "lBLA",
             "Q9StateAnxiety",
             "Q2_DERSScore"
+        ],
+        "mlr_selected_variables_improvements": [
+            0.5072463768115942,
+            0.030303030303030276,
+            0.030303030303030276
         ],
         "cca_removed_subjects": [],
         "mlr_removed_subjects": []
     },
     "Cluster_5_results": {
         "cca_all_variables_results": {
-            "cc": 0.9982329923038702,
+            "cc": 0.9982329923041582,
             "cv_mean_cc": -0.007280448210929713,
             "cv_std_cc": 0.16584119572540243
         },
@@ -195,17 +238,28 @@
             "EV_neu",
             "ER_neg"
         ],
+        "cca_selected_variables_improvements": [
+            0.39676969525576333,
+            0.08645834580587813,
+            0.022869551198282878,
+            0.015601214073442726
+        ],
         "mlr_selected_variables": [
             "dEV_neg",
             "Q2_DERSNONACCEPT",
             "Q2_DERSIMPULSE"
+        ],
+        "mlr_selected_variables_improvements": [
+            0.4631093544137022,
+            0.07509881422924908,
+            0.029644268774703497
         ],
         "cca_removed_subjects": [],
         "mlr_removed_subjects": []
     },
     "Cluster_6_results": {
         "cca_all_variables_results": {
-            "cc": 0.999887140578162,
+            "cc": 0.9998871405781432,
             "cv_mean_cc": 0.056032109722282626,
             "cv_std_cc": 0.14474121440532076
         },
@@ -240,12 +294,25 @@
             "Q2_DERSScore",
             "ACC"
         ],
+        "cca_selected_variables_improvements": [
+            0.26574595593219535,
+            0.16241305163057085,
+            0.025163643073393804,
+            0.027939561490648912
+        ],
         "mlr_selected_variables": [
             "Q2_DERSIMPULSE",
             "ER_base",
             "dEV_neu",
             "Q2_DERSSTRATEGIES",
             "Q8emo_em"
+        ],
+        "mlr_selected_variables_improvements": [
+            0.37351778656126483,
+            0.05862977602108038,
+            0.04611330698287225,
+            0.014492753623188304,
+            0.045454545454545525
         ],
         "cca_removed_subjects": [],
         "mlr_removed_subjects": []
@@ -262,7 +329,7 @@
     },
     "Cluster_8_results": {
         "cca_all_variables_results": {
-            "cc": 0.999996670504415,
+            "cc": 0.9999966705044244,
             "cv_mean_cc": 0.13044136946352478,
             "cv_std_cc": 0.048067143256622216
         },
@@ -296,6 +363,11 @@
             "ER_neg",
             "Relationshipstatus"
         ],
+        "cca_selected_variables_improvements": [
+            0.40880401125128857,
+            0.08357654284803684,
+            0.016099789855800684
+        ],
         "mlr_selected_variables": [
             "Q4Depression",
             "Q8personal_distress",
@@ -307,12 +379,23 @@
             "lSFA",
             "lBLA"
         ],
+        "mlr_selected_variables_improvements": [
+            0.32806324110671936,
+            0.015810276679841917,
+            0.01646903820816864,
+            0.028326745718050106,
+            0.029644268774703553,
+            0.029644268774703497,
+            0.015151515151515138,
+            0.015151515151515249,
+            0.015151515151515138
+        ],
         "cca_removed_subjects": [],
         "mlr_removed_subjects": []
     },
     "Cluster_9_results": {
         "cca_all_variables_results": {
-            "cc": 0.9999933534218831,
+            "cc": 0.9999933534218808,
             "cv_mean_cc": 0.23454507068204347,
             "cv_std_cc": 0.13575860227838707
         },
@@ -346,17 +429,27 @@
             "Q9Perspective",
             "dER_neg"
         ],
+        "cca_selected_variables_improvements": [
+            0.45185766712990755,
+            0.06035712632243989,
+            0.01993922054100561
+        ],
         "mlr_selected_variables": [
             "Q3_GHQ28Anxiety_Insomnia",
             "dEV_neg",
             "m1_tISC"
+        ],
+        "mlr_selected_variables_improvements": [
+            0.2997364953886693,
+            0.10474308300395258,
+            0.030303030303030276
         ],
         "cca_removed_subjects": [],
         "mlr_removed_subjects": []
     },
     "Cluster_10_results": {
         "cca_all_variables_results": {
-            "cc": 0.9999961434280957,
+            "cc": 0.9999961434280994,
             "cv_mean_cc": -0.19037389239480093,
             "cv_std_cc": 0.12563853056580981
         },
@@ -390,10 +483,20 @@
             "EV_neg",
             "spanBackwards"
         ],
+        "cca_selected_variables_improvements": [
+            0.3333031250162821,
+            0.07900508498230319,
+            0.011941033226837261
+        ],
         "mlr_selected_variables": [
             "dEV_neg",
             "Q8Cog_em",
             "Q9Perspective"
+        ],
+        "mlr_selected_variables_improvements": [
+            0.29776021080368903,
+            0.015151515151515138,
+            0.016469038208168696
         ],
         "cca_removed_subjects": [],
         "mlr_removed_subjects": []

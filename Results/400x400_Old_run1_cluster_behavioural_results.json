@@ -41,12 +41,30 @@
             "chance_accuracy_majority_class": 0.4925373134328358
         },
         "cca_selected_variables": [
-            "Q8emo_em", "mean_RT", "WM", "Q4Anxiety", "Q4Depression", "dER_neu"
+            "Q8emo_em",
+            "mean_RT",
+            "WM",
+            "Q4Anxiety",
+            "Q4Depression",
+            "dER_neu"
+        ],
+        "cca_selected_variables_improvements": [
+            0.2916686980553399,
+            0.0749310218249567,
+            0.042352207969711286,
+            0.019219966551330292,
+            0.024258995510899606,
+            0.035516143994781646
         ],
         "mlr_selected_variables": [
             "Q8IRI",
             "dEV_neu",
             "Q1_DASSAnxiety"
+        ],
+        "mlr_selected_variables_improvements": [
+            0.5362637362637362,
+            0.01758241758241763,
+            0.0736263736263737
         ],
         "cca_removed_subjects": [],
         "mlr_removed_subjects": []
@@ -90,9 +108,21 @@
             "Q2_DERSSTRATEGIES",
             "m2_tISC"
         ],
+        "cca_selected_variables_improvements": [
+            0.3095133266599583,
+            0.08507622264869241,
+            0.09824846251577107,
+            0.02220782203948246,
+            0.020899898862964505,
+            0.02302973346312831
+        ],
         "mlr_selected_variables": [
             "Cognitive_PC",
             "Relationshipstatus"
+        ],
+        "mlr_selected_variables_improvements": [
+            0.4186813186813187,
+            0.029670329670329676
         ],
         "cca_removed_subjects": [
             12075,
@@ -144,11 +174,25 @@
             "Relationshipstatus",
             "Cognitive_PC"
         ],
+        "cca_selected_variables_improvements": [
+            0.3285986675447747,
+            0.11528469547275738,
+            0.03407190440910668,
+            0.05225085074831293,
+            0.03564584991917441,
+            0.010568816373594858
+        ],
         "mlr_selected_variables": [
             "mean_RT",
             "Emo_res",
             "Q7Unifactorial",
             "NeuroImpairment"
+        ],
+        "mlr_selected_variables_improvements": [
+            0.3131868131868132,
+            0.07582417582417589,
+            0.02967032967032962,
+            0.014285714285714235
         ],
         "cca_removed_subjects": [],
         "mlr_removed_subjects": []
@@ -192,8 +236,19 @@
             "EV_neg",
             "EnglishYearsSpeaking"
         ],
+        "cca_selected_variables_improvements": [
+            0.36786051958368937,
+            0.12790363622712353,
+            0.0436892694812111,
+            0.017028631680033768,
+            0.020618428054760995,
+            0.033217866264621754
+        ],
         "mlr_selected_variables": [
             "Q8emo_em"
+        ],
+        "mlr_selected_variables_improvements": [
+            0.34175824175824177
         ],
         "cca_removed_subjects": [],
         "mlr_removed_subjects": []
@@ -247,9 +302,21 @@
             "Q8personal_distress",
             "Q1_DASSDepression"
         ],
+        "cca_selected_variables_improvements": [
+            0.388868998991254,
+            0.0917630874826349,
+            0.012013126496814408,
+            0.015724071805047868,
+            0.03077945925992953,
+            0.01280937266658344
+        ],
         "mlr_selected_variables": [
             "Q8emo_em",
             "lBLA"
+        ],
+        "mlr_selected_variables_improvements": [
+            0.4334650856389987,
+            0.029644268774703608
         ],
         "cca_removed_subjects": [],
         "mlr_removed_subjects": []
@@ -292,11 +359,24 @@
             "m2_tISC",
             "Avg_Sleep"
         ],
+        "cca_selected_variables_improvements": [
+            0.43598116763920913,
+            0.07918155605650934,
+            0.0593915626035888,
+            0.027743375319302044,
+            0.01432728143251849
+        ],
         "mlr_selected_variables": [
             "rBLA",
             "Q3_GHQ28Score",
             "NeuroImpairment",
             "Q2_DERSSTRATEGIES"
+        ],
+        "mlr_selected_variables_improvements": [
+            0.2529644268774704,
+            0.05994729907773377,
+            0.030303030303030387,
+            0.029644268774703608
         ],
         "cca_removed_subjects": [],
         "mlr_removed_subjects": []
@@ -336,10 +416,19 @@
             "m1_tISC",
             "hd_negative"
         ],
+        "cca_selected_variables_improvements": [
+            0.3687126561208796,
+            0.19005970440415104
+        ],
         "mlr_selected_variables": [
             "Q9StateAnxiety",
             "Sex",
             "Q2_DERSCLARITY"
+        ],
+        "mlr_selected_variables_improvements": [
+            0.31357048748353095,
+            0.04545454545454547,
+            0.014492753623188415
         ],
         "cca_removed_subjects": [],
         "mlr_removed_subjects": [

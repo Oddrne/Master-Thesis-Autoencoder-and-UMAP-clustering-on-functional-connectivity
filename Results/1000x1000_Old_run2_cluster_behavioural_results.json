@@ -38,6 +38,14 @@
             "Q2_DERSCLARITY",
             "ER_neg"
         ],
+        "cca_selected_variables_improvements": [
+            0.3385513689805878,
+            0.03189208323427828,
+            0.03135796162258625,
+            0.04053235293570484,
+            0.05455688386161339,
+            0.040736239867741775
+        ],
         "mlr_selected_variables": [
             "Q3_GHQ28SomaticSymptoms",
             "Q7F1",
@@ -45,6 +53,14 @@
             "Q6PSS",
             "Q8Fantasy",
             "Order"
+        ],
+        "mlr_selected_variables_improvements": [
+            0.6582417582417583,
+            0.07582417582417567,
+            0.027472527472527486,
+            0.03296703296703307,
+            0.014285714285714235,
+            0.015384615384615441
         ],
         "cca_removed_subjects": [],
         "mlr_removed_subjects": []
@@ -88,12 +104,27 @@
             "Q2_DERSNONACCEPT",
             "mean_accuracy"
         ],
+        "cca_selected_variables_improvements": [
+            0.33134315001540227,
+            0.0808895933723992,
+            0.07781021031659019,
+            0.08331296345542671,
+            0.03800561318937634,
+            0.039345066617401225
+        ],
         "mlr_selected_variables": [
             "Q3_GHQ28SomaticSymptoms",
             "Q3_GHQ28Anxiety_Insomnia",
             "Q8Fantasy",
             "Q2_DERSNONACCEPT",
             "Q2_DERSCLARITY"
+        ],
+        "mlr_selected_variables_improvements": [
+            0.5197802197802198,
+            0.06263736263736253,
+            0.03076923076923077,
+            0.030769230769230882,
+            0.014285714285714346
         ],
         "cca_removed_subjects": [],
         "mlr_removed_subjects": []
@@ -137,9 +168,21 @@
             "mean_RT",
             "Q5CD_RISC"
         ],
+        "cca_selected_variables_improvements": [
+            0.31165348769039714,
+            0.09046868458140578,
+            0.07514300905973098,
+            0.08120469853162932,
+            0.030605740849546703,
+            0.022358935173148353
+        ],
         "mlr_selected_variables": [
             "Relationshipstatus",
             "EnglishYearsSpeaking"
+        ],
+        "mlr_selected_variables_improvements": [
+            0.6126482213438735,
+            0.015151515151515138
         ],
         "cca_removed_subjects": [],
         "mlr_removed_subjects": []
@@ -180,11 +223,22 @@
             "ER_base",
             "WM"
         ],
+        "cca_selected_variables_improvements": [
+            0.31519515125754155,
+            0.1042212565659063,
+            0.0244301487663231
+        ],
         "mlr_selected_variables": [
             "EV_neg",
             "Q8personal_distress",
             "Q2_DERSNONACCEPT",
             "ER_neu"
+        ],
+        "mlr_selected_variables_improvements": [
+            0.4176548089591568,
+            0.014492753623188415,
+            0.05994729907773383,
+            0.01581027667984186
         ],
         "cca_removed_subjects": [],
         "mlr_removed_subjects": []
@@ -228,6 +282,14 @@
             "Q2_DERSCLARITY",
             "NeuroImpairment"
         ],
+        "cca_selected_variables_improvements": [
+            0.427208018298058,
+            0.05728896900497088,
+            0.058230433459267095,
+            0.07692234920497998,
+            0.0477221813298101,
+            0.04170114066287545
+        ],
         "mlr_selected_variables": [
             "EV_base",
             "Age",
@@ -235,6 +297,14 @@
             "ER_base",
             "Q8personal_distress",
             "spanBackwards"
+        ],
+        "mlr_selected_variables_improvements": [
+            0.43280632411067194,
+            0.029644268774703553,
+            0.03030303030303033,
+            0.029644268774703553,
+            0.013833992094861691,
+            0.045454545454545414
         ],
         "cca_removed_subjects": [],
         "mlr_removed_subjects": []
@@ -275,6 +345,11 @@
             "Q5CD_RISC",
             "ER_base"
         ],
+        "cca_selected_variables_improvements": [
+            0.434351508315564,
+            0.09884476954209853,
+            0.05366910291336635
+        ],
         "mlr_selected_variables": [
             "ER_neu",
             "PsychDiagnosis",
@@ -282,6 +357,14 @@
             "NeuroImpairment",
             "rSFA",
             "dEV_neu"
+        ],
+        "mlr_selected_variables_improvements": [
+            0.29907773386034253,
+            0.05928853754940716,
+            0.02832674571805005,
+            0.030303030303030276,
+            0.015151515151515194,
+            0.029644268774703553
         ],
         "cca_removed_subjects": [],
         "mlr_removed_subjects": []
@@ -320,11 +403,20 @@
         "cca_selected_variables": [
             "ER_neg"
         ],
+        "cca_selected_variables_improvements": [
+            0.40264968722580363
+        ],
         "mlr_selected_variables": [
             "Q2_DERSScore",
             "ER_neg",
             "Q2_DERSSTRATEGIES",
             "Emo_res"
+        ],
+        "mlr_selected_variables_improvements": [
+            0.3142292490118577,
+            0.02898550724637683,
+            0.05862977602108038,
+            0.01581027667984186
         ],
         "cca_removed_subjects": [],
         "mlr_removed_subjects": []
@@ -368,12 +460,27 @@
             "GM",
             "Q3_GHQ28Anxiety_Insomnia"
         ],
+        "cca_selected_variables_improvements": [
+            0.4157872019861271,
+            0.11411583572959288,
+            0.07800096031157477,
+            0.01659668085508681,
+            0.024228462459433775,
+            0.01772639756635286
+        ],
         "mlr_selected_variables": [
             "ER_neg",
             "mean_accuracy",
             "Sex",
             "PsychDiagnosis",
             "EV_neg"
+        ],
+        "mlr_selected_variables_improvements": [
+            0.2984189723320158,
+            0.059288537549407105,
+            0.04479578392621869,
+            0.04413702239789191,
+            0.030303030303030443
         ],
         "cca_removed_subjects": [],
         "mlr_removed_subjects": []
@@ -413,9 +520,17 @@
             "mean_accuracy",
             "Relationshipstatus"
         ],
+        "cca_selected_variables_improvements": [
+            0.4507209668138956,
+            0.020898047404189046
+        ],
         "mlr_selected_variables": [
             "ER_base",
             "PsychDiagnosis"
+        ],
+        "mlr_selected_variables_improvements": [
+            0.2549407114624506,
+            0.029644268774703497
         ],
         "cca_removed_subjects": [],
         "mlr_removed_subjects": []
